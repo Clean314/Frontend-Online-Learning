@@ -1,11 +1,10 @@
-// src/api/auth.js
 import api from './axios';
 
-export async function checkAuthenticated() {
-  try {
-    const res = await api.get('/my-page'); // 인증 필요한 경로
-    return res.status === 200;
-  } catch {
-    return false;
-  }
-}
+export const login = (email, password) =>
+  api.post('/login', { username: email, password });
+
+export const logout = () =>
+  api.get('/logout');
+
+export const checkAuth = () =>
+  api.get('/my-page');
