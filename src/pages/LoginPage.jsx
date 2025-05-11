@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { login } from "../api/auth";
 import useAuth from "../auth/useAuth";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import {
     Avatar,
@@ -19,22 +19,18 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const { setAuthenticated } = useAuth();
 
-    const navigator = useNavigate();
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
             await login(email, password);
             setAuthenticated(true);
-            navigator("/");
+            navigate("/");
         } catch (err) {
             alert("로그인 실패 : " + err.message);
             setAuthenticated(false);
         }
-    };
-
-    const moveToSignUp = () => {
-        navigator("/signUp");
     };
 
     return (
@@ -88,7 +84,11 @@ export default function LoginPage() {
                     >
                         로그인
                     </Button>
-                    <Button fullWidth variant="outlined" onClick={moveToSignUp}>
+                    <Button
+                        fullWidth
+                        variant="outlined"
+                        onClick={() => navigate("/signUp")}
+                    >
                         회원가입
                     </Button>
                 </Box>
