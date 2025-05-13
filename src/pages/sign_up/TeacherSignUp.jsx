@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import {
-    Container,
     Box,
-    TextField,
     Button,
-    Typography,
+    Container,
     Paper,
-    Avatar,
+    TextField,
+    Typography,
 } from "@mui/material";
-import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import { useNavigate } from "react-router-dom";
+import { faChalkboardTeacher } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-export default function SignUpPage() {
+export default function TeacherSignUp() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [userName, setUserName] = useState("");
@@ -21,9 +21,7 @@ export default function SignUpPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // TODO: 유효성 검사
-            // TODO: 회운가입 요청 API
-
+            // TODO: 유효성 검사 및 회원가입 API 요청
             alert("회원가입이 완료되었습니다!");
             navigate("/login");
         } catch (err) {
@@ -34,17 +32,16 @@ export default function SignUpPage() {
     return (
         <Container component="main" maxWidth="xs">
             <Paper elevation={3} sx={{ mt: 8, p: 4, borderRadius: 2 }}>
-                <Box display="flex" flexDirection="column" alignItems="center">
-                    <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
-                        <PersonAddAltIcon />
-                    </Avatar>
-                    <Typography
-                        component="h1"
-                        variant="h5"
-                        align="center"
-                        gutterBottom
-                    >
-                        회원가입
+                <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={1}
+                    mb={1}
+                >
+                    <FontAwesomeIcon icon={faChalkboardTeacher} size="lg" />
+                    <Typography component="h1" variant="h5">
+                        강사 회원가입
                     </Typography>
                 </Box>
                 <Box component="form" onSubmit={handleSubmit} noValidate>
