@@ -48,10 +48,10 @@ export default function SignUpPage() {
                             gap: 1,
                             paddingY: 2,
                             fontSize: "1rem",
-                            backgroundColor: "#009688",
+                            backgroundColor: "#99BC85",
                             color: "white",
                             "&:hover": {
-                                backgroundColor: "#00695c",
+                                backgroundColor: "#86AB89",
                             },
                         }}
                     >
@@ -78,10 +78,10 @@ export default function SignUpPage() {
                             gap: 1,
                             paddingY: 2,
                             fontSize: "1rem",
-                            backgroundColor: "#5d6d41",
+                            backgroundColor: "#F0BB78",
                             color: "white",
                             "&:hover": {
-                                backgroundColor: "#3e4c2f",
+                                backgroundColor: "#FAAB78",
                             },
                         }}
                     >
