@@ -125,7 +125,7 @@ export default function DashboardLayoutBasic(props) {
             theme={demoTheme}
             window={demoWindow}
             branding={{
-                logo: <img src="/LMS_logo.png" alt="LMS logo" />,
+                logo: <img src="/logo.png" alt="LMS logo" />,
                 title: "LMS",
                 homeUrl: "/",
             }}
