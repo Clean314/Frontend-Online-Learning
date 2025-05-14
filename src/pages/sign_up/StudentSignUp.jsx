@@ -44,12 +44,13 @@ export default function TeacherSignUp() {
                         학생 회원가입
                     </Typography>
                 </Box>
-                <Box component="form" onSubmit={handleSubmit} noValidate>
+                <Box component="form" onSubmit={handleSubmit}>
                     <TextField
                         margin="normal"
                         required
                         fullWidth
                         label="이름"
+                        type="text"
                         name="name"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
@@ -59,8 +60,8 @@ export default function TeacherSignUp() {
                         required
                         fullWidth
                         label="이메일"
-                        name="email"
                         type="email"
+                        name="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
@@ -69,8 +70,8 @@ export default function TeacherSignUp() {
                         required
                         fullWidth
                         label="비밀번호"
-                        name="password"
                         type="password"
+                        name="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
