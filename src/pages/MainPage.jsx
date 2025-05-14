@@ -1,10 +1,12 @@
 import * as React from "react";
 import { createTheme, styled } from "@mui/material/styles";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import DescriptionIcon from "@mui/icons-material/Description";
-import LayersIcon from "@mui/icons-material/Layers";
+import GroupIcon from "@mui/icons-material/Group";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import SchoolIcon from "@mui/icons-material/School";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { PageContainer } from "@toolpad/core/PageContainer";
@@ -14,51 +16,46 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../api/auth";
 import useAuth from "../auth/useAuth";
 
-const NAVIGATION = [
-    {
-        kind: "header",
-        title: "Main items",
-    },
-    {
-        segment: "dashboard",
-        title: "Dashboard",
-        icon: <DashboardIcon />,
-    },
-    {
-        segment: "orders",
-        title: "Orders",
-        icon: <ShoppingCartIcon />,
-    },
-    {
-        kind: "divider",
-    },
-    {
-        kind: "header",
-        title: "Analytics",
-    },
-    {
-        segment: "reports",
-        title: "Reports",
-        icon: <BarChartIcon />,
-        children: [
-            {
-                segment: "sales",
-                title: "Sales",
-                icon: <DescriptionIcon />,
-            },
-            {
-                segment: "traffic",
-                title: "Traffic",
-                icon: <DescriptionIcon />,
-            },
-        ],
-    },
-    {
-        segment: "integrations",
-        title: "Integrations",
-        icon: <LayersIcon />,
-    },
-];
+const navigationByRole = {
+    ADMIN: [
+        { kind: "header", title: "관리자 메뉴" },
+        { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
+        { segment: "manage/user", title: "사용자 관리", icon: <GroupIcon /> },
+        {
+            segment: "manage/course",
+            title: "강의 관리",
+            icon: <MenuBookIcon />,
+        },
+    ],
+    TEACHER: [
+        { kind: "header", title: "강사 메뉴" },
+        { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
+        {
+            segment: "course/register",
+            title: "강의 등록",
+            icon: <PlaylistAddIcon />,
+        },
+        {
+            segment: "myCourses",
+            title: "내 강의 목록",
+            icon: <AssignmentIcon />,
+        },
+    ],
+    STUDENT: [
+        { kind: "header", title: "학생 메뉴" },
+        { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
+        {
+            segment: "course/list",
+            title: "전체 강의 보기",
+            icon: <LibraryBooksIcon />,
+        },
+        {
+            segment: "enrolledList",
+            title: "내 수강 강의",
+            icon: <SchoolIcon />,
+        },
+    ],
+};
 
 const demoTheme = createTheme({
     colorSchemes: { light: true, dark: true },
@@ -104,10 +101,12 @@ export default function DashboardLayoutBasic(props) {
 
     const demoWindow = window ? window() : undefined;
 
-    // 로그아웃
-    const { authenticated, setAuthenticated } = useAuth();
+    // 사용자 정보
+    const { authenticated, setAuthenticated, user } = useAuth();
+
     const navigate = useNavigate();
 
+    // 로그아웃
     const handleLogout = async () => {
         try {
             await logout();
@@ -117,6 +116,10 @@ export default function DashboardLayoutBasic(props) {
             alert("로그아웃 실패: " + err.message);
         }
     };
+
+    // 사용자 role에 따른 메뉴 설정
+    const role = user?.role || "TEACHER";
+    const NAVIGATION = navigationByRole[role] || [];
 
     return (
         <AppProvider

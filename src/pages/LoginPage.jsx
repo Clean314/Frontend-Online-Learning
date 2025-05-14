@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { login } from "../api/auth";
 import useAuth from "../auth/useAuth";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
     Avatar,
