@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { login } from "../api/auth";
-import useAuth from "../auth/useAuth";
+import { checkAuth, login } from "../api/auth";
 import { useNavigate } from "react-router-dom";
-
 import {
     Avatar,
     Box,
@@ -13,23 +11,31 @@ import {
     CssBaseline,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import useAuth from "../auth/useAuth";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const { setAuthenticated } = useAuth();
 
     const navigate = useNavigate();
 
+    const { setUser } = useAuth();
+
     const handleLogin = async (e) => {
         e.preventDefault();
+
         try {
-            await login(email, password);
-            setAuthenticated(true);
+            const token = await login(email, password);
+            localStorage.setItem("token", token);
+
+            // 사용자 정보 업데이트
+            const userInfo = await checkAuth();
+            setUser(userInfo);
+
             navigate("/");
         } catch (err) {
-            alert("로그인 실패 : " + err.message);
-            setAuthenticated(false);
+            console.log(err);
+            alert("일치하는 회원 정보가 존재하지 않습니다.");
         }
     };
 
@@ -87,7 +93,7 @@ export default function LoginPage() {
                     <Button
                         fullWidth
                         variant="outlined"
-                        onClick={() => navigate("/signUp")}
+                        onClick={() => navigate("/signup")}
                     >
                         회원가입
                     </Button>

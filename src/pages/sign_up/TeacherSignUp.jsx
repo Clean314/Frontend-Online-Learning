@@ -10,21 +10,29 @@ import {
 import { useNavigate } from "react-router-dom";
 import { faChalkboardTeacher } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { signup } from "../../api/auth";
 
 export default function TeacherSignUp() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [userName, setUserName] = useState("");
+    const [name, setName] = useState("");
 
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         try {
-            // TODO: 유효성 검사 및 회원가입 API 요청
+            await signup({
+                email,
+                password,
+                name,
+                role: "STUDENT",
+            });
             alert("회원가입이 완료되었습니다!");
             navigate("/login");
         } catch (err) {
+            console.error(err);
             alert("회원가입 실패: " + err.message);
         }
     };
@@ -52,8 +60,8 @@ export default function TeacherSignUp() {
                         label="이름"
                         type="text"
                         name="name"
-                        value={userName}
-                        onChange={(e) => setUserName(e.target.value)}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                     />
                     <TextField
                         margin="normal"

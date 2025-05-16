@@ -13,7 +13,6 @@ import { PageContainer } from "@toolpad/core/PageContainer";
 import Grid from "@mui/material/Grid";
 import { AppBar, Button, Toolbar, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../api/auth";
 import useAuth from "../auth/useAuth";
 
 const navigationByRole = {
@@ -102,7 +101,7 @@ export default function DashboardLayoutBasic(props) {
     const demoWindow = window ? window() : undefined;
 
     // 사용자 정보
-    const { authenticated, setAuthenticated, user } = useAuth();
+    const { user, logout } = useAuth();
 
     const navigate = useNavigate();
 
@@ -110,9 +109,9 @@ export default function DashboardLayoutBasic(props) {
     const handleLogout = async () => {
         try {
             await logout();
-            setAuthenticated(false);
             navigate("/login");
         } catch (err) {
+            console.log(err);
             alert("로그아웃 실패: " + err.message);
         }
     };
@@ -138,9 +137,9 @@ export default function DashboardLayoutBasic(props) {
                 <AppBar position="static" color="default" elevation={0}>
                     <Toolbar>
                         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                            사용자명
+                            {user?.name || "사용자"}
                         </Typography>
-                        {authenticated && (
+                        {user && (
                             <Button
                                 color="primary"
                                 variant="outlined"
