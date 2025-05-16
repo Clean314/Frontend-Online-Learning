@@ -27,7 +27,7 @@ export default function TeacherSignUp() {
                 email,
                 password,
                 name,
-                role: "STUDENT",
+                role: "EDUCATOR",
             });
             alert("회원가입이 완료되었습니다!");
             navigate("/login");
@@ -52,7 +52,7 @@ export default function TeacherSignUp() {
                         강사 회원가입
                     </Typography>
                 </Box>
-                <Box component="form" onSubmit={handleSubmit}>
+                <Box component="form">
                     <TextField
                         margin="normal"
                         required
@@ -84,7 +84,8 @@ export default function TeacherSignUp() {
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <Button
-                        type="submit"
+                        type="button"
+                        onClick={handleSubmit}
                         fullWidth
                         variant="contained"
                         sx={{ mt: 3 }}
@@ -92,6 +93,7 @@ export default function TeacherSignUp() {
                         회원가입
                     </Button>
                     <Button
+                        type="button"
                         fullWidth
                         variant="text"
                         sx={{ mt: 1 }}

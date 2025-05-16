@@ -36,6 +36,7 @@ export default function SignUpPage() {
                 </Box>
                 <Stack spacing={2} mt={3}>
                     <Button
+                        type="button"
                         fullWidth
                         variant="outlined"
                         onClick={() => navigate("/signup/student")}
@@ -66,6 +67,7 @@ export default function SignUpPage() {
                     </Button>
 
                     <Button
+                        type="button"
                         fullWidth
                         variant="outlined"
                         onClick={() => navigate("/signup/teacher")}

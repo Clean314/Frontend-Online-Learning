@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
             const token = localStorage.getItem("token");
 
             if (!token) {
+                setUser(false);
                 setLoading(false);
                 return;
             }
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }) => {
                 const userInfo = await checkAuth();
                 setUser(userInfo);
             } catch (error) {
-                logout();
+                setUser(false);
                 console.log(error.message);
             } finally {
                 setLoading(false);
@@ -40,8 +41,8 @@ export const AuthProvider = ({ children }) => {
 
     // 자식 컴포넌트들에게 Context 제공
     return (
-        <AuthContext.Provider value={{ user, setUser, logout }}>
-            {!loading && children}
+        <AuthContext.Provider value={{ loading, user, setUser, logout }}>
+            {children}
         </AuthContext.Provider>
     );
 };

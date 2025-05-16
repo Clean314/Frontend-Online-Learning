@@ -2,9 +2,9 @@ import { Navigate } from "react-router-dom";
 import useAuth from "../auth/useAuth";
 
 const ProtectedRoute = ({ children }) => {
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
 
-    if (user === null) {
+    if (loading) {
         return <div>Loading...</div>;
     }
 

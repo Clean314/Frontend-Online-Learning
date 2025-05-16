@@ -60,7 +60,7 @@ export default function LoginPage() {
                 <Typography component="h1" variant="h5">
                     로그인
                 </Typography>
-                <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
+                <Box component="form" sx={{ mt: 1 }}>
                     <TextField
                         margin="normal"
                         required
@@ -83,7 +83,8 @@ export default function LoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <Button
-                        type="submit"
+                        type="button"
+                        onClick={handleLogin}
                         fullWidth
                         variant="contained"
                         sx={{ mt: 3, mb: 2 }}
@@ -91,6 +92,7 @@ export default function LoginPage() {
                         로그인
                     </Button>
                     <Button
+                        type="button"
                         fullWidth
                         variant="outlined"
                         onClick={() => navigate("/signup")}
