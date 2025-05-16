@@ -12,7 +12,7 @@ import { faChalkboardTeacher } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { signup } from "../../api/auth";
 
-export default function TeacherSignUp() {
+export default function EducatorSignUp() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");

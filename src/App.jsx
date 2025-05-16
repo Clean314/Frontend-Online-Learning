@@ -4,7 +4,7 @@ import MainPage from "./pages/MainPage";
 import SignUpPage from "./pages/sign_up/SignUpPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import StudentSignUp from "./pages/sign_up/StudentSignUp";
-import TeacherSignUp from "./pages/sign_up/TeacherSignUp";
+import EducatorSignUp from "./pages/sign_up/EducatorSignUp";
 
 function App() {
     return (
@@ -13,7 +13,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignUpPage />} />
                 <Route path="/signup/student" element={<StudentSignUp />} />
-                <Route path="/signup/teacher" element={<TeacherSignUp />} />
+                <Route path="/signup/teacher" element={<EducatorSignUp />} />
                 <Route
                     path="/"
                     element={

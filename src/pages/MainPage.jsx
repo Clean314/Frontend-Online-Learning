@@ -26,7 +26,7 @@ const navigationByRole = {
             icon: <MenuBookIcon />,
         },
     ],
-    TEACHER: [
+    EDUCATOR: [
         { kind: "header", title: "강사 메뉴" },
         { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
         {
@@ -137,7 +137,7 @@ export default function DashboardLayoutBasic(props) {
                 <AppBar position="static" color="default" elevation={0}>
                     <Toolbar>
                         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                            {user?.name || "사용자"}
+                            {user?.role} {user?.name || "사용자"}
                         </Typography>
                         {user && (
                             <Button

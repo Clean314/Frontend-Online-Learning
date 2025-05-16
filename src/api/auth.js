@@ -2,10 +2,10 @@ import api from "./axios";
 
 // 로그인
 // request: {username, password}
-// response: {message, token}
+// response: {username("Authenticated"), password(token)}
 export const login = async (email, password) => {
     const res = await api.post("/auth/login", { username: email, password });
-    return res.data;
+    return res.data.password; // 토큰 반환
 };
 
 // 로그아웃은 AuthProvider 참고
