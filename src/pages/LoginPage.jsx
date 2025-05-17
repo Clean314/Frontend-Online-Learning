@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { checkAuth, login } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 import {
     Avatar,
@@ -19,18 +18,14 @@ export default function LoginPage() {
 
     const navigate = useNavigate();
 
-    const { setUser } = useAuth();
+    const { login } = useAuth();
 
     const handleLogin = async (e) => {
         e.preventDefault();
 
         try {
-            const token = await login(email, password);
-            localStorage.setItem("token", token);
-
-            // 사용자 정보 업데이트
-            const userInfo = await checkAuth();
-            setUser(userInfo);
+            // AuthProvider.login 이 토큰 저장과 setUser 까지 처리
+            await login(email, password);
 
             navigate("/");
         } catch (err) {

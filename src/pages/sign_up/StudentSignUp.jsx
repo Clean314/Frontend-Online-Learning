@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { faUserGraduate } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { signup } from "../../api/auth";
+import { signupAPI } from "../../api/auth";
 
 export default function TeacherSignUp() {
     const [email, setEmail] = useState("");
@@ -23,7 +23,7 @@ export default function TeacherSignUp() {
         e.preventDefault();
 
         try {
-            await signup({
+            await signupAPI({
                 email,
                 password,
                 name,
