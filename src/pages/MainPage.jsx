@@ -1,8 +1,5 @@
-import * as React from "react";
-import { createTheme, styled } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import GroupIcon from "@mui/icons-material/Group";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import SchoolIcon from "@mui/icons-material/School";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
@@ -10,10 +7,10 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { PageContainer } from "@toolpad/core/PageContainer";
-import Grid from "@mui/material/Grid";
 import { AppBar, Button, Toolbar, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../auth/useAuth";
+import { useMemo } from "react";
 
 const navigationByRole = {
     // ADMIN: [
@@ -30,12 +27,12 @@ const navigationByRole = {
         { kind: "header", title: "강사 메뉴" },
         { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
         {
-            segment: "course/register",
+            segment: "teach/newCourse",
             title: "강의 등록",
             icon: <PlaylistAddIcon />,
         },
         {
-            segment: "myCourses",
+            segment: "teach/myCourses",
             title: "내 강의 목록",
             icon: <AssignmentIcon />,
         },
@@ -44,19 +41,19 @@ const navigationByRole = {
         { kind: "header", title: "학생 메뉴" },
         { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
         {
-            segment: "course/list",
+            segment: "courses",
             title: "전체 강의 보기",
             icon: <LibraryBooksIcon />,
         },
         {
-            segment: "enrolledList",
+            segment: "learn/myCourses",
             title: "내 수강 강의",
             icon: <SchoolIcon />,
         },
     ],
 };
 
-const demoTheme = createTheme({
+const myTheme = createTheme({
     colorSchemes: { light: true, dark: true },
     cssVariables: {
         colorSchemeSelector: "class",
@@ -72,37 +69,27 @@ const demoTheme = createTheme({
     },
 });
 
-function useDemoRouter(initialPath) {
-    const [pathname, setPathname] = React.useState(initialPath);
-
-    const router = React.useMemo(() => {
-        return {
-            pathname,
-            searchParams: new URLSearchParams(),
-            navigate: (path) => setPathname(String(path)),
-        };
-    }, [pathname]);
-
-    return router;
-}
-
-const Skeleton = styled("div")(({ theme, height }) => ({
-    backgroundColor: theme.palette.action.hover,
-    borderRadius: theme.shape.borderRadius,
-    height,
-    content: '" "',
-}));
-
-export default function DashboardLayoutBasic(props) {
+export default function MainPage(props) {
     const { window } = props;
-
-    const router = useDemoRouter("/dashboard");
-
-    const demoWindow = window ? window() : undefined;
 
     const { user, logout } = useAuth();
 
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // 사용자 role에 따른 메뉴 설정
+    const role = user?.role;
+    const NAVIGATION = navigationByRole[role] || [];
+
+    // react Router와 동기화된 router 객체
+    const router = useMemo(
+        () => ({
+            pathname: location.pathname,
+            searchParams: new URLSearchParams(location.search),
+            navigate: (path) => navigate(path),
+        }),
+        [location, navigate]
+    );
 
     // 로그아웃
     const handleLogout = async () => {
@@ -115,16 +102,12 @@ export default function DashboardLayoutBasic(props) {
         }
     };
 
-    // 사용자 role에 따른 메뉴 설정
-    const role = user?.role;
-    const NAVIGATION = navigationByRole[role] || [];
-
     return (
         <AppProvider
             navigation={NAVIGATION}
             router={router}
-            theme={demoTheme}
-            window={demoWindow}
+            theme={myTheme}
+            window={window ? window() : undefined}
             branding={{
                 logo: <img src="/logo.png" alt="LMS logo" />,
                 title: "LMS",
@@ -151,41 +134,7 @@ export default function DashboardLayoutBasic(props) {
                 </AppBar>
 
                 <PageContainer>
-                    <Grid container spacing={1}>
-                        <Grid size={5} />
-                        <Grid size={12}>
-                            <Skeleton height={14} />
-                        </Grid>
-                        <Grid size={12}>
-                            <Skeleton height={14} />
-                        </Grid>
-                        <Grid size={4}>
-                            <Skeleton height={100} />
-                        </Grid>
-                        <Grid size={8}>
-                            <Skeleton height={100} />
-                        </Grid>
-
-                        <Grid size={12}>
-                            <Skeleton height={150} />
-                        </Grid>
-                        <Grid size={12}>
-                            <Skeleton height={14} />
-                        </Grid>
-
-                        <Grid size={3}>
-                            <Skeleton height={100} />
-                        </Grid>
-                        <Grid size={3}>
-                            <Skeleton height={100} />
-                        </Grid>
-                        <Grid size={3}>
-                            <Skeleton height={100} />
-                        </Grid>
-                        <Grid size={3}>
-                            <Skeleton height={100} />
-                        </Grid>
-                    </Grid>
+                    <Outlet />
                 </PageContainer>
             </DashboardLayout>
         </AppProvider>

@@ -23,6 +23,7 @@ export default function SignUpPage() {
     const navigate = useNavigate();
     const { role } = useParams();
 
+    // TODO: 이메일 중복 오류 메시지 추가
     const handleSubmit = async (e) => {
         e.preventDefault();
 
