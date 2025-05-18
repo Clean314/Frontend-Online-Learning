@@ -1,102 +1,118 @@
+import React, { useState } from "react";
 import {
-    Container,
     Box,
     Button,
-    Typography,
+    Container,
     Paper,
-    Avatar,
-    Stack,
+    TextField,
+    Typography,
 } from "@mui/material";
-import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-    faUserGraduate,
     faChalkboardTeacher,
+    faUserGraduate,
 } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { signupAPI } from "../../api/auth";
 
 export default function SignUpPage() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [name, setName] = useState("");
+
     const navigate = useNavigate();
+    const { role } = useParams();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            await signupAPI({
+                email,
+                password,
+                name,
+                role: role,
+            });
+            alert("회원가입이 완료되었습니다!");
+            navigate("/login");
+        } catch (err) {
+            console.error(err);
+            alert("회원가입 실패: " + err.message);
+        }
+    };
 
     return (
         <Container component="main" maxWidth="xs">
             <Paper elevation={3} sx={{ mt: 8, p: 4, borderRadius: 2 }}>
-                <Box display="flex" flexDirection="column" alignItems="center">
-                    <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
-                        <PersonAddAltIcon />
-                    </Avatar>
-                    <Typography
-                        component="h1"
-                        variant="h5"
-                        align="center"
-                        gutterBottom
-                    >
-                        회원가입
+                <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={1}
+                    mb={1}
+                >
+                    <FontAwesomeIcon
+                        icon={
+                            role === "STUDENT"
+                                ? faUserGraduate
+                                : faChalkboardTeacher
+                        }
+                        size="lg"
+                    />
+                    <Typography component="h1" variant="h5">
+                        {role === "STUDENT" ? "학생" : "강사"} 회원가입
                     </Typography>
                 </Box>
-                <Stack spacing={2} mt={3}>
+                <Box component="form">
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="이름"
+                        type="text"
+                        name="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                    />
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="이메일"
+                        type="email"
+                        name="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="비밀번호"
+                        type="password"
+                        name="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <Button
+                        type="button"
+                        onClick={handleSubmit}
+                        fullWidth
+                        variant="contained"
+                        sx={{ mt: 3 }}
+                    >
+                        회원가입
+                    </Button>
                     <Button
                         type="button"
                         fullWidth
-                        variant="outlined"
-                        onClick={() => navigate("/signup/student")}
-                        size="large"
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: 1,
-                            paddingY: 2,
-                            fontSize: "1rem",
-                            backgroundColor: "#99BC85",
-                            color: "white",
-                            "&:hover": {
-                                backgroundColor: "#86AB89",
-                            },
-                        }}
+                        variant="text"
+                        sx={{ mt: 1 }}
+                        onClick={() => navigate("/login")}
                     >
-                        <FontAwesomeIcon icon={faUserGraduate} size="2x" />
-                        <Typography
-                            variant="body1"
-                            component="div"
-                            textAlign="center"
-                        >
-                            학생 회원가입
-                        </Typography>
+                        로그인으로 돌아가기
                     </Button>
-
-                    <Button
-                        type="button"
-                        fullWidth
-                        variant="outlined"
-                        onClick={() => navigate("/signup/teacher")}
-                        size="large"
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: 1,
-                            paddingY: 2,
-                            fontSize: "1rem",
-                            backgroundColor: "#F0BB78",
-                            color: "white",
-                            "&:hover": {
-                                backgroundColor: "#FAAB78",
-                            },
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faChalkboardTeacher} size="2x" />
-                        <Typography
-                            variant="body1"
-                            component="div"
-                            textAlign="center"
-                        >
-                            강사 회원가입
-                        </Typography>
-                    </Button>
-                </Stack>
+                </Box>
             </Paper>
         </Container>
     );

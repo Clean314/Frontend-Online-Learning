@@ -16,16 +16,16 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "../auth/useAuth";
 
 const navigationByRole = {
-    ADMIN: [
-        { kind: "header", title: "관리자 메뉴" },
-        { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
-        { segment: "manage/user", title: "사용자 관리", icon: <GroupIcon /> },
-        {
-            segment: "manage/course",
-            title: "강의 관리",
-            icon: <MenuBookIcon />,
-        },
-    ],
+    // ADMIN: [
+    //     { kind: "header", title: "관리자 메뉴" },
+    //     { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
+    //     { segment: "manage/user", title: "사용자 관리", icon: <GroupIcon /> },
+    //     {
+    //         segment: "manage/course",
+    //         title: "강의 관리",
+    //         icon: <MenuBookIcon />,
+    //     },
+    // ],
     EDUCATOR: [
         { kind: "header", title: "강사 메뉴" },
         { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
@@ -100,7 +100,6 @@ export default function DashboardLayoutBasic(props) {
 
     const demoWindow = window ? window() : undefined;
 
-    // 사용자 정보
     const { user, logout } = useAuth();
 
     const navigate = useNavigate();
@@ -117,7 +116,7 @@ export default function DashboardLayoutBasic(props) {
     };
 
     // 사용자 role에 따른 메뉴 설정
-    const role = user?.role || "TEACHER";
+    const role = user?.role;
     const NAVIGATION = navigationByRole[role] || [];
 
     return (
