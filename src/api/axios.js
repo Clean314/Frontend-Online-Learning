@@ -11,7 +11,7 @@ const api = axios.create({
 // 요청 시 토큰 자동 삽입 (/auth/* 요청 제외)
 // interceptors : 요청이 보내지기 전에 가로채서 특정 작업을 수행
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (token && token !== "undefined" && !config.url.startsWith("/auth/")) {
         config.headers.Authorization = `Bearer ${token}`;

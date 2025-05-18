@@ -11,9 +11,9 @@ export const AuthProvider = ({ children }) => {
 
     // 로그인
     const login = async (email, password) => {
-        // 토큰 저장 fir 로그인 유지
+        // 토큰 저장 for 로그인 유지
         const token = await loginAPI(email, password);
-        localStorage.setItem("token", token);
+        sessionStorage.setItem("token", token);
 
         // user 업데이트
         const userInfo = await checkAuthAPI();
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
     // 로그아웃
     const logout = () => {
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
         setUser(null);
     };
 
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
     // 컴포넌트 마운트 시, 토큰 확인 -> user 값 설정
     useEffect(() => {
         const checkToken = async () => {
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
 
             if (token) {
                 try {
