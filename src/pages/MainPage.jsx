@@ -51,15 +51,15 @@ const navigationByRole = {
             icon: <SchoolIcon />,
             children: [
                 {
-                    segment: "learn/myCourses/total",
+                    segment: "total",
                     title: "전체 수강 내역",
                 },
                 {
-                    segment: "learn/myCourses/enrolled",
+                    segment: "enrolled",
                     title: "수강 중인 강의",
                 },
                 {
-                    segment: "learn/myCourses/completed",
+                    segment: "completed",
                     title: "수강 완료 강의",
                 },
             ],

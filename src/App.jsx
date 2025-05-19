@@ -12,7 +12,6 @@ import CourseTeach from "./pages/components/educator/CourseTeach";
 import CourseList from "./pages/components/student/CourseList";
 import CourseEnrolled from "./pages/components/student/CourseEnrolled";
 import CourseDetail from "./pages/components/CourseDetail";
-import CourseEnrolledByStatus from "./pages/components/student/CourseEnrolledByStatus";
 
 function App() {
     return (
@@ -74,18 +73,10 @@ function App() {
                             }
                         />
                         <Route
-                            path="learn/myCourses/total"
-                            element={
-                                <RoleProtectedRoute allowedRoles={["STUDENT"]}>
-                                    <CourseEnrolled />
-                                </RoleProtectedRoute>
-                            }
-                        />
-                        <Route
                             path="learn/myCourses/:enrolledStatus"
                             element={
                                 <RoleProtectedRoute allowedRoles={["STUDENT"]}>
-                                    <CourseEnrolledByStatus />
+                                    <CourseEnrolled />
                                 </RoleProtectedRoute>
                             }
                         />

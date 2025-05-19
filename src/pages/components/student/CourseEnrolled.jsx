@@ -16,7 +16,7 @@ import {
     Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function CourseEnrolled() {
     const [enrollments, setEnrollments] = useState([]); // 수강 신청 강의 리스트
@@ -24,6 +24,7 @@ export default function CourseEnrolled() {
     const [rowsPerPage, setRowsPerPage] = useState(10); // 페이지당 요소 수
 
     const navigate = useNavigate();
+    const { enrolledStatus } = useParams();
 
     const difficultyMap = {
         EASY: 1,
@@ -68,8 +69,17 @@ export default function CourseEnrolled() {
             };
         });
 
-        setEnrollments(mockData);
-    }, []);
+        // enrolledStatus에 따라 필터링
+        const filtered = mockData.filter((item) => {
+            if (enrolledStatus === "enrolled")
+                return item.status === "ENROLLED";
+            if (enrolledStatus === "completed")
+                return item.status === "COMPLETED";
+            return true; // 모두 출력
+        });
+
+        setEnrollments(filtered);
+    }, [enrolledStatus]);
 
     const totalPages = Math.ceil(enrollments.length / rowsPerPage);
 
@@ -95,7 +105,13 @@ export default function CourseEnrolled() {
                     mb: 2,
                 }}
             >
-                <Typography variant="h6">Total</Typography>
+                <Typography variant="h6">
+                    {enrolledStatus === "total"
+                        ? "Total"
+                        : enrolledStatus === "enrolled"
+                          ? "수강중"
+                          : "수강 완료"}
+                </Typography>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Typography variant="body2" sx={{ mr: 1 }}>
                         페이지당:
