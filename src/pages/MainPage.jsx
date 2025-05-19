@@ -7,10 +7,10 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { PageContainer } from "@toolpad/core/PageContainer";
-import { AppBar, Button, Toolbar, Typography } from "@mui/material";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/auth/useAuth";
 import { useMemo } from "react";
+import SidebarFooter from "./components/SidebarFooter";
 
 const navigationByRole = {
     // ADMIN: [
@@ -24,7 +24,7 @@ const navigationByRole = {
     //     },
     // ],
     EDUCATOR: [
-        { kind: "header", title: "강사 메뉴" },
+        { kind: "header", title: "EDUCATOR" },
         { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
         {
             segment: "teach/newCourse",
@@ -38,10 +38,10 @@ const navigationByRole = {
         },
     ],
     STUDENT: [
-        { kind: "header", title: "학생 메뉴" },
+        { kind: "header", title: "STUDENT" },
         { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
         {
-            segment: "courses",
+            segment: "learn/courses",
             title: "전체 강의 보기",
             icon: <LibraryBooksIcon />,
         },
@@ -72,7 +72,7 @@ const myTheme = createTheme({
 export default function MainPage(props) {
     const { window } = props;
 
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -91,17 +91,6 @@ export default function MainPage(props) {
         [location, navigate]
     );
 
-    // 로그아웃
-    const handleLogout = async () => {
-        try {
-            await logout();
-            navigate("/login");
-        } catch (err) {
-            console.log(err);
-            alert("로그아웃 실패: " + err.message);
-        }
-    };
-
     return (
         <AppProvider
             navigation={NAVIGATION}
@@ -114,25 +103,10 @@ export default function MainPage(props) {
                 homeUrl: "/",
             }}
         >
-            <DashboardLayout>
-                {/* 상단 툴바 */}
-                <AppBar position="static" color="default" elevation={0}>
-                    <Toolbar>
-                        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                            {user?.role} {user?.name || "사용자"}
-                        </Typography>
-                        {user && (
-                            <Button
-                                color="primary"
-                                variant="outlined"
-                                onClick={handleLogout}
-                            >
-                                로그아웃
-                            </Button>
-                        )}
-                    </Toolbar>
-                </AppBar>
-
+            <DashboardLayout
+                slots={{ sidebarFooter: SidebarFooter }}
+                slotProps={{ sidebarFooter: { mini: false } }}
+            >
                 <PageContainer>
                     <Outlet />
                 </PageContainer>

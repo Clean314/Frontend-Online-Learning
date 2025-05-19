@@ -6,11 +6,12 @@ import SignUpPage from "./pages/sign_up/SignUpPage";
 import RoleSelectPage from "./pages/sign_up/RoleSelectPage";
 import MainPage from "./pages/MainPage";
 import NotAuthorizedPage from "./pages/NotAuthorizedPage";
-import DashboardHome from "./pages/DashboardHome";
-import CourseRegister from "./pages/educator/CourseRegister";
-import CourseTeach from "./pages/educator/CourseTeach";
-import CourseList from "./pages/student/CourseList";
-import CourseEnrolled from "./pages/student/CourseEnrolled";
+import DashboardHome from "./pages/components/DashboardHome";
+import CourseRegister from "./pages/components/educator/CourseRegister";
+import CourseTeach from "./pages/components/educator/CourseTeach";
+import CourseList from "./pages/components/student/CourseList";
+import CourseEnrolled from "./pages/components/student/CourseEnrolled";
+import CourseDetail from "./pages/components/CourseDetail";
 
 function App() {
     return (
@@ -56,10 +57,18 @@ function App() {
                         />
                         {/* 학생 전용 */}
                         <Route
-                            path="courses"
+                            path="learn/courses"
                             element={
                                 <RoleProtectedRoute allowedRoles={["STUDENT"]}>
                                     <CourseList />
+                                </RoleProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="learn/courses/:courseId"
+                            element={
+                                <RoleProtectedRoute allowedRoles={["STUDENT"]}>
+                                    <CourseDetail />
                                 </RoleProtectedRoute>
                             }
                         />

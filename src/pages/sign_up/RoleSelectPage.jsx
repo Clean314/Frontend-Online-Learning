@@ -39,7 +39,7 @@ export default function RoleSelectPage() {
                         type="button"
                         fullWidth
                         variant="outlined"
-                        onClick={() => navigate("/signup/STUDENT")}
+                        onClick={() => navigate("student")}
                         size="large"
                         sx={{
                             display: "flex",
@@ -70,7 +70,7 @@ export default function RoleSelectPage() {
                         type="button"
                         fullWidth
                         variant="outlined"
-                        onClick={() => navigate("/signup/EDUCATOR")}
+                        onClick={() => navigate("educator")}
                         size="large"
                         sx={{
                             display: "flex",
