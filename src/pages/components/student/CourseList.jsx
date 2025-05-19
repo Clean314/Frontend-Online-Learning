@@ -17,13 +17,22 @@ import {
     Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function CourseList() {
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const initPage = parseInt(searchParams.get("page") || "1", 10);
+    const initRowsPerPage = parseInt(
+        searchParams.get("rowsPerPage") || "10",
+        10
+    );
+    const initExclude = searchParams.get("excludeEnrolled") === "true";
+
     const [courses, setCourses] = useState([]); // 전체 강의 리스트
-    const [page, setPage] = useState(0); // 현재 페이지
-    const [rowsPerPage, setRowsPerPage] = useState(10); // 페이지당 요소 수
-    const [isExcludeEnrolled, setIsExcludeEnrolled] = useState(false); // 수강 중 강의 제외 여부
+    const [page, setPage] = useState(initPage - 1); // 현재 페이지
+    const [rowsPerPage, setRowsPerPage] = useState(initRowsPerPage); // 페이지당 요소 수
+    const [isExcludeEnrolled, setIsExcludeEnrolled] = useState(initExclude); // 수강 중 강의 제외 여부
 
     const navigate = useNavigate();
 
@@ -82,13 +91,26 @@ export default function CourseList() {
     const boundaryCount = shouldEllipsis ? 1 : totalPages;
     const siblingCount = shouldEllipsis ? 2 : 0;
 
-    const changePage = (_event, newPage) => {
+    const changePage = (_e, newPage) => {
         setPage(newPage - 1);
+
+        setSearchParams({
+            page: newPage.toString(),
+            rowsPerPage: rowsPerPage.toString(),
+            excludeEnrolled: isExcludeEnrolled.toString(),
+        });
     };
 
-    const changeRowsPerPage = (event) => {
-        setRowsPerPage(event.target.value);
+    const changeRowsPerPage = (e) => {
+        const newRowsPerPage = parseInt(e.target.value, 10);
+        setRowsPerPage(newRowsPerPage);
         setPage(0);
+
+        setSearchParams({
+            page: "1",
+            rowsPerPage: newRowsPerPage.toString(),
+            excludeEnrolled: isExcludeEnrolled.toString(),
+        });
     };
 
     // 현재 페이지에 해당하는 데이터 슬라이싱
@@ -99,8 +121,15 @@ export default function CourseList() {
 
     // 목록에서 수강 신청한 강의 제외
     const excludeEnrolledCourses = (e) => {
-        setIsExcludeEnrolled(e.target.checked);
+        const checked = e.target.checked;
+        setIsExcludeEnrolled(checked);
         setPage(0);
+
+        setSearchParams({
+            page: "1",
+            rowsPerPage: rowsPerPage.toString(),
+            excludeEnrolled: checked.toString(),
+        });
 
         // TODO: 실제 API 연동
     };

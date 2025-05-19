@@ -20,6 +20,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 export default function CourseEnrolled() {
     // url 쿼리 스트링 for 페이지, 행 개수 저장
+    // ex) /learn/myCourses/total?page=4&rowsPerPage=5
     const [searchParams, setSearchParams] = useSearchParams();
 
     const initPage = parseInt(searchParams.get("page") || "1", 10);
@@ -96,10 +97,9 @@ export default function CourseEnrolled() {
     const changePage = (_e, newPage) => {
         setPage(newPage - 1);
 
-        setSearchParams((prev) => {
-            prev.set("page", newPage.toString());
-            prev.set("rowsPerPage", rowsPerPage.toString());
-            return prev;
+        setSearchParams({
+            page: newPage.toString(),
+            rowsPerPage: rowsPerPage.toString(),
         });
     };
 
@@ -108,10 +108,9 @@ export default function CourseEnrolled() {
         setRowsPerPage(newRowsPerPage);
         setPage(0);
 
-        setSearchParams((prev) => {
-            prev.set("page", "1");
-            prev.set("rowsPerPage", newRowsPerPage.toString());
-            return prev;
+        setSearchParams({
+            page: "1",
+            rowsPerPage: newRowsPerPage.toString(),
         });
     };
 
