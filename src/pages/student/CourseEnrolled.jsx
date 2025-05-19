@@ -1,7 +1,156 @@
+import {
+    Box,
+    MenuItem,
+    Pagination,
+    Paper,
+    Select,
+    Stack,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Typography,
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import useFormatDate from "../../hooks/useFormatDate";
+
 export default function CourseEnrolled() {
+    const [enrollments, setEnrollments] = useState([]); // 수강 신청 강의 리스트
+    const [page, setPage] = useState(0); // 현재 페이지
+    const [rowsPerPage, setRowsPerPage] = useState(10); // 페이지당 요소 수
+
+    const formatDate = useFormatDate();
+
+    // 샘플 데이터 생성
+    useEffect(() => {
+        const instructorNames = [
+            "김철수",
+            "이영희",
+            "박민수",
+            "최유리",
+            "홍길동",
+        ];
+        const statuses = ["ENROLLED", "COMPLETED"];
+        const baseEnroll = new Date(2025, 3, 5, 14, 0, 0);
+
+        const mockData = Array.from({ length: 30 }, (_, i) => {
+            const enrolledAt = new Date(baseEnroll);
+            enrolledAt.setDate(enrolledAt.getDate() + i);
+
+            return {
+                id: i + 1,
+                subjectCode: `SUBJ${String(i + 1).padStart(3, "0")}`,
+                name: `강의 ${i + 1}`,
+                instructorName: instructorNames[i % instructorNames.length],
+                status: statuses[i % statuses.length],
+                enrolledAt: enrolledAt.toISOString(),
+            };
+        });
+
+        setEnrollments(mockData);
+    }, []);
+
+    const totalPages = Math.ceil(enrollments.length / rowsPerPage);
+
+    const changePage = (_e, v) => setPage(v - 1);
+
+    const changeRowsPerPage = (e) => {
+        setRowsPerPage(+e.target.value);
+        setPage(0);
+    };
+
+    const displayed = enrollments.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+    );
+
     return (
-        <div>
-            <div>CourseEnrolled</div>
-        </div>
+        <Paper sx={{ p: 2 }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 2,
+                }}
+            >
+                <Typography variant="h6">수강 강의 리스트</Typography>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Typography variant="body2" sx={{ mr: 1 }}>
+                        페이지당:
+                    </Typography>
+                    <Select
+                        size="small"
+                        value={rowsPerPage}
+                        onChange={changeRowsPerPage}
+                    >
+                        {[5, 10, 20].map((n) => (
+                            <MenuItem key={n} value={n}>
+                                {n}개
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </Box>
+            </Box>
+
+            <TableContainer sx={{ tableLayout: "fixed", width: "100%" }}>
+                <Table>
+                    <colgroup>
+                        <col style={{ width: "7%" }} /> {/* 번호 */}
+                        <col style={{ width: "13%" }} /> {/* 과목코드 */}
+                        <col style={{ width: "25%" }} /> {/* 강의명 */}
+                        <col style={{ width: "15%" }} /> {/* 강사 */}
+                        <col style={{ width: "15%" }} /> {/* 수강 상태 */}
+                        <col style={{ width: "20%" }} /> {/* 신청일 */}
+                    </colgroup>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>#</TableCell>
+                            <TableCell>과목코드</TableCell>
+                            <TableCell>강의명</TableCell>
+                            <TableCell>강사</TableCell>
+                            <TableCell>수강 상태</TableCell>
+                            <TableCell>신청일</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {displayed.map((item, idx) => (
+                            <TableRow key={item.id}>
+                                <TableCell>
+                                    {enrollments.length -
+                                        (page * rowsPerPage + idx)}
+                                </TableCell>
+                                <TableCell>{item.subjectCode}</TableCell>
+                                <TableCell>{item.name}</TableCell>
+                                <TableCell>{item.instructorName}</TableCell>
+                                <TableCell>
+                                    {item.status === "ENROLLED"
+                                        ? "수강 중"
+                                        : "수강 완료"}
+                                </TableCell>
+                                <TableCell>
+                                    {formatDate(item.enrolledAt)}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+
+            {/* 페이지네이션 */}
+            <Stack alignItems="center" mt={2}>
+                <Pagination
+                    count={totalPages}
+                    page={page + 1}
+                    onChange={changePage}
+                    showFirstButton
+                    showLastButton
+                    boundaryCount={1}
+                    siblingCount={1}
+                />
+            </Stack>
+        </Paper>
     );
 }
