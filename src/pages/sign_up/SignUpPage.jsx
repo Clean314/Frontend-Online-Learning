@@ -32,7 +32,7 @@ export default function SignUpPage() {
                 email,
                 password,
                 name,
-                role: role,
+                role: role.toUpperCase(),
             });
             alert("회원가입이 완료되었습니다!");
             navigate("/login");
@@ -54,14 +54,14 @@ export default function SignUpPage() {
                 >
                     <FontAwesomeIcon
                         icon={
-                            role === "STUDENT"
+                            role === "student"
                                 ? faUserGraduate
                                 : faChalkboardTeacher
                         }
                         size="lg"
                     />
                     <Typography component="h1" variant="h5">
-                        {role === "STUDENT" ? "학생" : "강사"} 회원가입
+                        {role === "student" ? "학생" : "강사"} 회원가입
                     </Typography>
                 </Box>
                 <Box component="form">

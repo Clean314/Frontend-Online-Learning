@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import { checkAuthAPI, loginAPI } from "../api/auth";
+import { checkAuthAPI, loginAPI } from "../../api/auth";
 
 // 빈 Context 생성
 const AuthContext = createContext(null);
@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
 
     // 로그인
     const login = async (email, password) => {
-        // 토큰 저장 fir 로그인 유지
+        // 토큰 저장 for 로그인 유지
         const token = await loginAPI(email, password);
         sessionStorage.setItem("token", token);
 
