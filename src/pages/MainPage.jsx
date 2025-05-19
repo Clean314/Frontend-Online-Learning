@@ -49,6 +49,20 @@ const navigationByRole = {
             segment: "learn/myCourses",
             title: "내 수강 강의",
             icon: <SchoolIcon />,
+            children: [
+                {
+                    segment: "learn/myCourses/total",
+                    title: "전체 수강 내역",
+                },
+                {
+                    segment: "learn/myCourses/enrolled",
+                    title: "수강 중인 강의",
+                },
+                {
+                    segment: "learn/myCourses/completed",
+                    title: "수강 완료 강의",
+                },
+            ],
         },
     ],
 };
