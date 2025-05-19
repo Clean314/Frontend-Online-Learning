@@ -72,14 +72,22 @@ function App() {
                                 </RoleProtectedRoute>
                             }
                         />
-                        <Route
-                            path="learn/myCourses/:enrolledStatus"
-                            element={
-                                <RoleProtectedRoute allowedRoles={["STUDENT"]}>
-                                    <CourseEnrolled />
-                                </RoleProtectedRoute>
-                            }
-                        />
+                        <Route path="learn/myCourses">
+                            <Route
+                                index
+                                element={<Navigate to="total" replace />}
+                            />
+                            <Route
+                                path=":enrolledStatus"
+                                element={
+                                    <RoleProtectedRoute
+                                        allowedRoles={["STUDENT"]}
+                                    >
+                                        <CourseEnrolled />
+                                    </RoleProtectedRoute>
+                                }
+                            />
+                        </Route>
                     </Route>
                 </Route>
             </Routes>
