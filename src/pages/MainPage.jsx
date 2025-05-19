@@ -9,7 +9,7 @@ import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { PageContainer } from "@toolpad/core/PageContainer";
 import { AppBar, Button, Toolbar, Typography } from "@mui/material";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import useAuth from "../auth/useAuth";
+import useAuth from "../hooks/auth/useAuth";
 import { useMemo } from "react";
 
 const navigationByRole = {

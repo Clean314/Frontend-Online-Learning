@@ -1,5 +1,7 @@
 import {
     Box,
+    Checkbox,
+    FormControlLabel,
     MenuItem,
     Pagination,
     Paper,
@@ -20,6 +22,7 @@ export default function CourseList() {
     const [courses, setCourses] = useState([]); // 전체 강의 리스트
     const [page, setPage] = useState(0); // 현재 페이지
     const [rowsPerPage, setRowsPerPage] = useState(10); // 페이지당 요소 수
+    const [isExcludeEnrolled, setIsExcludeEnrolled] = useState(false); // 수강 중 강의 제외 여부
 
     const formatDate = useFormatDate();
 
@@ -45,6 +48,7 @@ export default function CourseList() {
 
             return {
                 id: i + 1,
+                subjectCode: `SUBJ${String(i + 1).padStart(3, "0")}`,
                 name: `강의 ${i + 1}`,
                 createdAt: created.toISOString(),
                 updatedAt: updated.toISOString(),
@@ -77,6 +81,14 @@ export default function CourseList() {
         page * rowsPerPage + rowsPerPage
     );
 
+    // 목록에서 수강 신청한 강의 제외
+    const excludeEnrolledCourses = (e) => {
+        setIsExcludeEnrolled(e.target.checked);
+        setPage(0);
+
+        // TODO: 실제 API 연동
+    };
+
     return (
         <Paper sx={{ p: 2 }}>
             <Box
@@ -87,7 +99,19 @@ export default function CourseList() {
                     mb: 2,
                 }}
             >
-                <Typography variant="h6">전체 강의 리스트</Typography>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Typography variant="h6">전체 강의 리스트</Typography>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={isExcludeEnrolled}
+                                onChange={excludeEnrolledCourses}
+                            />
+                        }
+                        label="수강중인 강의 제외하기"
+                        sx={{ ml: 2 }}
+                    />
+                </Box>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Typography variant="body2" sx={{ mr: 1 }}>
                         페이지당:
@@ -115,14 +139,16 @@ export default function CourseList() {
                 <Table>
                     <colgroup>
                         <col style={{ width: "5%" }} /> {/* 번호 */}
-                        <col style={{ width: "35%" }} /> {/* 강의명 */}
-                        <col style={{ width: "20%" }} /> {/* 강사 이름 */}
-                        <col style={{ width: "20%" }} /> {/* 등록일 */}
-                        <col style={{ width: "20%" }} /> {/* 수정일 */}
+                        <col style={{ width: "15%" }} /> {/* 과목코드 */}
+                        <col style={{ width: "30%" }} /> {/* 강의명 */}
+                        <col style={{ width: "20%" }} /> {/* 강사 */}
+                        <col style={{ width: "15%" }} /> {/* 등록일 */}
+                        <col style={{ width: "15%" }} /> {/* 수정일 */}
                     </colgroup>
                     <TableHead>
                         <TableRow>
                             <TableCell>#</TableCell>
+                            <TableCell>과목코드</TableCell>
                             <TableCell>강의명</TableCell>
                             <TableCell>강사</TableCell>
                             <TableCell>등록일</TableCell>
@@ -136,6 +162,7 @@ export default function CourseList() {
                                     {courses.length -
                                         (page * rowsPerPage + index)}
                                 </TableCell>
+                                <TableCell>{course.subjectCode}</TableCell>
                                 <TableCell>{course.name}</TableCell>
                                 <TableCell>{course.instructorName}</TableCell>
                                 <TableCell>

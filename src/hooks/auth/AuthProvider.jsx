@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import { checkAuthAPI, loginAPI } from "../api/auth";
+import { checkAuthAPI, loginAPI } from "../../api/auth";
 
 // 빈 Context 생성
 const AuthContext = createContext(null);
