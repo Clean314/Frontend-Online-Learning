@@ -16,12 +16,21 @@ import {
     Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 export default function CourseEnrolled() {
+    // url 쿼리 스트링 for 페이지, 행 개수 저장
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const initPage = parseInt(searchParams.get("page") || "1", 10);
+    const initRowsPerPage = parseInt(
+        searchParams.get("rowsPerPage") || "10",
+        10
+    );
+
     const [enrollments, setEnrollments] = useState([]); // 수강 신청 강의 리스트
-    const [page, setPage] = useState(0); // 현재 페이지
-    const [rowsPerPage, setRowsPerPage] = useState(10); // 페이지당 요소 수
+    const [page, setPage] = useState(initPage - 1); // 현재 페이지
+    const [rowsPerPage, setRowsPerPage] = useState(initRowsPerPage); // 페이지당 요소 수
 
     const navigate = useNavigate();
     const { enrolledStatus } = useParams();
@@ -81,13 +90,29 @@ export default function CourseEnrolled() {
         setEnrollments(filtered);
     }, [enrolledStatus]);
 
+    // 페이지
     const totalPages = Math.ceil(enrollments.length / rowsPerPage);
 
-    const changePage = (_e, v) => setPage(v - 1);
+    const changePage = (_e, newPage) => {
+        setPage(newPage - 1);
+
+        setSearchParams((prev) => {
+            prev.set("page", newPage.toString());
+            prev.set("rowsPerPage", rowsPerPage.toString());
+            return prev;
+        });
+    };
 
     const changeRowsPerPage = (e) => {
-        setRowsPerPage(+e.target.value);
+        const newRowsPerPage = parseInt(e.target.value, 10);
+        setRowsPerPage(newRowsPerPage);
         setPage(0);
+
+        setSearchParams((prev) => {
+            prev.set("page", "1");
+            prev.set("rowsPerPage", newRowsPerPage.toString());
+            return prev;
+        });
     };
 
     const displayed = enrollments.slice(
@@ -173,7 +198,7 @@ export default function CourseEnrolled() {
                                         display: "inline-block",
                                     }}
                                     onClick={() =>
-                                        navigate(`${item.id}/lecture`)
+                                        navigate(`${item.id}/classroom`)
                                     }
                                 >
                                     <Typography variant="body2">
