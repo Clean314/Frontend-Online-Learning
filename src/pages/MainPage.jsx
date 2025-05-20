@@ -119,7 +119,9 @@ export default function MainPage(props) {
         >
             <DashboardLayout
                 slots={{ sidebarFooter: SidebarFooter }}
-                slotProps={{ sidebarFooter: { mini: false } }}
+                slotProps={{
+                    sidebarFooter: ({ mini }) => ({ mini }),
+                }}
             >
                 <PageContainer>
                     <Outlet />
