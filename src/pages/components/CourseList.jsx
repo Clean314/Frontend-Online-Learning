@@ -202,7 +202,7 @@ export default function CourseList() {
                     </TableHead>
                     <TableBody>
                         {displayedCourses.map((course, index) => (
-                            <TableRow key={course.id}>
+                            <TableRow key={course.id} hover>
                                 <TableCell>
                                     {courses.length -
                                         (page * rowsPerPage + index)}

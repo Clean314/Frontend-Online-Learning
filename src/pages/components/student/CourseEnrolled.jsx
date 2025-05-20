@@ -178,7 +178,7 @@ export default function CourseEnrolled() {
                     </TableHead>
                     <TableBody>
                         {displayed.map((item, idx) => (
-                            <TableRow key={item.id}>
+                            <TableRow key={item.id} hover>
                                 <TableCell>
                                     {enrollments.length -
                                         (page * rowsPerPage + idx)}

@@ -1,7 +1,210 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useAuth from "../../../hooks/auth/useAuth";
+import {
+    Box,
+    Paper,
+    Typography,
+    Select,
+    MenuItem,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Pagination,
+    Rating,
+    FormControl,
+    Stack,
+} from "@mui/material";
+
 export default function CourseTeach() {
+    const { user } = useAuth();
+    const navigate = useNavigate();
+
+    const [courses, setCourses] = useState([]);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    // 샘플 데이터 생성 및 강사 필터링
+    useEffect(() => {
+        const educatorNames = [
+            "김철수",
+            "김영희",
+            "박민수",
+            "최유리",
+            "홍길동",
+        ];
+        const categories = [
+            "프로그래밍",
+            "데이터베이스",
+            "네트워크",
+            "보안",
+            "AI",
+        ];
+        const difficulties = ["EASY", "MEDIUM", "HARD"];
+        const baseCreated = new Date(2025, 3, 1, 9, 0, 0);
+        const baseUpdated = new Date(2025, 3, 1, 10, 0, 0);
+
+        // TODO: 실제 API 연동하여 본인 강의 리스트 조회
+        const mockData = Array.from({ length: 50 }, (_, i) => {
+            const created = new Date(baseCreated.getTime() + i * 86400000);
+            const updated = new Date(baseUpdated.getTime() + i * 86400000);
+            return {
+                id: i + 1,
+                subjectCode: `SUBJ${String(i + 1).padStart(3, "0")}`,
+                name: `강의 ${i + 1}`,
+                educatorName: educatorNames[i % educatorNames.length],
+                category: categories[i % categories.length],
+                difficulty: difficulties[i % difficulties.length],
+                createdAt: created.toISOString(),
+                updatedAt: updated.toISOString(),
+            };
+        });
+
+        // 로그인된 유저 이름과 일치하는 강의만 필터링
+        const myCourses = mockData.filter((c) => c.educatorName === user?.name);
+        setCourses(myCourses);
+    }, [user]);
+
+    const totalPages = Math.ceil(courses.length / rowsPerPage);
+
+    const handlePageChange = (_e, value) => {
+        setPage(value - 1);
+    };
+
+    const handleRowsPerPageChange = (e) => {
+        setRowsPerPage(parseInt(e.target.value, 10));
+        setPage(0);
+    };
+
+    const displayed = courses.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+    );
+
     return (
-        <div>
-            <div>CourseTeach</div>
-        </div>
+        <Paper sx={{ p: 2 }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 2,
+                }}
+            >
+                <Typography variant="body1">
+                    총 강의: {courses.length}개
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Typography variant="body2" sx={{ mr: 1 }}>
+                        페이지당:
+                    </Typography>
+                    <FormControl size="small">
+                        <Select
+                            value={rowsPerPage}
+                            onChange={handleRowsPerPageChange}
+                        >
+                            {[5, 10, 20].map((n) => (
+                                <MenuItem key={n} value={n}>
+                                    {n}개
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Box>
+            </Box>
+
+            <TableContainer sx={{ tableLayout: "fixed", width: "100%" }}>
+                <Table>
+                    <colgroup>
+                        <col style={{ width: "7%" }} />
+                        <col style={{ width: "13%" }} />
+                        <col style={{ width: "25%" }} />
+                        <col style={{ width: "15%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "12%" }} />
+                        <col style={{ width: "12%" }} />
+                    </colgroup>
+                    <TableHead>
+                        <TableRow sx={{ backgroundColor: "grey.100" }}>
+                            <TableCell>#</TableCell>
+                            <TableCell>과목코드</TableCell>
+                            <TableCell>강의명</TableCell>
+                            <TableCell>카테고리</TableCell>
+                            <TableCell>난이도</TableCell>
+                            <TableCell>등록일</TableCell>
+                            <TableCell>수정일</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {displayed.map((course, idx) => (
+                            <TableRow key={course.id} hover>
+                                <TableCell>
+                                    {courses.length -
+                                        (page * rowsPerPage + idx)}
+                                </TableCell>
+                                <TableCell>{course.subjectCode}</TableCell>
+                                <TableCell
+                                    sx={{
+                                        width: "100%",
+                                        transition: "all 0.15s ease-in-out",
+                                        "&:hover": {
+                                            transform: "scale(1.1)",
+                                            color: "#B1AFFF",
+                                            fontWeight: 600,
+                                        },
+                                        cursor: "pointer",
+                                        display: "inline-block",
+                                    }}
+                                    onClick={() =>
+                                        navigate(`/courses/${course.id}`)
+                                    }
+                                >
+                                    <Typography variant="body2">
+                                        {course.name}
+                                    </Typography>
+                                </TableCell>
+                                <TableCell>{course.category}</TableCell>
+                                <TableCell>
+                                    <Rating
+                                        name="difficulty"
+                                        max={3}
+                                        value={
+                                            { EASY: 1, MEDIUM: 2, HARD: 3 }[
+                                                course.difficulty
+                                            ]
+                                        }
+                                        readOnly
+                                        size="small"
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    {new Date(
+                                        course.createdAt
+                                    ).toLocaleDateString()}
+                                </TableCell>
+                                <TableCell>
+                                    {new Date(
+                                        course.updatedAt
+                                    ).toLocaleDateString()}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+
+            <Stack alignItems="center" mt={2}>
+                <Pagination
+                    count={totalPages}
+                    page={page + 1}
+                    onChange={handlePageChange}
+                    showFirstButton
+                    showLastButton
+                />
+            </Stack>
+        </Paper>
     );
 }
