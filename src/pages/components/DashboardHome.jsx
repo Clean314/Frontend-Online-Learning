@@ -11,15 +11,7 @@ import {
     Button,
     CardActionArea,
 } from "@mui/material";
-
-// TODO: 실제 API 연결 후 mock 데이터 제거
-const mockUser = {
-    id: 1,
-    name: "홍길동",
-    email: "hong@example.com",
-    description: "안녕하세요! 저는 프론트엔드 개발자 홍길동입니다.",
-    role: "STUDENT",
-};
+import useAuth from "../../hooks/auth/useAuth";
 
 const mockRecentCourses = [
     { id: 1, name: "React 기초", educatorName: "이강사" },
@@ -41,14 +33,18 @@ const mockCompletedCourses = [
 
 export default function DashboardHome({ editable }) {
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
+    const { user } = useAuth();
+
+    const [about, setAbout] = useState(null);
     const [recentCourses, setRecentCourses] = useState([]);
     const [completedCourses, setCompletedCourses] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         // TODO: API 호출 로직으로 아래 mock 데이터 교체
-        setUser(mockUser); // TODO: 사용자 정보 API 연결
+        if (user) {
+            setAbout(user);
+        }
         setRecentCourses(mockRecentCourses); // TODO: 최근 수강 중인 강의 API 연결
         setCompletedCourses(mockCompletedCourses); // TODO: 최근 완료한 강의 API 연결
         setLoading(false);
@@ -75,17 +71,19 @@ export default function DashboardHome({ editable }) {
             >
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Avatar sx={{ width: 80, height: 80, mr: 3 }}>
-                        {user.name.charAt(0)}
+                        {about.name.charAt(0)}
                     </Avatar>
                     <Box>
                         <Typography variant="h5" component="h1" gutterBottom>
-                            {user.name}
+                            {about.name}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            {user.email}
+                            {about.email}
                         </Typography>
                         <Typography variant="body1" sx={{ mt: 1 }}>
-                            {user.description}
+                            {/* {about.description} */}
+                            안녕하세요! 저는 프론트엔드 개발자 {user.name}
+                            입니다.
                         </Typography>
                     </Box>
                 </Box>
@@ -105,7 +103,7 @@ export default function DashboardHome({ editable }) {
             {/* 최근 수강 중인 강의 */}
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h6" gutterBottom>
-                    {user.role === "STUDENT"
+                    {about.role === "STUDENT"
                         ? "최근 수강한 강의"
                         : "최근 등록한 강의"}
                 </Typography>
@@ -181,7 +179,7 @@ export default function DashboardHome({ editable }) {
                             variant="text"
                             sx={{ height: 160, borderRadius: 2 }}
                             onClick={() => {
-                                user.role === "STUDENT"
+                                about.role === "STUDENT"
                                     ? navigate("/learn/myCourses/enrolled")
                                     : navigate("/teach/myCourses/");
                             }}
@@ -195,7 +193,7 @@ export default function DashboardHome({ editable }) {
             {/* 최근 완료한 강의 */}
             <Box>
                 <Typography variant="h6" gutterBottom>
-                    {user.role === "STUDENT"
+                    {about.role === "STUDENT"
                         ? "최근 완료한 강의"
                         : "최근 수정한 강의"}
                 </Typography>
@@ -272,7 +270,7 @@ export default function DashboardHome({ editable }) {
                                 variant="text"
                                 sx={{ height: 160, borderRadius: 2 }}
                                 onClick={() => {
-                                    user.role === "STUDENT"
+                                    about.role === "STUDENT"
                                         ? navigate("/learn/myCourses/completed")
                                         : navigate("/teach/myCourses/");
                                 }}
