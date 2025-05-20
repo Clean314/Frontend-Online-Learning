@@ -11,8 +11,11 @@ import {
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import useAuth from "../hooks/auth/useAuth";
+import { useTheme } from "@emotion/react";
 
 export default function LoginPage() {
+    const theme = useTheme();
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -49,7 +52,7 @@ export default function LoginPage() {
                     backgroundColor: "background.paper",
                 }}
             >
-                <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+                <Avatar sx={{ m: 1, bgcolor: "grey.500" }}>
                     <LockOutlinedIcon />
                 </Avatar>
                 <Typography component="h1" variant="h5">

@@ -14,8 +14,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { signupAPI } from "../../api/auth";
+import { useTheme } from "@emotion/react";
 
 export default function SignUpPage() {
+    const theme = useTheme();
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");

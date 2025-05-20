@@ -14,15 +14,17 @@ import {
     faChalkboardTeacher,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@emotion/react";
 
 export default function RoleSelectPage() {
+    const theme = useTheme();
     const navigate = useNavigate();
 
     return (
         <Container component="main" maxWidth="xs">
             <Paper elevation={3} sx={{ mt: 8, p: 4, borderRadius: 2 }}>
                 <Box display="flex" flexDirection="column" alignItems="center">
-                    <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
+                    <Avatar sx={{ m: 1, bgcolor: "grey.500" }}>
                         <PersonAddAltIcon />
                     </Avatar>
                     <Typography
@@ -49,10 +51,10 @@ export default function RoleSelectPage() {
                             gap: 1,
                             paddingY: 2,
                             fontSize: "1rem",
-                            backgroundColor: "#99BC85",
+                            backgroundColor: "#4DD0E1",
                             color: "white",
                             "&:hover": {
-                                backgroundColor: "#86AB89",
+                                backgroundColor: "#00ACC1",
                             },
                         }}
                     >
@@ -80,10 +82,10 @@ export default function RoleSelectPage() {
                             gap: 1,
                             paddingY: 2,
                             fontSize: "1rem",
-                            backgroundColor: "#F0BB78",
+                            backgroundColor: "#81C784",
                             color: "white",
                             "&:hover": {
-                                backgroundColor: "#FAAB78",
+                                backgroundColor: "#388E3C",
                             },
                         }}
                     >

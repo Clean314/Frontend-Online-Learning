@@ -12,11 +12,16 @@ import CourseTeach from "./pages/components/educator/CourseTeach";
 import CourseList from "./pages/components/CourseList";
 import CourseEnrolled from "./pages/components/student/CourseEnrolled";
 import CourseDetail from "./pages/components/CourseDetail";
+import AdminUserList from "./pages/components/admin/AdminUserList";
+import AdminCourseList from "./pages/components/admin/AdminCourseList";
+import RoleBasedRedirect from "./pages/components/RoleBasedRedirect";
+import AdminDashboard from "./pages/components/admin/AdminDashboard";
 
 function App() {
     return (
         <>
             <Routes>
+                {/* 공개 경로 */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<RoleSelectPage />} />
                 <Route path="/signup/:role" element={<SignUpPage />} />
@@ -24,10 +29,36 @@ function App() {
 
                 <Route element={<ProtectedRoute />}>
                     <Route element={<MainPage />}>
+                        {/* 루트(“/”)로 들어오면 역할별 Redirect */}
+                        <Route index element={<RoleBasedRedirect />} />
+
+                        {/* 관리자 전용 */}
                         <Route
-                            index
-                            element={<Navigate to="dashboard" replace />}
+                            path="admin/dashboard"
+                            element={
+                                <RoleProtectedRoute allowedRoles={["ADMIN"]}>
+                                    <AdminDashboard />
+                                </RoleProtectedRoute>
+                            }
                         />
+                        <Route
+                            path="admin/users"
+                            element={
+                                <RoleProtectedRoute allowedRoles={["ADMIN"]}>
+                                    <AdminUserList />
+                                </RoleProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="admin/courses"
+                            element={
+                                <RoleProtectedRoute allowedRoles={["ADMIN"]}>
+                                    <AdminCourseList />
+                                </RoleProtectedRoute>
+                            }
+                        />
+
+                        {/* 학생 & 강사 공용 */}
                         <Route
                             path="dashboard"
                             element={
@@ -68,6 +99,7 @@ function App() {
                                 </RoleProtectedRoute>
                             }
                         />
+
                         {/* 강사 전용 */}
                         <Route
                             path="teach/newCourse"
@@ -85,6 +117,7 @@ function App() {
                                 </RoleProtectedRoute>
                             }
                         />
+
                         {/* 학생 전용 */}
                         <Route path="learn/myCourses">
                             <Route

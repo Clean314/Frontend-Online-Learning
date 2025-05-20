@@ -15,18 +15,24 @@ import { useTheme } from "@emotion/react";
 import { Box, IconButton } from "@mui/material";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
+import GroupIcon from "@mui/icons-material/Group";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 
 const navigationByRole = {
-    // ADMIN: [
-    //     { kind: "header", title: "관리자 메뉴" },
-    //     { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
-    //     { segment: "manage/user", title: "사용자 관리", icon: <GroupIcon /> },
-    //     {
-    //         segment: "manage/course",
-    //         title: "강의 관리",
-    //         icon: <MenuBookIcon />,
-    //     },
-    // ],
+    ADMIN: [
+        { kind: "header", title: "ADMIN" },
+        {
+            segment: "admin/dashboard",
+            title: "대시보드",
+            icon: <DashboardIcon />,
+        },
+        { segment: "admin/users", title: "사용자 관리", icon: <GroupIcon /> },
+        {
+            segment: "admin/courses",
+            title: "강의 관리",
+            icon: <MenuBookIcon />,
+        },
+    ],
     EDUCATOR: [
         { kind: "header", title: "EDUCATOR" },
         { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
