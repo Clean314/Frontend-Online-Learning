@@ -17,6 +17,8 @@ import {
     Rating,
     FormControl,
     Stack,
+    TextField,
+    Button,
 } from "@mui/material";
 
 export default function CourseTeach() {
@@ -26,6 +28,10 @@ export default function CourseTeach() {
     const [courses, setCourses] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    // 검색 state
+    const [searchName, setSearchName] = useState("");
+    const [searchCategory, setSearchCategory] = useState("");
 
     // 샘플 데이터 생성 및 강사 필터링
     useEffect(() => {
@@ -84,6 +90,12 @@ export default function CourseTeach() {
         page * rowsPerPage + rowsPerPage
     );
 
+    const search = () => {
+        console.log("검색어:", searchName, "카테고리:", searchCategory);
+        setPage(0);
+        // TODO: 실제 API 연동하여 검색 요청
+    };
+
     return (
         <Paper sx={{ p: 2 }}>
             <Box
@@ -94,9 +106,48 @@ export default function CourseTeach() {
                     mb: 2,
                 }}
             >
-                <Typography variant="body1">
-                    총 강의: {courses.length}개
-                </Typography>
+                <Box
+                    component="form"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        search();
+                    }}
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                    }}
+                >
+                    <TextField
+                        label="강의명 검색"
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        size="small"
+                    />
+                    <FormControl size="small">
+                        <Select
+                            displayEmpty
+                            value={searchCategory}
+                            onChange={(e) => setSearchCategory(e.target.value)}
+                        >
+                            <MenuItem value="">전체</MenuItem>
+                            {[
+                                "프로그래밍",
+                                "데이터베이스",
+                                "네트워크",
+                                "보안",
+                                "AI",
+                            ].map((cat) => (
+                                <MenuItem key={cat} value={cat}>
+                                    {cat}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <Button type="submit" variant="contained">
+                        검색
+                    </Button>
+                </Box>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Typography variant="body2" sx={{ mr: 1 }}>
                         페이지당:
@@ -128,7 +179,14 @@ export default function CourseTeach() {
                         <col style={{ width: "12%" }} />
                     </colgroup>
                     <TableHead>
-                        <TableRow sx={{ backgroundColor: "grey.100" }}>
+                        <TableRow
+                            sx={{
+                                bgcolor: (theme) =>
+                                    theme.palette.mode === "dark"
+                                        ? theme.palette.grey[800]
+                                        : theme.palette.grey[100],
+                            }}
+                        >
                             <TableCell>#</TableCell>
                             <TableCell>과목코드</TableCell>
                             <TableCell>강의명</TableCell>

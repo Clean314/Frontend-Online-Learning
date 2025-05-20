@@ -1,4 +1,3 @@
-import { createTheme } from "@mui/material/styles";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import SchoolIcon from "@mui/icons-material/School";
@@ -9,8 +8,13 @@ import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { PageContainer } from "@toolpad/core/PageContainer";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/auth/useAuth";
-import { useMemo } from "react";
+import { ColorModeContext } from "../ColorModeContext";
+import { useContext, useMemo } from "react";
 import SidebarFooter from "./components/SidebarFooter";
+import { useTheme } from "@emotion/react";
+import { Box, IconButton } from "@mui/material";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 
 const navigationByRole = {
     // ADMIN: [
@@ -67,24 +71,9 @@ const navigationByRole = {
     ],
 };
 
-const myTheme = createTheme({
-    colorSchemes: { light: true, dark: true },
-    cssVariables: {
-        colorSchemeSelector: "class",
-    },
-    breakpoints: {
-        values: {
-            xs: 0,
-            sm: 600,
-            md: 600,
-            lg: 1200,
-            xl: 1536,
-        },
-    },
-});
-
 export default function MainPage(props) {
-    const { window } = props;
+    const theme = useTheme();
+    const colorMode = useContext(ColorModeContext);
 
     const { user } = useAuth();
 
@@ -109,8 +98,8 @@ export default function MainPage(props) {
         <AppProvider
             navigation={NAVIGATION}
             router={router}
-            theme={myTheme}
-            window={window ? window() : undefined}
+            theme={theme}
+            window={props.window ? window() : undefined}
             branding={{
                 logo: <img src="/logo.png" alt="LMS logo" />,
                 title: "LMS",
@@ -123,6 +112,25 @@ export default function MainPage(props) {
                     sidebarFooter: ({ mini }) => ({ mini }),
                 }}
             >
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: 8,
+                        right: 16,
+                        zIndex: 1300,
+                    }}
+                >
+                    <IconButton
+                        onClick={colorMode.toggleColorMode}
+                        color="inherit"
+                    >
+                        {theme.palette.mode === "dark" ? (
+                            <LightModeIcon />
+                        ) : (
+                            <DarkModeIcon />
+                        )}
+                    </IconButton>
+                </Box>
                 <PageContainer>
                     <Outlet />
                 </PageContainer>
