@@ -132,6 +132,10 @@ export default function DashboardHome({ editable }) {
                                         justifyContent: "center",
                                         p: 2,
                                         borderRadius: 2,
+                                        bgcolor: (theme) =>
+                                            theme.palette.mode === "dark"
+                                                ? theme.palette.grey[800]
+                                                : theme.palette.grey[50],
                                     }}
                                 >
                                     <CardContent
@@ -222,6 +226,10 @@ export default function DashboardHome({ editable }) {
                                         justifyContent: "center",
                                         p: 2,
                                         borderRadius: 2,
+                                        bgcolor: (theme) =>
+                                            theme.palette.mode === "dark"
+                                                ? theme.palette.grey[800]
+                                                : theme.palette.grey[50],
                                     }}
                                 >
                                     <CardContent

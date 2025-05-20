@@ -111,7 +111,10 @@ export default function CourseDetail() {
                         key={item.label}
                         sx={{
                             flex: 1,
-                            bgcolor: "grey.50",
+                            bgcolor: (theme) =>
+                                theme.palette.mode === "dark"
+                                    ? theme.palette.grey[800]
+                                    : theme.palette.grey[100],
                             p: 2,
                             borderRadius: 1,
                             textAlign: "center",

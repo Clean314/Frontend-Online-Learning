@@ -190,7 +190,14 @@ export default function CourseList() {
                         <col style={{ width: "15%" }} />
                     </colgroup>
                     <TableHead>
-                        <TableRow sx={{ backgroundColor: "grey.100" }}>
+                        <TableRow
+                            sx={{
+                                bgcolor: (theme) =>
+                                    theme.palette.mode === "dark"
+                                        ? theme.palette.grey[800]
+                                        : theme.palette.grey[100],
+                            }}
+                        >
                             <TableCell>#</TableCell>
                             <TableCell>과목코드</TableCell>
                             <TableCell>강의명</TableCell>
