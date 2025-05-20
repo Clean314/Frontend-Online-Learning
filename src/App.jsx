@@ -34,7 +34,17 @@ function App() {
                                 <RoleProtectedRoute
                                     allowedRoles={["EDUCATOR", "STUDENT"]}
                                 >
-                                    <DashboardHome />
+                                    <DashboardHome editable={true} />
+                                </RoleProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="dashboard/:memberId"
+                            element={
+                                <RoleProtectedRoute
+                                    allowedRoles={["EDUCATOR", "STUDENT"]}
+                                >
+                                    <DashboardHome editable={false} />
                                 </RoleProtectedRoute>
                             }
                         />

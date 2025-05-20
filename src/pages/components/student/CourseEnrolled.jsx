@@ -197,7 +197,9 @@ export default function CourseEnrolled() {
                                         display: "inline-block",
                                     }}
                                     onClick={() =>
-                                        navigate(`${item.id}/classroom`)
+                                        navigate(
+                                            `/courses/${item.id}/classroom`
+                                        )
                                     }
                                 >
                                     <Typography variant="body2">
