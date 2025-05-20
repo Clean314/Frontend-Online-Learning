@@ -23,16 +23,16 @@ function Root() {
                 palette: {
                     mode,
                     primary: {
-                        light: "#E0F7FA", // 밝은 하늘색
+                        light: "#AFDDFF", // 밝은 하늘색
                         main: "#4DD0E1", // 민트빛 청록
                         dark: "#00ACC1", // 진한 청록
-                        contrastText: "#000",
+                        contrastText: "#fff",
                     },
                     secondary: {
-                        light: "#E8F5E9", // 은은한 연녹
+                        light: "#D3E671", // 은은한 연녹
                         main: "#81C784", // 파스텔 그린
                         dark: "#388E3C", // 진한 숲녹
-                        contrastText: "#000",
+                        contrastText: "#fff",
                     },
                 },
             }),

@@ -6,7 +6,6 @@ import {
     Typography,
     Card,
     CardContent,
-    Grid,
     CircularProgress,
     Button,
     CardActionArea,
@@ -107,187 +106,199 @@ export default function DashboardHome({ editable }) {
                         ? "최근 수강한 강의"
                         : "최근 등록한 강의"}
                 </Typography>
-                <Grid container spacing={2} alignItems="stretch">
+                <Box
+                    sx={{
+                        display: "grid",
+                        gap: 2,
+                        gridTemplateColumns: {
+                            xs: "1fr",
+                            md: editable
+                                ? // 강의 개수만큼 1fr, 마지막 MORE만 0.5fr
+                                  `repeat(${completedCourses.length}, 1fr) 0.5fr`
+                                : `repeat(${completedCourses.length}, 1fr)`,
+                        },
+                    }}
+                >
                     {recentCourses.map((course) => (
-                        <Grid
-                            item
-                            size={{ xs: 12, sm: 6, md: 2.5 }}
+                        <Card
                             key={course.id}
-                        >
-                            <CardActionArea
-                                onClick={() => {
-                                    editable
-                                        ? navigate(
-                                              `/courses/${course.id}/classroom`
-                                          )
-                                        : navigate(`/courses/${course.id}`);
-                                }}
-                                sx={{ borderRadius: 2 }}
-                            >
-                                <Card
-                                    sx={{
-                                        height: 160,
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        justifyContent: "center",
-                                        p: 2,
-                                        borderRadius: 2,
-                                        bgcolor: (theme) =>
-                                            theme.palette.mode === "dark"
-                                                ? theme.palette.grey[800]
-                                                : theme.palette.grey[50],
-                                    }}
-                                >
-                                    <CardContent
-                                        sx={{
-                                            flexGrow: 1,
-                                            width: "100%",
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            justifyContent: "space-between",
-                                            textAlign: "center",
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="subtitle1"
-                                            sx={{
-                                                display: "-webkit-box",
-                                                WebkitBoxOrient: "vertical",
-                                                WebkitLineClamp: 3,
-                                                overflow: "hidden",
-                                                textOverflow: "ellipsis",
-                                                wordBreak: "break-word",
-                                                lineHeight: "1.4em",
-                                                maxHeight: "4.2em",
-                                                textAlign: "left",
-                                            }}
-                                        >
-                                            {course.name}
-                                        </Typography>
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                            sx={{ textAlign: "right" }}
-                                        >
-                                            {course.educatorName} →
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </CardActionArea>
-                        </Grid>
-                    ))}
-                    {/* 목록으로 이동 버튼 */}
-                    <Grid item xs={12} sm={6} md={3}>
-                        <Button
-                            fullWidth
-                            variant="text"
-                            sx={{ height: 160, borderRadius: 2 }}
-                            onClick={() => {
-                                about.role === "STUDENT"
-                                    ? navigate("/learn/myCourses/enrolled")
-                                    : navigate("/teach/myCourses");
+                            sx={{
+                                height: 160,
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "space-between",
+                                borderRadius: 2,
+                                overflow: "hidden",
+                                bgcolor: (theme) =>
+                                    theme.palette.mode === "dark"
+                                        ? theme.palette.grey[800]
+                                        : theme.palette.grey[50],
                             }}
                         >
-                            MORE &gt;
-                        </Button>
-                    </Grid>
-                </Grid>
+                            <CardActionArea
+                                onClick={() =>
+                                    navigate(
+                                        editable
+                                            ? `/courses/${course.id}/classroom`
+                                            : `/courses/${course.id}`
+                                    )
+                                }
+                                sx={{
+                                    height: "100%",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "space-between", // 텍스트를 카드 상단/하단에 배치
+                                    p: 3,
+                                }}
+                            >
+                                <Typography
+                                    variant="subtitle1"
+                                    sx={{
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        display: "-webkit-box",
+                                        WebkitBoxOrient: "vertical",
+                                        WebkitLineClamp: 3,
+                                        lineHeight: "1.4em",
+                                        maxHeight: "4.2em",
+                                    }}
+                                >
+                                    {course.name}
+                                </Typography>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ textAlign: "right" }}
+                                >
+                                    {course.educatorName} →
+                                </Typography>
+                            </CardActionArea>
+                        </Card>
+                    ))}
+
+                    {/* MORE 버튼 */}
+                    {editable && (
+                        <CardActionArea
+                            onClick={() =>
+                                navigate(
+                                    about.role === "STUDENT"
+                                        ? "/learn/myCourses/enrolled"
+                                        : "/teach/myCourses"
+                                )
+                            }
+                            sx={{
+                                height: 160,
+                                borderRadius: 2,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}
+                        >
+                            <Typography variant="button">MORE &gt;</Typography>
+                        </CardActionArea>
+                    )}
+                </Box>
             </Box>
 
             {/* 최근 완료한 강의 */}
-            <Box>
+            <Box sx={{ mb: 4 }}>
                 <Typography variant="h6" gutterBottom>
                     {about.role === "STUDENT"
                         ? "최근 완료한 강의"
                         : "최근 수정한 강의"}
                 </Typography>
-                <Grid container spacing={2} alignItems="stretch">
+
+                <Box
+                    sx={{
+                        display: "grid",
+                        gap: 2,
+                        gridTemplateColumns: {
+                            xs: "1fr",
+                            md: editable
+                                ? // 강의 개수만큼 1fr, 마지막 MORE만 0.5fr
+                                  `repeat(${completedCourses.length}, 1fr) 0.5fr`
+                                : `repeat(${completedCourses.length}, 1fr)`,
+                        },
+                    }}
+                >
                     {completedCourses.map((course) => (
-                        <Grid
-                            item
-                            size={{ xs: 12, sm: 6, md: 2.5 }}
+                        <Card
                             key={course.id}
+                            sx={{
+                                height: 160,
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "space-between",
+                                borderRadius: 2,
+                                overflow: "hidden",
+                                bgcolor: (theme) =>
+                                    theme.palette.mode === "dark"
+                                        ? theme.palette.grey[800]
+                                        : theme.palette.grey[50],
+                            }}
                         >
                             <CardActionArea
-                                onClick={() => {
-                                    editable
-                                        ? navigate(
-                                              `/courses/${course.id}/classroom`
-                                          )
-                                        : navigate(`/courses/${course.id}`);
+                                onClick={() =>
+                                    navigate(
+                                        editable
+                                            ? `/courses/${course.id}/classroom`
+                                            : `/courses/${course.id}`
+                                    )
+                                }
+                                sx={{
+                                    height: "100%",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "space-between", // 텍스트를 카드 상단/하단에 배치
+                                    p: 3,
                                 }}
-                                sx={{ borderRadius: 2 }}
                             >
-                                <Card
+                                <Typography
+                                    variant="subtitle1"
                                     sx={{
-                                        height: 160,
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        justifyContent: "center",
-                                        p: 2,
-                                        borderRadius: 2,
-                                        bgcolor: (theme) =>
-                                            theme.palette.mode === "dark"
-                                                ? theme.palette.grey[800]
-                                                : theme.palette.grey[50],
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        display: "-webkit-box",
+                                        WebkitBoxOrient: "vertical",
+                                        WebkitLineClamp: 3,
+                                        lineHeight: "1.4em",
+                                        maxHeight: "4.2em",
                                     }}
                                 >
-                                    <CardContent
-                                        sx={{
-                                            flexGrow: 1,
-                                            width: "100%",
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            justifyContent: "space-between",
-                                            textAlign: "center",
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="subtitle1"
-                                            sx={{
-                                                display: "-webkit-box",
-                                                WebkitBoxOrient: "vertical",
-                                                WebkitLineClamp: 3,
-                                                overflow: "hidden",
-                                                textOverflow: "ellipsis",
-                                                wordBreak: "break-word",
-                                                lineHeight: "1.4em",
-                                                maxHeight: "4.2em",
-                                                textAlign: "left",
-                                            }}
-                                        >
-                                            {course.name}
-                                        </Typography>
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                            sx={{ textAlign: "right" }}
-                                        >
-                                            {course.educatorName} →
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
+                                    {course.name}
+                                </Typography>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ textAlign: "right" }}
+                                >
+                                    {course.educatorName} →
+                                </Typography>
                             </CardActionArea>
-                        </Grid>
+                        </Card>
                     ))}
-                    {/* 목록으로 이동 버튼 */}
+
                     {editable && (
-                        <Grid item xs={12} sm={6} md={3}>
-                            <Button
-                                fullWidth
-                                variant="text"
-                                sx={{ height: 160, borderRadius: 2 }}
-                                onClick={() => {
+                        <CardActionArea
+                            onClick={() =>
+                                navigate(
                                     about.role === "STUDENT"
-                                        ? navigate("/learn/myCourses/completed")
-                                        : navigate("/teach/myCourses");
-                                }}
-                            >
-                                MORE &gt;
-                            </Button>
-                        </Grid>
+                                        ? "/learn/myCourses/completed"
+                                        : "/teach/myCourses"
+                                )
+                            }
+                            sx={{
+                                height: 160,
+                                borderRadius: 2,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}
+                        >
+                            <Typography variant="button">MORE &gt;</Typography>
+                        </CardActionArea>
                     )}
-                </Grid>
+                </Box>
             </Box>
         </Box>
     );

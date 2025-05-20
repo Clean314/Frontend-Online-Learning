@@ -85,7 +85,10 @@ export default function LoginPage() {
                         onClick={handleLogin}
                         fullWidth
                         variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
+                        sx={{
+                            mt: 3,
+                            mb: 2,
+                        }}
                     >
                         로그인
                     </Button>
@@ -94,6 +97,12 @@ export default function LoginPage() {
                         fullWidth
                         variant="outlined"
                         onClick={() => navigate("/signup")}
+                        sx={{
+                            color: theme.palette.primary.dark,
+                            "&:hover": {
+                                bgcolor: theme.palette.grey[50],
+                            },
+                        }}
                     >
                         회원가입
                     </Button>

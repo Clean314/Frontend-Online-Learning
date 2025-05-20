@@ -51,10 +51,10 @@ export default function RoleSelectPage() {
                             gap: 1,
                             paddingY: 2,
                             fontSize: "1rem",
-                            backgroundColor: "#4DD0E1",
-                            color: "white",
+                            bgcolor: theme.palette.secondary.main,
+                            color: theme.palette.secondary.contrastText,
                             "&:hover": {
-                                backgroundColor: "#00ACC1",
+                                bgcolor: theme.palette.secondary.dark,
                             },
                         }}
                     >
@@ -82,10 +82,10 @@ export default function RoleSelectPage() {
                             gap: 1,
                             paddingY: 2,
                             fontSize: "1rem",
-                            backgroundColor: "#81C784",
-                            color: "white",
+                            bgcolor: theme.palette.primary.main,
+                            color: theme.palette.primary.contrastText,
                             "&:hover": {
-                                backgroundColor: "#388E3C",
+                                bgcolor: theme.palette.primary.dark,
                             },
                         }}
                     >

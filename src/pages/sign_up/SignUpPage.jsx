@@ -111,7 +111,13 @@ export default function SignUpPage() {
                         type="button"
                         fullWidth
                         variant="text"
-                        sx={{ mt: 1 }}
+                        sx={{
+                            mt: 1,
+                            color: theme.palette.primary.dark,
+                            "&:hover": {
+                                color: theme.palette.primary.main,
+                            },
+                        }}
                         onClick={() => navigate("/login")}
                     >
                         로그인으로 돌아가기
