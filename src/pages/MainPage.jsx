@@ -41,7 +41,7 @@ const navigationByRole = {
         { kind: "header", title: "STUDENT" },
         { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
         {
-            segment: "learn/courses",
+            segment: "courses",
             title: "전체 강의 보기",
             icon: <LibraryBooksIcon />,
         },

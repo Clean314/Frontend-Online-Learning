@@ -181,7 +181,7 @@ export default function DashboardHome({ editable }) {
                             onClick={() => {
                                 about.role === "STUDENT"
                                     ? navigate("/learn/myCourses/enrolled")
-                                    : navigate("/teach/myCourses/");
+                                    : navigate("/teach/myCourses");
                             }}
                         >
                             MORE &gt;
@@ -272,7 +272,7 @@ export default function DashboardHome({ editable }) {
                                 onClick={() => {
                                     about.role === "STUDENT"
                                         ? navigate("/learn/myCourses/completed")
-                                        : navigate("/teach/myCourses/");
+                                        : navigate("/teach/myCourses");
                                 }}
                             >
                                 MORE &gt;

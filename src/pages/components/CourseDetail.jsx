@@ -209,10 +209,7 @@ export default function CourseDetail() {
                 >
                     삭제
                 </Button>
-                <Button
-                    variant="outlined"
-                    onClick={() => navigate("/learn/courses")}
-                >
+                <Button variant="outlined" onClick={() => navigate("/courses")}>
                     목록
                 </Button>
             </Box>

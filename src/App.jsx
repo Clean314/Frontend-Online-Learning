@@ -9,7 +9,7 @@ import NotAuthorizedPage from "./pages/NotAuthorizedPage";
 import DashboardHome from "./pages/components/DashboardHome";
 import CourseRegister from "./pages/components/educator/CourseRegister";
 import CourseTeach from "./pages/components/educator/CourseTeach";
-import CourseList from "./pages/components/student/CourseList";
+import CourseList from "./pages/components/CourseList";
 import CourseEnrolled from "./pages/components/student/CourseEnrolled";
 import CourseDetail from "./pages/components/CourseDetail";
 
@@ -48,6 +48,26 @@ function App() {
                                 </RoleProtectedRoute>
                             }
                         />
+                        <Route
+                            path="courses"
+                            element={
+                                <RoleProtectedRoute
+                                    allowedRoles={["EDUCATOR", "STUDENT"]}
+                                >
+                                    <CourseList />
+                                </RoleProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="courses/:courseId"
+                            element={
+                                <RoleProtectedRoute
+                                    allowedRoles={["EDUCATOR", "STUDENT"]}
+                                >
+                                    <CourseDetail />
+                                </RoleProtectedRoute>
+                            }
+                        />
                         {/* 강사 전용 */}
                         <Route
                             path="teach/newCourse"
@@ -66,22 +86,6 @@ function App() {
                             }
                         />
                         {/* 학생 전용 */}
-                        <Route
-                            path="learn/courses"
-                            element={
-                                <RoleProtectedRoute allowedRoles={["STUDENT"]}>
-                                    <CourseList />
-                                </RoleProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="learn/courses/:courseId"
-                            element={
-                                <RoleProtectedRoute allowedRoles={["STUDENT"]}>
-                                    <CourseDetail />
-                                </RoleProtectedRoute>
-                            }
-                        />
                         <Route path="learn/myCourses">
                             <Route
                                 index

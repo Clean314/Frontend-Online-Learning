@@ -20,7 +20,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function CourseList() {
-    // ex) /learn/courses?page=1&rowsPerPage=10&excludeEnrolled=true
+    // ex) /courses?page=1&rowsPerPage=10&excludeEnrolled=true
     const [searchParams, setSearchParams] = useSearchParams();
 
     const initPage = parseInt(searchParams.get("page") || "1", 10);
