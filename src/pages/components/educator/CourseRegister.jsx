@@ -10,12 +10,14 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    OutlinedInput,
 } from "@mui/material";
 import { createCourseAPI } from "../../../api/course";
 
+// TODO: 카테고리 목록을 API로부터 동적으로 가져오도록 수정
 const categories = ["프로그래밍", "데이터베이스", "네트워크", "보안", "AI"];
+// TODO: 난이도 옵션을 API 연동하여 관리
 const difficulties = ["EASY", "MEDIUM", "HARD"];
+// TODO: 학점 데이터도 API에서 받아오도록 변경
 const credits = [1, 2, 3];
 
 export default function CourseRegister() {
@@ -27,20 +29,21 @@ export default function CourseRegister() {
         category: "",
         difficulty: "",
         description: "",
+        maxEnrollment: "",
     });
 
+    // 입력값 변경 핸들러
     const handleChange = (e) => {
         const { name, value } = e.target;
-
         setFormData((prev) => ({
             ...prev,
             [name]: value,
         }));
     };
 
+    // 강의 등록 제출 핸들러
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
             await createCourseAPI(formData);
 
@@ -120,6 +123,20 @@ export default function CourseRegister() {
                             ))}
                         </Select>
                     </FormControl>
+
+                    <TextField
+                        label="최대 수강 인원"
+                        name="maxEnrollment"
+                        type="number"
+                        value={formData.maxEnrollment}
+                        onChange={handleChange}
+                        fullWidth
+                        required
+                        slotProps={{
+                            htmlInput: { min: 10, max: 100 },
+                        }}
+                        helperText="최소 10명, 최대 100명까지 입력 가능합니다."
+                    />
                 </Box>
 
                 <TextField

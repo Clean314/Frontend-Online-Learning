@@ -44,7 +44,7 @@ export default function CourseList() {
         HARD: 3,
     };
 
-    // 20개 샘플 데이터 생성
+    // 100개 샘플 데이터 생성 (maxEnrollment & currentEnrollment 포함)
     useEffect(() => {
         const educatorNames = [
             "김철수",
@@ -71,6 +71,9 @@ export default function CourseList() {
             const updated = new Date(baseUpdated);
             updated.setDate(updated.getDate() + i);
 
+            const maxEn = 20 + (i % 5) * 10; // 20,30,40,50,60 반복
+            const currEn = Math.floor(Math.random() * maxEn); // 0 ~ maxEn-1
+
             return {
                 id: i + 1,
                 subjectCode: `SUBJ${String(i + 1).padStart(3, "0")}`,
@@ -81,6 +84,8 @@ export default function CourseList() {
                 educatorName: educatorNames[i % educatorNames.length],
                 difficulty: difficulties[i % difficulties.length],
                 category: categories[i % categories.length],
+                maxEnrollment: maxEn,
+                currentEnrollment: currEn,
             };
         });
         setCourses(mockData);
@@ -88,15 +93,12 @@ export default function CourseList() {
 
     // 페이지네이션
     const totalPages = Math.ceil(courses.length / rowsPerPage);
-
-    // 페이지 수가 10을 넘을 때만 페이지 버튼 생략
     const shouldEllipsis = totalPages > 10;
     const boundaryCount = shouldEllipsis ? 1 : totalPages;
     const siblingCount = shouldEllipsis ? 2 : 0;
 
     const changePage = (_e, newPage) => {
         setPage(newPage - 1);
-
         setSearchParams({
             page: newPage.toString(),
             rowsPerPage: rowsPerPage.toString(),
@@ -108,7 +110,6 @@ export default function CourseList() {
         const newRowsPerPage = parseInt(e.target.value, 10);
         setRowsPerPage(newRowsPerPage);
         setPage(0);
-
         setSearchParams({
             page: "1",
             rowsPerPage: newRowsPerPage.toString(),
@@ -116,25 +117,21 @@ export default function CourseList() {
         });
     };
 
-    // 현재 페이지에 해당하는 데이터 슬라이싱
     const displayedCourses = courses.slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
     );
 
-    // 목록에서 수강 신청한 강의 제외
     const excludeEnrolledCourses = (e) => {
         const checked = e.target.checked;
         setIsExcludeEnrolled(checked);
         setPage(0);
-
         setSearchParams({
             page: "1",
             rowsPerPage: rowsPerPage.toString(),
             excludeEnrolled: checked.toString(),
         });
-
-        // TODO: 실제 API 연동
+        // TODO: 실제 API 연동 시 maxEnrollment, currentEnrollment 포함해서 요청하기
     };
 
     return (
@@ -154,7 +151,7 @@ export default function CourseList() {
                             onChange={excludeEnrolledCourses}
                         />
                     }
-                    label="수강중인 강의 제외하기 (미구현)"
+                    label="수강 중인 강의 제외하기 (미구현)"
                     sx={{ ml: 0, pl: 0 }}
                 />
                 <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -177,8 +174,8 @@ export default function CourseList() {
 
             <TableContainer
                 sx={{
-                    tableLayout: "fixed", // ① 고정 레이아웃
-                    width: "100%", // 가로 채우기
+                    tableLayout: "fixed",
+                    width: "100%",
                 }}
             >
                 <Table>
@@ -189,8 +186,9 @@ export default function CourseList() {
                         <col style={{ width: "10%" }} />
                         <col style={{ width: "13%" }} />
                         <col style={{ width: "10%" }} />
-                        <col style={{ width: "12%" }} />
-                        <col style={{ width: "13%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "10%" }} />
                     </colgroup>
                     <TableHead>
                         <TableRow
@@ -201,85 +199,92 @@ export default function CourseList() {
                                         : theme.palette.grey[100],
                             }}
                         >
-                            <TableCell>#</TableCell>
+                            <TableCell></TableCell>
                             <TableCell>과목코드</TableCell>
                             <TableCell>강의명</TableCell>
                             <TableCell>강사</TableCell>
                             <TableCell>카테고리</TableCell>
                             <TableCell>난이도</TableCell>
                             <TableCell>학점</TableCell>
-                            <TableCell>등록일</TableCell>
+                            <TableCell>최대인원</TableCell>
+                            <TableCell>여석</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {displayedCourses.map((course, index) => (
-                            <TableRow key={course.id} hover>
-                                <TableCell>
-                                    {courses.length -
-                                        (page * rowsPerPage + index)}
-                                </TableCell>
-                                <TableCell>{course.subjectCode}</TableCell>
-                                <TableCell>
-                                    <Box
-                                        onClick={() => navigate(`${course.id}`)}
-                                        sx={{
-                                            display: "inline-block",
-                                            width: "100%",
-                                            transition: "all 0.15s ease-in-out",
-                                            "&:hover": {
-                                                transform: "scale(1.1)",
-                                                color: "#B1AFFF",
-                                                fontWeight: 600,
-                                            },
-                                            cursor: "pointer",
-                                            verticalAlign: "middle", // 혹은 lineHeight 조정
-                                        }}
-                                    >
-                                        <Typography variant="body2">
-                                            {course.name}
-                                        </Typography>
-                                    </Box>
-                                </TableCell>
-                                <TableCell>{course.educatorName}</TableCell>
-                                <TableCell>{course.category}</TableCell>
-                                <TableCell>
-                                    <Rating
-                                        name={`rating-${course.id}`}
-                                        max={3}
-                                        defaultValue={
-                                            difficultyMap[course.difficulty]
-                                        }
-                                        readOnly
-                                        size="small"
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    <Chip
-                                        label={`${course.point} 학점`}
-                                        variant="outlined"
-                                        size="medium"
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    {new Date(
-                                        course.createdAt
-                                    ).toLocaleDateString()}
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {displayedCourses.map((course, index) => {
+                            const remaining =
+                                course.maxEnrollment - course.currentEnrollment;
+                            return (
+                                <TableRow key={course.id} hover>
+                                    <TableCell>
+                                        {courses.length -
+                                            (page * rowsPerPage + index)}
+                                    </TableCell>
+                                    <TableCell>{course.subjectCode}</TableCell>
+                                    <TableCell>
+                                        <Box
+                                            onClick={() =>
+                                                navigate(`${course.id}`)
+                                            }
+                                            sx={{
+                                                display: "inline-block",
+                                                width: "100%",
+                                                transition:
+                                                    "all 0.15s ease-in-out",
+                                                "&:hover": {
+                                                    transform: "scale(1.1)",
+                                                    color: "#B1AFFF",
+                                                    fontWeight: 600,
+                                                },
+                                                cursor: "pointer",
+                                                verticalAlign: "middle",
+                                            }}
+                                        >
+                                            <Typography variant="body2">
+                                                {course.name}
+                                            </Typography>
+                                        </Box>
+                                    </TableCell>
+                                    <TableCell>{course.educatorName}</TableCell>
+                                    <TableCell>{course.category}</TableCell>
+                                    <TableCell>
+                                        <Rating
+                                            name={`rating-${course.id}`}
+                                            max={3}
+                                            value={
+                                                difficultyMap[course.difficulty]
+                                            }
+                                            readOnly
+                                            size="small"
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Chip
+                                            label={`${course.point} 학점`}
+                                            variant="outlined"
+                                            size="small"
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        {course.maxEnrollment}명
+                                    </TableCell>
+                                    <TableCell>{remaining}명</TableCell>
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </TableContainer>
 
             <Stack alignItems="center" mt={2}>
                 <Pagination
-                    count={totalPages} // 전체 페이지 수
-                    page={page + 1} // Pagination은 1부터 시작
+                    count={totalPages}
+                    page={page + 1}
                     onChange={changePage}
-                    showFirstButton // 첫 페이지로 이동 버튼
-                    showLastButton // 마지막 페이지로 이동 버튼
-                    boundaryCount={boundaryCount} // 첫/끝에서 고정 버튼 개수
-                    siblingCount={siblingCount} // 현재 페이지 양쪽 버튼 개수
+                    showFirstButton
+                    showLastButton
+                    boundaryCount={boundaryCount}
+                    siblingCount={siblingCount}
                 />
             </Stack>
         </Paper>

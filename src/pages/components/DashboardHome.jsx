@@ -103,8 +103,8 @@ export default function DashboardHome({ editable }) {
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h6" gutterBottom>
                     {about.role === "STUDENT"
-                        ? "최근 수강한 강의"
-                        : "최근 등록한 강의"}
+                        ? "최근 수강 강의"
+                        : "최근 등록 강의"}
                 </Typography>
                 <Box
                     sx={{
@@ -204,8 +204,8 @@ export default function DashboardHome({ editable }) {
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h6" gutterBottom>
                     {about.role === "STUDENT"
-                        ? "최근 완료한 강의"
-                        : "최근 수정한 강의"}
+                        ? "최근 완강 강의"
+                        : "최근 수정 강의"}
                 </Typography>
 
                 <Box

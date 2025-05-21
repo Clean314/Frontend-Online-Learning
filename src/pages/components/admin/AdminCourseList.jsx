@@ -74,19 +74,7 @@ export default function AdminCourseList() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if (name === "maxEnrollment") {
-            let num = parseInt(value, 10);
-            if (isNaN(num)) {
-                setEditedData((prev) => ({ ...prev, [name]: "" }));
-            } else {
-                // 값 강제 클램핑
-                if (num < 10) num = 10;
-                if (num > 100) num = 100;
-                setEditedData((prev) => ({ ...prev, [name]: num }));
-            }
-        } else {
-            setEditedData((prev) => ({ ...prev, [name]: value }));
-        }
+        setEditedData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSave = (id) => {
@@ -247,6 +235,7 @@ export default function AdminCourseList() {
                                                         max: 100,
                                                     },
                                                 }}
+                                                helperText="최소 10명, 최대 100명까지 입력 가능합니다."
                                             />
                                         </TableCell>
                                         <TableCell align="right">

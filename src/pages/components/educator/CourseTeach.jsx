@@ -19,18 +19,55 @@ import {
     Stack,
     TextField,
     Button,
+    Chip,
 } from "@mui/material";
-import { getMyRegisteredCoursesAPI } from "../../../api/course";
+// import { getMyRegisteredCoursesAPI } from "../../../api/course"; // 실제 API는 아직 미구현
 
 export default function CourseTeach() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
+    // 임시 샘플 데이터 (point 포함)
+    const tempCourses = [
+        {
+            id: 101,
+            subjectCode: "CS101",
+            name: "React 기초",
+            category: "프로그래밍",
+            difficulty: "EASY",
+            point: 2, // 학점
+            createdAt: "2025-05-01T10:00:00Z",
+            updatedAt: "2025-05-15T15:30:00Z",
+            maxEnrollment: 50,
+        },
+        {
+            id: 102,
+            subjectCode: "DB202",
+            name: "Oracle 데이터베이스 심화",
+            category: "데이터베이스",
+            difficulty: "MEDIUM",
+            point: 3,
+            createdAt: "2025-04-20T09:00:00Z",
+            updatedAt: "2025-05-10T11:45:00Z",
+            maxEnrollment: 30,
+        },
+        {
+            id: 103,
+            subjectCode: "AI303",
+            name: "머신러닝 입문",
+            category: "AI",
+            difficulty: "HARD",
+            point: 3,
+            createdAt: "2025-03-15T14:20:00Z",
+            updatedAt: "2025-05-05T17:10:00Z",
+            maxEnrollment: 100,
+        },
+    ];
+
     const [courses, setCourses] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    // 검색 state
     const [searchName, setSearchName] = useState("");
     const [searchCategory, setSearchCategory] = useState("");
 
@@ -39,8 +76,11 @@ export default function CourseTeach() {
 
         const fetchCourses = async () => {
             try {
-                const data = await getMyRegisteredCoursesAPI();
-                setCourses(data);
+                // TODO: 실제 API 연동 시 아래 주석 해제
+                // const data = await getMyRegisteredCoursesAPI();
+                // setCourses(data);
+
+                setCourses(tempCourses);
             } catch (err) {
                 console.error("내 강의 목록 조회 실패:", err);
             }
@@ -73,6 +113,7 @@ export default function CourseTeach() {
 
     return (
         <Paper sx={{ p: 2 }}>
+            {/* 검색 및 페이지당 설정 */}
             <Box
                 sx={{
                     display: "flex",
@@ -142,13 +183,16 @@ export default function CourseTeach() {
                 </Box>
             </Box>
 
+            {/* 테이블 */}
             <TableContainer sx={{ tableLayout: "fixed", width: "100%" }}>
                 <Table>
                     <colgroup>
-                        <col style={{ width: "7%" }} />
-                        <col style={{ width: "13%" }} />
-                        <col style={{ width: "25%" }} />
-                        <col style={{ width: "15%" }} />
+                        <col style={{ width: "6%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "20%" }} />
+                        <col style={{ width: "14%" }} />
+                        <col style={{ width: "8%" }} />
+                        <col style={{ width: "8%" }} />
                         <col style={{ width: "10%" }} />
                         <col style={{ width: "12%" }} />
                         <col style={{ width: "12%" }} />
@@ -162,11 +206,13 @@ export default function CourseTeach() {
                                         : theme.palette.grey[100],
                             }}
                         >
-                            <TableCell>#</TableCell>
+                            <TableCell></TableCell>
                             <TableCell>과목코드</TableCell>
                             <TableCell>강의명</TableCell>
                             <TableCell>카테고리</TableCell>
                             <TableCell>난이도</TableCell>
+                            <TableCell>학점</TableCell>
+                            <TableCell>최대인원</TableCell>
                             <TableCell>등록일</TableCell>
                             <TableCell>수정일</TableCell>
                         </TableRow>
@@ -217,6 +263,14 @@ export default function CourseTeach() {
                                     />
                                 </TableCell>
                                 <TableCell>
+                                    <Chip
+                                        label={`${course.point} 학점`}
+                                        variant="outlined"
+                                        size="medium"
+                                    />
+                                </TableCell>
+                                <TableCell>{course.maxEnrollment}</TableCell>
+                                <TableCell>
                                     {new Date(
                                         course.createdAt
                                     ).toLocaleDateString()}
@@ -232,6 +286,7 @@ export default function CourseTeach() {
                 </Table>
             </TableContainer>
 
+            {/* 페이지네이션 */}
             <Stack alignItems="center" mt={2}>
                 <Pagination
                     count={totalPages}
