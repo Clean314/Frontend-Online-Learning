@@ -11,13 +11,92 @@ import {
     Divider,
     Button,
 } from "@mui/material";
+import useAuth from "../../hooks/auth/useAuth";
+import { useTheme } from "@emotion/react";
+import {
+    cancelEnrollmentAPI,
+    enrollCourseAPI,
+    getMyEnrollmentsAPI,
+} from "../../api/enrollment";
 
 export default function CourseDetail() {
+    const { user } = useAuth();
+    const theme = useTheme();
+
     const { courseId } = useParams();
     const [course, setCourse] = useState(null);
+    const [isEnrolled, setIsEnrolled] = useState(false);
+
     const formatDate = useFormatDate();
 
     const navigate = useNavigate();
+
+    // // 강의 상세 정보 조회 (미구현)
+    // useEffect(() => {
+    //     const fetchCourse = async () => {
+    //         try {
+    //             const res = await api.get(`/courses/${courseId}`);
+    //             setCourse(res.data);
+    //         } catch (err) {
+    //             console.error(err);
+    //         }
+    //     };
+    //     fetchCourse();
+    // }, [id]);
+
+    // 수강 신청
+    const enroll = async () => {
+        try {
+            await enrollCourseAPI(Number(courseId));
+
+            alert("수강 신청이 완료되었습니다.");
+            navigate("/learn/myCourses");
+        } catch (err) {
+            console.error(err);
+            alert(
+                err.response?.data?.message ||
+                    "수강 신청 중 오류가 발생했습니다."
+            );
+        }
+    };
+
+    // 수강 취소
+    const cancelEnroll = async () => {
+        try {
+            await cancelEnrollmentAPI(Number(courseId));
+
+            alert("수강이 취소되었습니다.");
+            setIsEnrolled(false);
+            navigate("/learn/myCourses");
+        } catch (err) {
+            console.error(err);
+            alert(
+                err.response?.data?.message ||
+                    "수강 취소 중 오류가 발생했습니다."
+            );
+        }
+    };
+
+    // 수강 신청된 강의인지 확인(내 수강 목록에서 이 강의가 신청됐는지 체크)
+    useEffect(() => {
+        if (user.role === "STUDENT") {
+            const checkEnrollment = async () => {
+                try {
+                    const list = await getMyEnrollmentsAPI();
+
+                    // EnrollmentDTO 에 courseId 프로퍼티가 있다고 가정
+                    const enrolled = list.some(
+                        (e) => e.courseId === Number(courseId)
+                    );
+
+                    setIsEnrolled(enrolled);
+                } catch (err) {
+                    console.error("내 수강목록 조회 실패", err);
+                }
+            };
+            checkEnrollment();
+        }
+    }, [courseId, user.role]);
 
     useEffect(() => {
         // 임시 데이터 생성
@@ -54,11 +133,14 @@ export default function CourseDetail() {
                 duration: `${10 + j * 5}분`,
             }));
 
+            const point = (i % 3) + 1;
+
             return {
                 id: i + 1,
                 subjectCode: `SUBJ${String(i + 1).padStart(3, "0")}`,
                 name: `강의 ${i + 1}`,
                 educatorName: educatorNames[i % educatorNames.length],
+                point,
                 createdAt: created.toISOString(),
                 updatedAt: updated.toISOString(),
                 description: `강의 ${i + 1}에 대한 상세 설명입니다. 핵심 개념과 실습 예제를 포함합니다.`,
@@ -106,6 +188,7 @@ export default function CourseDetail() {
                     { label: "강사", value: course.educatorName },
                     { label: "카테고리", value: course.category },
                     { label: "난이도", value: course.difficulty },
+                    { label: "학점", value: course.point },
                 ].map((item) => (
                     <Box
                         key={item.label}
@@ -155,15 +238,20 @@ export default function CourseDetail() {
                             }}
                         >
                             <ListItemText
-                                primary={lec.title}
-                                secondary={lec.duration}
-                                primaryTypographyProps={{
-                                    variant: "body2",
-                                    fontWeight: 500,
-                                }}
-                                secondaryTypographyProps={{
-                                    variant: "caption",
-                                }}
+                                disableTypography
+                                primary={
+                                    <Typography
+                                        variant="body2"
+                                        fontWeight={500}
+                                    >
+                                        {lec.title}
+                                    </Typography>
+                                }
+                                secondary={
+                                    <Typography variant="caption">
+                                        {lec.duration}
+                                    </Typography>
+                                }
                             />
                         </ListItem>
                         {idx < course.lectures.length - 1 && (
@@ -176,6 +264,7 @@ export default function CourseDetail() {
             <Box
                 sx={{
                     display: "flex",
+                    justifyContent: "flex-end",
                     gap: 4,
                     borderTop: 1,
                     borderColor: "divider",
@@ -198,21 +287,46 @@ export default function CourseDetail() {
                     mt: 4,
                 }}
             >
+                {user.role === "STUDENT" ? (
+                    <Button
+                        size="medium"
+                        variant="contained"
+                        color="primary"
+                        onClick={isEnrolled ? cancelEnroll : enroll}
+                    >
+                        {isEnrolled ? "수강 취소" : "수강신청"}
+                    </Button>
+                ) : (
+                    <Button
+                        size="medium"
+                        variant="contained"
+                        color="primary"
+                        onClick={() => navigate("edit")}
+                    >
+                        수정
+                    </Button>
+                )}
+                {user.role === "EDUCATOR" && (
+                    <Button
+                        size="medium"
+                        variant="contained"
+                        color="error"
+                        onClick={handleDelete}
+                    >
+                        삭제
+                    </Button>
+                )}
                 <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => navigate("edit")}
+                    size="medium"
+                    variant="outlined"
+                    sx={{
+                        color: theme.palette.primary.dark,
+                        "&:hover": {
+                            bgcolor: theme.palette.grey[50],
+                        },
+                    }}
+                    onClick={() => navigate("/courses")}
                 >
-                    수정
-                </Button>
-                <Button
-                    variant="contained"
-                    color="error"
-                    onClick={handleDelete}
-                >
-                    삭제
-                </Button>
-                <Button variant="outlined" onClick={() => navigate("/courses")}>
                     목록
                 </Button>
             </Box>

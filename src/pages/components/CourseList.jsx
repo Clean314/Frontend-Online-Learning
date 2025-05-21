@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import Chip from "@mui/material/Chip";
 
 export default function CourseList() {
     // ex) /courses?page=1&rowsPerPage=10&excludeEnrolled=true
@@ -74,6 +75,7 @@ export default function CourseList() {
                 id: i + 1,
                 subjectCode: `SUBJ${String(i + 1).padStart(3, "0")}`,
                 name: `강의 ${i + 1}`,
+                point: (i % 3) + 1,
                 createdAt: created.toISOString(),
                 updatedAt: updated.toISOString(),
                 educatorName: educatorNames[i % educatorNames.length],
@@ -182,12 +184,13 @@ export default function CourseList() {
                 <Table>
                     <colgroup>
                         <col style={{ width: "7%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "23%" }} />
+                        <col style={{ width: "10%" }} />
                         <col style={{ width: "13%" }} />
-                        <col style={{ width: "25%" }} />
-                        <col style={{ width: "15%" }} />
-                        <col style={{ width: "15%" }} />
-                        <col style={{ width: "5%" }} />
-                        <col style={{ width: "15%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "12%" }} />
+                        <col style={{ width: "13%" }} />
                     </colgroup>
                     <TableHead>
                         <TableRow
@@ -204,6 +207,7 @@ export default function CourseList() {
                             <TableCell>강사</TableCell>
                             <TableCell>카테고리</TableCell>
                             <TableCell>난이도</TableCell>
+                            <TableCell>학점</TableCell>
                             <TableCell>등록일</TableCell>
                         </TableRow>
                     </TableHead>
@@ -215,23 +219,26 @@ export default function CourseList() {
                                         (page * rowsPerPage + index)}
                                 </TableCell>
                                 <TableCell>{course.subjectCode}</TableCell>
-                                <TableCell
-                                    sx={{
-                                        width: "100%",
-                                        transition: "all 0.15s ease-in-out",
-                                        "&:hover": {
-                                            transform: "scale(1.1)",
-                                            color: "#B1AFFF",
-                                            fontWeight: 600,
-                                        },
-                                        cursor: "pointer",
-                                        display: "inline-block",
-                                    }}
-                                    onClick={() => navigate(`${course.id}`)}
-                                >
-                                    <Typography variant="body2">
-                                        {course.name}
-                                    </Typography>
+                                <TableCell>
+                                    <Box
+                                        onClick={() => navigate(`${course.id}`)}
+                                        sx={{
+                                            display: "inline-block",
+                                            width: "100%",
+                                            transition: "all 0.15s ease-in-out",
+                                            "&:hover": {
+                                                transform: "scale(1.1)",
+                                                color: "#B1AFFF",
+                                                fontWeight: 600,
+                                            },
+                                            cursor: "pointer",
+                                            verticalAlign: "middle", // 혹은 lineHeight 조정
+                                        }}
+                                    >
+                                        <Typography variant="body2">
+                                            {course.name}
+                                        </Typography>
+                                    </Box>
                                 </TableCell>
                                 <TableCell>{course.educatorName}</TableCell>
                                 <TableCell>{course.category}</TableCell>
@@ -244,6 +251,13 @@ export default function CourseList() {
                                         }
                                         readOnly
                                         size="small"
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Chip
+                                        label={`${course.point} 학점`}
+                                        variant="outlined"
+                                        size="medium"
                                     />
                                 </TableCell>
                                 <TableCell>

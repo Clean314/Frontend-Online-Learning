@@ -76,6 +76,7 @@ export default function CourseEnrolled() {
                 enrolledAt: enrolledAt.toISOString(),
                 difficulty: difficulties[i % difficulties.length],
                 category: categories[i % categories.length],
+                point: (i % 3) + 1,
             };
         });
 
@@ -160,10 +161,11 @@ export default function CourseEnrolled() {
                         <col style={{ width: "7%" }} />
                         <col style={{ width: "13%" }} />
                         <col style={{ width: "25%" }} />
-                        <col style={{ width: "15%" }} />
+                        <col style={{ width: "10%" }} />
                         <col style={{ width: "15%" }} />
                         <col style={{ width: "5%" }} />
-                        <col style={{ width: "15%" }} />
+                        <col style={{ width: "8%" }} />
+                        <col style={{ width: "12%" }} />
                     </colgroup>
                     <TableHead>
                         <TableRow
@@ -180,6 +182,7 @@ export default function CourseEnrolled() {
                             <TableCell>강사</TableCell>
                             <TableCell>카테고리</TableCell>
                             <TableCell>난이도</TableCell>
+                            <TableCell>학점</TableCell>
                             <TableCell>수강 상태</TableCell>
                         </TableRow>
                     </TableHead>
@@ -191,27 +194,30 @@ export default function CourseEnrolled() {
                                         (page * rowsPerPage + idx)}
                                 </TableCell>
                                 <TableCell>{item.subjectCode}</TableCell>
-                                <TableCell
-                                    sx={{
-                                        width: "100%",
-                                        transition: "all 0.15s ease-in-out",
-                                        "&:hover": {
-                                            transform: "scale(1.1)",
-                                            color: "#B1AFFF",
-                                            fontWeight: 600,
-                                        },
-                                        cursor: "pointer",
-                                        display: "inline-block",
-                                    }}
-                                    onClick={() =>
-                                        navigate(
-                                            `/courses/${item.id}/classroom`
-                                        )
-                                    }
-                                >
-                                    <Typography variant="body2">
-                                        {item.name}
-                                    </Typography>
+                                <TableCell>
+                                    <Box
+                                        onClick={() =>
+                                            navigate(
+                                                `/courses/${item.id}/classroom`
+                                            )
+                                        }
+                                        sx={{
+                                            display: "inline-block",
+                                            width: "100%",
+                                            transition: "all 0.15s ease-in-out",
+                                            "&:hover": {
+                                                transform: "scale(1.1)",
+                                                color: "#B1AFFF",
+                                                fontWeight: 600,
+                                            },
+                                            cursor: "pointer",
+                                            verticalAlign: "middle",
+                                        }}
+                                    >
+                                        <Typography variant="body2">
+                                            {item.name}
+                                        </Typography>
+                                    </Box>
                                 </TableCell>
                                 <TableCell>{item.educatorName}</TableCell>
                                 <TableCell>{item.category}</TableCell>
@@ -224,6 +230,13 @@ export default function CourseEnrolled() {
                                         }
                                         readOnly
                                         size="small"
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Chip
+                                        label={`${item.point} 학점`}
+                                        variant="outlined"
+                                        size="medium"
                                     />
                                 </TableCell>
                                 <TableCell>

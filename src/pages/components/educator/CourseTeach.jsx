@@ -179,25 +179,28 @@ export default function CourseTeach() {
                                         (page * rowsPerPage + idx)}
                                 </TableCell>
                                 <TableCell>{course.subjectCode}</TableCell>
-                                <TableCell
-                                    sx={{
-                                        width: "100%",
-                                        transition: "all 0.15s ease-in-out",
-                                        "&:hover": {
-                                            transform: "scale(1.1)",
-                                            color: "#B1AFFF",
-                                            fontWeight: 600,
-                                        },
-                                        cursor: "pointer",
-                                        display: "inline-block",
-                                    }}
-                                    onClick={() =>
-                                        navigate(`/courses/${course.id}`)
-                                    }
-                                >
-                                    <Typography variant="body2">
-                                        {course.name}
-                                    </Typography>
+                                <TableCell>
+                                    <Box
+                                        onClick={() =>
+                                            navigate(`/courses/${course.id}`)
+                                        }
+                                        sx={{
+                                            display: "inline-block",
+                                            width: "100%",
+                                            transition: "all 0.15s ease-in-out",
+                                            "&:hover": {
+                                                transform: "scale(1.1)",
+                                                color: "#B1AFFF",
+                                                fontWeight: 600,
+                                            },
+                                            cursor: "pointer",
+                                            verticalAlign: "middle",
+                                        }}
+                                    >
+                                        <Typography variant="body2">
+                                            {course.name}
+                                        </Typography>
+                                    </Box>
                                 </TableCell>
                                 <TableCell>{course.category}</TableCell>
                                 <TableCell>
