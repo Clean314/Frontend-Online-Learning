@@ -20,6 +20,7 @@ import {
     TextField,
     Button,
 } from "@mui/material";
+import { getMyRegisteredCoursesAPI } from "../../../api/course";
 
 export default function CourseTeach() {
     const { user } = useAuth();
@@ -33,45 +34,19 @@ export default function CourseTeach() {
     const [searchName, setSearchName] = useState("");
     const [searchCategory, setSearchCategory] = useState("");
 
-    // 샘플 데이터 생성 및 강사 필터링
     useEffect(() => {
-        const educatorNames = [
-            "김철수",
-            "김영희",
-            "박민수",
-            "최유리",
-            "홍길동",
-        ];
-        const categories = [
-            "프로그래밍",
-            "데이터베이스",
-            "네트워크",
-            "보안",
-            "AI",
-        ];
-        const difficulties = ["EASY", "MEDIUM", "HARD"];
-        const baseCreated = new Date(2025, 3, 1, 9, 0, 0);
-        const baseUpdated = new Date(2025, 3, 1, 10, 0, 0);
+        if (!user) return;
 
-        // TODO: 실제 API 연동하여 본인 강의 리스트 조회
-        const mockData = Array.from({ length: 50 }, (_, i) => {
-            const created = new Date(baseCreated.getTime() + i * 86400000);
-            const updated = new Date(baseUpdated.getTime() + i * 86400000);
-            return {
-                id: i + 1,
-                subjectCode: `SUBJ${String(i + 1).padStart(3, "0")}`,
-                name: `강의 ${i + 1}`,
-                educatorName: educatorNames[i % educatorNames.length],
-                category: categories[i % categories.length],
-                difficulty: difficulties[i % difficulties.length],
-                createdAt: created.toISOString(),
-                updatedAt: updated.toISOString(),
-            };
-        });
+        const fetchCourses = async () => {
+            try {
+                const data = await getMyRegisteredCoursesAPI();
+                setCourses(data);
+            } catch (err) {
+                console.error("내 강의 목록 조회 실패:", err);
+            }
+        };
 
-        // 로그인된 유저 이름과 일치하는 강의만 필터링
-        const myCourses = mockData.filter((c) => c.educatorName === user?.name);
-        setCourses(myCourses);
+        fetchCourses();
     }, [user]);
 
     const totalPages = Math.ceil(courses.length / rowsPerPage);

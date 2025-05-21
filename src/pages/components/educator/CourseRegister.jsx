@@ -12,17 +12,18 @@ import {
     MenuItem,
     OutlinedInput,
 } from "@mui/material";
-import useAuth from "../../../hooks/auth/useAuth";
+import { createCourseAPI } from "../../../api/course";
 
 const categories = ["프로그래밍", "데이터베이스", "네트워크", "보안", "AI"];
 const difficulties = ["EASY", "MEDIUM", "HARD"];
+const credits = [1, 2, 3];
 
 export default function CourseRegister() {
-    const { user } = useAuth();
     const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         name: "",
-        educatorName: "",
+        point: "",
         category: "",
         difficulty: "",
         description: "",
@@ -30,19 +31,25 @@ export default function CourseRegister() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+
         setFormData((prev) => ({
             ...prev,
             [name]: value,
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO: POST api 호출
 
-        console.log("등록할 강의 정보:", formData);
-        alert("새 강의가 등록되었습니다.");
-        navigate("/teach/myCourses");
+        try {
+            await createCourseAPI(formData);
+
+            alert("새 강의가 등록되었습니다.");
+            navigate("/teach/myCourses");
+        } catch (err) {
+            console.error("강의 등록 실패:", err);
+            alert("강의 등록에 실패했습니다. 다시 시도해주세요.");
+        }
     };
 
     return (
@@ -55,54 +62,73 @@ export default function CourseRegister() {
                 onSubmit={handleSubmit}
                 sx={{ display: "flex", flexDirection: "column", gap: 2 }}
             >
-                <TextField
-                    label="강의명"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                />
-                <FormControl fullWidth>
-                    <InputLabel shrink>강사</InputLabel>
-                    <OutlinedInput value={user.name} label="강사" readOnly />
-                </FormControl>
-                <FormControl required>
-                    <InputLabel>카테고리</InputLabel>
-                    <Select
-                        label="카테고리"
-                        name="category"
-                        value={formData.category}
+                <Box sx={{ display: "flex", gap: 2 }}>
+                    <FormControl sx={{ width: "auto", minWidth: 200 }} required>
+                        <InputLabel>카테고리</InputLabel>
+                        <Select
+                            label="카테고리"
+                            name="category"
+                            value={formData.category}
+                            onChange={handleChange}
+                        >
+                            {categories.map((cat) => (
+                                <MenuItem key={cat} value={cat}>
+                                    {cat}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <TextField
+                        label="강의명"
+                        name="name"
+                        value={formData.name}
                         onChange={handleChange}
-                    >
-                        {categories.map((cat) => (
-                            <MenuItem key={cat} value={cat}>
-                                {cat}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-                <FormControl required>
-                    <InputLabel>난이도</InputLabel>
-                    <Select
-                        label="난이도"
-                        name="difficulty"
-                        value={formData.difficulty}
-                        onChange={handleChange}
-                    >
-                        {difficulties.map((level) => (
-                            <MenuItem key={level} value={level}>
-                                {level}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                        fullWidth
+                        required
+                    />
+                </Box>
+
+                <Box sx={{ display: "flex", gap: 2 }}>
+                    <FormControl fullWidth required>
+                        <InputLabel>학점</InputLabel>
+                        <Select
+                            label="학점"
+                            name="point"
+                            value={formData.point}
+                            onChange={handleChange}
+                        >
+                            {credits.map((c) => (
+                                <MenuItem key={c} value={c}>
+                                    {c}학점
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl fullWidth required>
+                        <InputLabel>난이도</InputLabel>
+                        <Select
+                            label="난이도"
+                            name="difficulty"
+                            value={formData.difficulty}
+                            onChange={handleChange}
+                        >
+                            {difficulties.map((level) => (
+                                <MenuItem key={level} value={level}>
+                                    {level}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Box>
+
                 <TextField
                     label="상세 설명"
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
                     multiline
-                    rows={4}
+                    rows={7}
                 />
 
                 <Box
