@@ -131,7 +131,7 @@ export default function AdminUserList() {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell></TableCell>
+                            <TableCell>ID</TableCell>
                             <TableCell>이름</TableCell>
                             <TableCell>이메일</TableCell>
                             <TableCell>역할</TableCell>
