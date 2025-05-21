@@ -67,7 +67,7 @@ export default function SignUpPage() {
                         {role === "student" ? "학생" : "강사"} 회원가입
                     </Typography>
                 </Box>
-                <Box component="form">
+                <Box component="form" onSubmit={handleSubmit}>
                     <TextField
                         margin="normal"
                         required
@@ -99,8 +99,7 @@ export default function SignUpPage() {
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <Button
-                        type="button"
-                        onClick={handleSubmit}
+                        type="submit"
                         fullWidth
                         variant="contained"
                         sx={{ mt: 3 }}
