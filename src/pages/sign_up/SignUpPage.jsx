@@ -23,12 +23,17 @@ export default function SignUpPage() {
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
 
+    const [emailError, setEmailError] = useState("");
+    const [generalError, setGeneralError] = useState("");
+
     const navigate = useNavigate();
     const { role } = useParams();
 
     // TODO: 이메일 중복 오류 메시지 추가
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setEmailError("");
+        setGeneralError("");
 
         try {
             await signupAPI({
@@ -37,11 +42,27 @@ export default function SignUpPage() {
                 name,
                 role: role.toUpperCase(),
             });
+
             alert("회원가입이 완료되었습니다!");
             navigate("/login");
         } catch (err) {
             console.error(err);
-            alert("회원가입 실패: " + err.message);
+
+            if (err.response) {
+                if (err.response.status === 409) {
+                    // 중복 이메일
+                    setEmailError(
+                        err.response.data || "이미 사용 중인 이메일입니다."
+                    );
+                } else {
+                    // 그 외 서버 에러
+                    setGeneralError(
+                        err.response.data || "회원가입 중 오류가 발생했습니다."
+                    );
+                }
+            } else {
+                setGeneralError("네트워크 오류가 발생했습니다.");
+            }
         }
     };
 
@@ -87,6 +108,8 @@ export default function SignUpPage() {
                         name="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        error={Boolean(emailError)}
+                        helperText={emailError}
                     />
                     <TextField
                         margin="normal"
@@ -98,6 +121,15 @@ export default function SignUpPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
+                    {generalError && (
+                        <Typography
+                            color="error"
+                            variant="body2"
+                            sx={{ mt: 1 }}
+                        >
+                            {generalError}
+                        </Typography>
+                    )}
                     <Button
                         type="submit"
                         fullWidth
