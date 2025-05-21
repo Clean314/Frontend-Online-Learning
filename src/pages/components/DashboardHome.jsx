@@ -5,11 +5,17 @@ import {
     Avatar,
     Typography,
     Card,
-    CardContent,
     CircularProgress,
-    Button,
     CardActionArea,
+    TextField,
+    Stack,
+    IconButton,
 } from "@mui/material";
+import {
+    Edit as EditIcon,
+    Save as SaveIcon,
+    Cancel as CancelIcon,
+} from "@mui/icons-material";
 import useAuth from "../../hooks/auth/useAuth";
 
 const mockRecentCourses = [
@@ -30,24 +36,60 @@ const mockCompletedCourses = [
     { id: 8, name: "Docker 시작하기", educatorName: "김강사" },
 ];
 
-export default function DashboardHome({ editable }) {
+export default function DashboardHome() {
     const navigate = useNavigate();
     const { user } = useAuth();
 
-    const [about, setAbout] = useState(null);
     const [recentCourses, setRecentCourses] = useState([]);
     const [completedCourses, setCompletedCourses] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // 수정 모드 토글
+    const [isEditing, setIsEditing] = useState(false);
+
+    // 폼 입력값 관리
+    const [form, setForm] = useState({
+        name: "",
+        email: "",
+        description: "",
+    });
+
     useEffect(() => {
         // TODO: API 호출 로직으로 아래 mock 데이터 교체
-        if (user) {
-            setAbout(user);
-        }
         setRecentCourses(mockRecentCourses); // TODO: 최근 수강 중인 강의 API 연결
         setCompletedCourses(mockCompletedCourses); // TODO: 최근 완료한 강의 API 연결
+
+        // 초기 폼 값 설정
+        setForm({
+            name: user.name,
+            email: user.email,
+            description: user.description || "",
+        });
+
         setLoading(false);
-    }, []);
+    }, [user]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const startEdit = () => setIsEditing(true);
+
+    const cancelEdit = () => {
+        setForm({
+            name: user.name,
+            email: user.email,
+            description: user.description || "",
+        });
+        setIsEditing(false);
+    };
+
+    const saveEdit = async () => {
+        // TODO: 사용자 정보 수정 API 연결
+
+        setIsEditing(false);
+    };
 
     if (loading) {
         return (
@@ -70,39 +112,86 @@ export default function DashboardHome({ editable }) {
             >
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Avatar sx={{ width: 80, height: 80, mr: 3 }}>
-                        {about.name.charAt(0)}
+                        {user.name.charAt(0)}
                     </Avatar>
                     <Box>
-                        <Typography variant="h5" component="h1" gutterBottom>
-                            {about.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            {about.email}
-                        </Typography>
-                        <Typography variant="body1" sx={{ mt: 1 }}>
-                            {/* {about.description} */}
-                            안녕하세요! 저는 프론트엔드 개발자 {user.name}
-                            입니다.
-                        </Typography>
+                        {isEditing ? (
+                            <>
+                                <TextField
+                                    label="이름"
+                                    name="name"
+                                    value={form.name}
+                                    onChange={handleChange}
+                                    variant="standard"
+                                    fullWidth
+                                    sx={{ mb: 1 }}
+                                />
+                                <TextField
+                                    label="이메일"
+                                    name="email"
+                                    value={form.email}
+                                    onChange={handleChange}
+                                    variant="standard"
+                                    fullWidth
+                                    sx={{ mb: 1 }}
+                                />
+                                <TextField
+                                    label="소개"
+                                    name="description"
+                                    value={form.description}
+                                    onChange={handleChange}
+                                    variant="standard"
+                                    fullWidth
+                                    multiline
+                                    rows={2}
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <Typography variant="h5" gutterBottom>
+                                    {user.name}
+                                </Typography>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
+                                    {user.email}
+                                </Typography>
+                                <Typography variant="body1" sx={{ mt: 1 }}>
+                                    {user.description ||
+                                        `안녕하세요. ${user.name}의 대시보드입니다.`}
+                                </Typography>
+                            </>
+                        )}
                     </Box>
                 </Box>
-                {editable && (
-                    <Button
-                        variant="outlined"
-                        size="large"
-                        onClick={() => {
-                            /* TODO: 수정 핸들러 */
-                        }}
-                    >
-                        수정
-                    </Button>
-                )}
+
+                <Stack direction="row" spacing={1}>
+                    {isEditing ? (
+                        <>
+                            <IconButton
+                                color="primary"
+                                onClick={saveEdit}
+                                size="large"
+                            >
+                                <SaveIcon />
+                            </IconButton>
+                            <IconButton onClick={cancelEdit} size="large">
+                                <CancelIcon />
+                            </IconButton>
+                        </>
+                    ) : (
+                        <IconButton onClick={startEdit} size="large">
+                            <EditIcon />
+                        </IconButton>
+                    )}
+                </Stack>
             </Box>
 
             {/* 최근 수강 중인 강의 */}
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h6" gutterBottom>
-                    {about.role === "STUDENT"
+                    {user.role === "STUDENT"
                         ? "최근 수강 강의"
                         : "최근 등록 강의"}
                 </Typography>
@@ -112,10 +201,7 @@ export default function DashboardHome({ editable }) {
                         gap: 2,
                         gridTemplateColumns: {
                             xs: "1fr",
-                            md: editable
-                                ? // 강의 개수만큼 1fr, 마지막 MORE만 0.5fr
-                                  `repeat(${completedCourses.length}, 1fr) 0.5fr`
-                                : `repeat(${completedCourses.length}, 1fr)`,
+                            md: `repeat(${completedCourses.length}, 1fr) 0.5fr`, // 강의 개수만큼 1fr, 마지막 MORE만 0.5fr
                         },
                     }}
                 >
@@ -137,11 +223,7 @@ export default function DashboardHome({ editable }) {
                         >
                             <CardActionArea
                                 onClick={() =>
-                                    navigate(
-                                        editable
-                                            ? `/courses/${course.id}/classroom`
-                                            : `/courses/${course.id}`
-                                    )
+                                    navigate(`/courses/${course.id}/classroom`)
                                 }
                                 sx={{
                                     height: "100%",
@@ -177,33 +259,31 @@ export default function DashboardHome({ editable }) {
                     ))}
 
                     {/* MORE 버튼 */}
-                    {editable && (
-                        <CardActionArea
-                            onClick={() =>
-                                navigate(
-                                    about.role === "STUDENT"
-                                        ? "/learn/myCourses/enrolled"
-                                        : "/teach/myCourses"
-                                )
-                            }
-                            sx={{
-                                height: 160,
-                                borderRadius: 2,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <Typography variant="button">MORE &gt;</Typography>
-                        </CardActionArea>
-                    )}
+                    <CardActionArea
+                        onClick={() =>
+                            navigate(
+                                user.role === "STUDENT"
+                                    ? "/learn/myCourses/enrolled"
+                                    : "/teach/myCourses"
+                            )
+                        }
+                        sx={{
+                            height: 160,
+                            borderRadius: 2,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                        }}
+                    >
+                        <Typography variant="button">MORE &gt;</Typography>
+                    </CardActionArea>
                 </Box>
             </Box>
 
             {/* 최근 완료한 강의 */}
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h6" gutterBottom>
-                    {about.role === "STUDENT"
+                    {user.role === "STUDENT"
                         ? "최근 완강 강의"
                         : "최근 수정 강의"}
                 </Typography>
@@ -214,10 +294,7 @@ export default function DashboardHome({ editable }) {
                         gap: 2,
                         gridTemplateColumns: {
                             xs: "1fr",
-                            md: editable
-                                ? // 강의 개수만큼 1fr, 마지막 MORE만 0.5fr
-                                  `repeat(${completedCourses.length}, 1fr) 0.5fr`
-                                : `repeat(${completedCourses.length}, 1fr)`,
+                            md: `repeat(${completedCourses.length}, 1fr) 0.5fr`,
                         },
                     }}
                 >
@@ -239,11 +316,7 @@ export default function DashboardHome({ editable }) {
                         >
                             <CardActionArea
                                 onClick={() =>
-                                    navigate(
-                                        editable
-                                            ? `/courses/${course.id}/classroom`
-                                            : `/courses/${course.id}`
-                                    )
+                                    navigate(`/courses/${course.id}/classroom`)
                                 }
                                 sx={{
                                     height: "100%",
@@ -278,26 +351,24 @@ export default function DashboardHome({ editable }) {
                         </Card>
                     ))}
 
-                    {editable && (
-                        <CardActionArea
-                            onClick={() =>
-                                navigate(
-                                    about.role === "STUDENT"
-                                        ? "/learn/myCourses/completed"
-                                        : "/teach/myCourses"
-                                )
-                            }
-                            sx={{
-                                height: 160,
-                                borderRadius: 2,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <Typography variant="button">MORE &gt;</Typography>
-                        </CardActionArea>
-                    )}
+                    <CardActionArea
+                        onClick={() =>
+                            navigate(
+                                user.role === "STUDENT"
+                                    ? "/learn/myCourses/completed"
+                                    : "/teach/myCourses"
+                            )
+                        }
+                        sx={{
+                            height: 160,
+                            borderRadius: 2,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                        }}
+                    >
+                        <Typography variant="button">MORE &gt;</Typography>
+                    </CardActionArea>
                 </Box>
             </Box>
         </Box>
