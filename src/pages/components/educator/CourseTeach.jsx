@@ -5,8 +5,6 @@ import {
     Box,
     Paper,
     Typography,
-    Select,
-    MenuItem,
     Table,
     TableBody,
     TableCell,
@@ -17,75 +15,32 @@ import {
     Rating,
     FormControl,
     Stack,
-    TextField,
-    Button,
+    Select,
+    MenuItem,
     Chip,
 } from "@mui/material";
-// import { getMyRegisteredCoursesAPI } from "../../../api/course"; // 실제 API는 아직 미구현
+import { getMyRegisteredCoursesAPI } from "../../../api/course";
 
 export default function CourseTeach() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // 임시 샘플 데이터 (point 포함)
-    const tempCourses = [
-        {
-            id: 101,
-            subjectCode: "CS101",
-            name: "React 기초",
-            category: "프로그래밍",
-            difficulty: "EASY",
-            point: 2, // 학점
-            createdAt: "2025-05-01T10:00:00Z",
-            updatedAt: "2025-05-15T15:30:00Z",
-            maxEnrollment: 50,
-        },
-        {
-            id: 102,
-            subjectCode: "DB202",
-            name: "Oracle 데이터베이스 심화",
-            category: "데이터베이스",
-            difficulty: "MEDIUM",
-            point: 3,
-            createdAt: "2025-04-20T09:00:00Z",
-            updatedAt: "2025-05-10T11:45:00Z",
-            maxEnrollment: 30,
-        },
-        {
-            id: 103,
-            subjectCode: "AI303",
-            name: "머신러닝 입문",
-            category: "AI",
-            difficulty: "HARD",
-            point: 3,
-            createdAt: "2025-03-15T14:20:00Z",
-            updatedAt: "2025-05-05T17:10:00Z",
-            maxEnrollment: 100,
-        },
-    ];
-
     const [courses, setCourses] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const [searchName, setSearchName] = useState("");
-    const [searchCategory, setSearchCategory] = useState("");
+    // 강의 목록 조회
+    const fetchCourses = async () => {
+        try {
+            const data = await getMyRegisteredCoursesAPI();
+            setCourses(data);
+        } catch (err) {
+            console.error("내 강의 목록 조회 실패:", err);
+        }
+    };
 
     useEffect(() => {
         if (!user) return;
-
-        const fetchCourses = async () => {
-            try {
-                // TODO: 실제 API 연동 시 아래 주석 해제
-                // const data = await getMyRegisteredCoursesAPI();
-                // setCourses(data);
-
-                setCourses(tempCourses);
-            } catch (err) {
-                console.error("내 강의 목록 조회 실패:", err);
-            }
-        };
-
         fetchCourses();
     }, [user]);
 
@@ -105,97 +60,45 @@ export default function CourseTeach() {
         page * rowsPerPage + rowsPerPage
     );
 
-    const search = () => {
-        console.log("검색어:", searchName, "카테고리:", searchCategory);
-        setPage(0);
-        // TODO: 실제 API 연동하여 검색 요청
-    };
-
     return (
         <Paper sx={{ p: 2 }}>
-            {/* 검색 및 페이지당 설정 */}
+            {/* 페이지당 설정 */}
             <Box
                 sx={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "space-between",
+                    justifyContent: "flex-end",
                     mb: 2,
                 }}
             >
-                <Box
-                    component="form"
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        search();
-                    }}
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                    }}
-                >
-                    <TextField
-                        label="강의명 검색"
-                        value={searchName}
-                        onChange={(e) => setSearchName(e.target.value)}
-                        size="small"
-                    />
-                    <FormControl size="small">
-                        <Select
-                            displayEmpty
-                            value={searchCategory}
-                            onChange={(e) => setSearchCategory(e.target.value)}
-                        >
-                            <MenuItem value="">전체</MenuItem>
-                            {[
-                                "프로그래밍",
-                                "데이터베이스",
-                                "네트워크",
-                                "보안",
-                                "AI",
-                            ].map((cat) => (
-                                <MenuItem key={cat} value={cat}>
-                                    {cat}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                    <Button type="submit" variant="contained">
-                        검색
-                    </Button>
-                </Box>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Typography variant="body2" sx={{ mr: 1 }}>
-                        페이지당:
-                    </Typography>
-                    <FormControl size="small">
-                        <Select
-                            value={rowsPerPage}
-                            onChange={handleRowsPerPageChange}
-                        >
-                            {[5, 10, 20].map((n) => (
-                                <MenuItem key={n} value={n}>
-                                    {n}개
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </Box>
+                <Typography variant="body2" sx={{ mr: 1 }}>
+                    페이지당:
+                </Typography>
+                <FormControl size="small">
+                    <Select
+                        value={rowsPerPage}
+                        onChange={handleRowsPerPageChange}
+                    >
+                        {[5, 10, 20].map((n) => (
+                            <MenuItem key={n} value={n}>
+                                {n}개
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
             </Box>
 
-            {/* 테이블 */}
             <TableContainer sx={{ tableLayout: "fixed", width: "100%" }}>
                 <Table>
                     <colgroup>
                         <col style={{ width: "6%" }} />
-                        <col style={{ width: "10%" }} />
-                        <col style={{ width: "20%" }} />
-                        <col style={{ width: "14%" }} />
+                        <col style={{ width: "27%" }} />
+                        <col style={{ width: "15%" }} />
                         <col style={{ width: "8%" }} />
                         <col style={{ width: "8%" }} />
                         <col style={{ width: "10%" }} />
-                        <col style={{ width: "12%" }} />
-                        <col style={{ width: "12%" }} />
+                        <col style={{ width: "13%" }} />
+                        <col style={{ width: "13%" }} />
                     </colgroup>
                     <TableHead>
                         <TableRow
@@ -207,7 +110,6 @@ export default function CourseTeach() {
                             }}
                         >
                             <TableCell></TableCell>
-                            <TableCell>과목코드</TableCell>
                             <TableCell>강의명</TableCell>
                             <TableCell>카테고리</TableCell>
                             <TableCell>난이도</TableCell>
@@ -224,7 +126,6 @@ export default function CourseTeach() {
                                     {courses.length -
                                         (page * rowsPerPage + idx)}
                                 </TableCell>
-                                <TableCell>{course.subjectCode}</TableCell>
                                 <TableCell>
                                     <Box
                                         onClick={() =>
@@ -244,7 +145,7 @@ export default function CourseTeach() {
                                         }}
                                     >
                                         <Typography variant="body2">
-                                            {course.name}
+                                            {course.course_name}
                                         </Typography>
                                     </Box>
                                 </TableCell>
@@ -286,7 +187,6 @@ export default function CourseTeach() {
                 </Table>
             </TableContainer>
 
-            {/* 페이지네이션 */}
             <Stack alignItems="center" mt={2}>
                 <Pagination
                     count={totalPages}

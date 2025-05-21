@@ -137,8 +137,7 @@ export default function CourseDetail() {
 
             return {
                 id: i + 1,
-                subjectCode: `SUBJ${String(i + 1).padStart(3, "0")}`,
-                name: `강의 ${i + 1}`,
+                course_name: `강의 ${i + 1}`,
                 educatorName: educatorNames[i % educatorNames.length],
                 point,
                 createdAt: created.toISOString(),
@@ -176,10 +175,7 @@ export default function CourseDetail() {
                 sx={{ borderBottom: 1, borderColor: "divider", pb: 1, mb: 3 }}
             >
                 <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                    {course.name}
-                </Typography>
-                <Typography variant="subtitle2" color="text.secondary">
-                    ({course.subjectCode})
+                    {course.course_name}
                 </Typography>
             </Box>
 

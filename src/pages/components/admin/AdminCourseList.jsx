@@ -50,8 +50,7 @@ export default function AdminCourseList() {
 
         const dummyCourses = Array.from({ length: 15 }, (_, i) => ({
             id: i + 1,
-            subjectCode: `SUBJ${String(i + 1).padStart(3, "0")}`,
-            name: `강의 ${i + 1}`,
+            course_name: `강의 ${i + 1}`,
             educatorName: educatorNames[i % educatorNames.length],
             category: categories[i % categories.length],
             difficulty: difficulties[i % difficulties.length],
@@ -138,7 +137,6 @@ export default function AdminCourseList() {
                     <TableHead>
                         <TableRow>
                             <TableCell>ID</TableCell>
-                            <TableCell>과목코드</TableCell>
                             <TableCell>강의명</TableCell>
                             <TableCell>강사</TableCell>
                             <TableCell>카테고리</TableCell>
@@ -152,13 +150,12 @@ export default function AdminCourseList() {
                         {displayed.map((course) => (
                             <TableRow key={course.id} hover>
                                 <TableCell>{course.id}</TableCell>
-                                <TableCell>{course.subjectCode}</TableCell>
                                 {editingId === course.id ? (
                                     <>
                                         <TableCell>
                                             <TextField
-                                                name="name"
-                                                value={editedData.name}
+                                                name="course_name"
+                                                value={editedData.course_name}
                                                 onChange={handleChange}
                                                 size="small"
                                             />
@@ -235,7 +232,6 @@ export default function AdminCourseList() {
                                                         max: 100,
                                                     },
                                                 }}
-                                                helperText="최소 10명, 최대 100명까지 입력 가능합니다."
                                             />
                                         </TableCell>
                                         <TableCell align="right">
@@ -263,7 +259,9 @@ export default function AdminCourseList() {
                                     </>
                                 ) : (
                                     <>
-                                        <TableCell>{course.name}</TableCell>
+                                        <TableCell>
+                                            {course.course_name}
+                                        </TableCell>
                                         <TableCell>
                                             {course.educatorName}
                                         </TableCell>

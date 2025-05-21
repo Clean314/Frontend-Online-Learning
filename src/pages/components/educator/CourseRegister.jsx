@@ -24,7 +24,7 @@ export default function CourseRegister() {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        name: "",
+        course_name: "",
         point: "",
         category: "",
         difficulty: "",
@@ -83,8 +83,8 @@ export default function CourseRegister() {
                     </FormControl>
                     <TextField
                         label="강의명"
-                        name="name"
-                        value={formData.name}
+                        name="course_name"
+                        value={formData.course_name}
                         onChange={handleChange}
                         fullWidth
                         required

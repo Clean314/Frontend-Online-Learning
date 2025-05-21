@@ -72,12 +72,11 @@ export default function CourseList() {
             updated.setDate(updated.getDate() + i);
 
             const maxEn = 20 + (i % 5) * 10; // 20,30,40,50,60 반복
-            const currEn = Math.floor(Math.random() * maxEn); // 0 ~ maxEn-1
+            const currEn = Math.floor(Math.random() * maxEn);
 
             return {
                 id: i + 1,
-                subjectCode: `SUBJ${String(i + 1).padStart(3, "0")}`,
-                name: `강의 ${i + 1}`,
+                course_name: `강의 ${i + 1}`,
                 point: (i % 3) + 1,
                 createdAt: created.toISOString(),
                 updatedAt: updated.toISOString(),
@@ -181,7 +180,6 @@ export default function CourseList() {
                 <Table>
                     <colgroup>
                         <col style={{ width: "7%" }} />
-                        <col style={{ width: "10%" }} />
                         <col style={{ width: "23%" }} />
                         <col style={{ width: "10%" }} />
                         <col style={{ width: "13%" }} />
@@ -200,7 +198,6 @@ export default function CourseList() {
                             }}
                         >
                             <TableCell></TableCell>
-                            <TableCell>과목코드</TableCell>
                             <TableCell>강의명</TableCell>
                             <TableCell>강사</TableCell>
                             <TableCell>카테고리</TableCell>
@@ -220,7 +217,6 @@ export default function CourseList() {
                                         {courses.length -
                                             (page * rowsPerPage + index)}
                                     </TableCell>
-                                    <TableCell>{course.subjectCode}</TableCell>
                                     <TableCell>
                                         <Box
                                             onClick={() =>
@@ -241,7 +237,7 @@ export default function CourseList() {
                                             }}
                                         >
                                             <Typography variant="body2">
-                                                {course.name}
+                                                {course.course_name}
                                             </Typography>
                                         </Box>
                                     </TableCell>

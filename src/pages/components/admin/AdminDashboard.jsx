@@ -75,12 +75,32 @@ export default function AdminDashboard() {
                     role: "ADMIN",
                 },
             ]);
+            // 과목 카테고리 목록 (예시)
+            const courseCategories = [
+                "프로그래밍",
+                "데이터베이스",
+                "네트워크",
+                "보안",
+                "AI",
+            ];
             setRecentCourses([
-                { id: 33, subjectCode: "SUBJ033", name: "React 심화" },
-                { id: 34, subjectCode: "SUBJ034", name: "Spring Boot 입문" },
-                { id: 35, subjectCode: "SUBJ035", name: "데이터베이스 설계" },
-                { id: 36, subjectCode: "SUBJ036", name: "네트워크 기초" },
-                { id: 37, subjectCode: "SUBJ037", name: "AI 개론" },
+                { id: 33, category: courseCategories[0], name: "React 심화" },
+                {
+                    id: 34,
+                    category: courseCategories[1],
+                    course_name: "Spring Boot 입문",
+                },
+                {
+                    id: 35,
+                    category: courseCategories[2],
+                    course_name: "데이터베이스 설계",
+                },
+                {
+                    id: 36,
+                    category: courseCategories[3],
+                    course_name: "네트워크 기초",
+                },
+                { id: 37, category: courseCategories[4], name: "AI 개론" },
             ]);
             setLoading(false);
         }, 500);
@@ -197,7 +217,7 @@ export default function AdminDashboard() {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>ID</TableCell>
-                                    <TableCell>코드</TableCell>
+                                    <TableCell>카테고리</TableCell>
                                     <TableCell>강의명</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -205,10 +225,10 @@ export default function AdminDashboard() {
                                 {recentCourses.map((course) => (
                                     <TableRow key={course.id} hover>
                                         <TableCell>{course.id}</TableCell>
+                                        <TableCell>{course.category}</TableCell>
                                         <TableCell>
-                                            {course.subjectCode}
+                                            {course.course_name}
                                         </TableCell>
-                                        <TableCell>{course.name}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
