@@ -10,6 +10,8 @@ import {
     TextField,
     Stack,
     IconButton,
+    Button,
+    Drawer,
 } from "@mui/material";
 import {
     Edit as EditIcon,
@@ -89,6 +91,18 @@ export default function DashboardHome() {
         // TODO: 사용자 정보 수정 API 연결
 
         setIsEditing(false);
+    };
+
+    // 회원 탈퇴 커튼 열고 닫기 상태
+    const [openDeleteCurtain, setOpenDeleteCurtain] = useState(false);
+
+    const openDelete = () => setOpenDeleteCurtain(true);
+    const closeDelete = () => setOpenDeleteCurtain(false);
+    const confirmDelete = async () => {
+        // TODO: 회원 탈퇴 API 연결
+        // await deleteAccountAPI();
+        setOpenDeleteCurtain(false);
+        // 로그아웃 처리, 페이지 이동 등 추가 로직
     };
 
     if (loading) {
@@ -372,6 +386,43 @@ export default function DashboardHome() {
                     </CardActionArea>
                 </Box>
             </Box>
+
+            <Box sx={{ mt: 6, textAlign: "center" }}>
+                <Button color="error" variant="outlined" onClick={openDelete}>
+                    회원 탈퇴
+                </Button>
+            </Box>
+
+            {/* — 탈퇴 확인용 하단 커튼(드로어) — */}
+            <Drawer
+                anchor="bottom"
+                open={openDeleteCurtain}
+                onClose={closeDelete}
+                ModalProps={{ keepMounted: true }}
+            >
+                <Box sx={{ p: 3, textAlign: "center" }}>
+                    <Typography variant="h6" gutterBottom>
+                        정말 탈퇴하시겠습니까?
+                    </Typography>
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 2 }}
+                    >
+                        탈퇴하시면 계정과 모든 데이터가 삭제됩니다.
+                    </Typography>
+                    <Stack direction="row" spacing={2} justifyContent="center">
+                        <Button onClick={closeDelete}>취소</Button>
+                        <Button
+                            color="error"
+                            variant="contained"
+                            onClick={confirmDelete}
+                        >
+                            탈퇴하기
+                        </Button>
+                    </Stack>
+                </Box>
+            </Drawer>
         </Box>
     );
 }
