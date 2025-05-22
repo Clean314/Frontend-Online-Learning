@@ -1,9 +1,9 @@
 import api from "./axios";
 
 // 내 개설 강의 목록 조회 (강사 전용)
-// GET /learn/course/my-courses
+// GET /learn/course
 export const getMyRegisteredCoursesAPI = async () => {
-    const res = await api.get("/learn/course/my-courses");
+    const res = await api.get("/learn/course");
     return res.data;
 };
 

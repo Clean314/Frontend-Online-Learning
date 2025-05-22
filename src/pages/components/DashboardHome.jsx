@@ -134,6 +134,7 @@ export default function DashboardHome() {
                                     variant="standard"
                                     fullWidth
                                     sx={{ mb: 1 }}
+                                    disabled
                                 />
                                 <TextField
                                     label="소개"

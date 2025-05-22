@@ -152,14 +152,7 @@ export default function AdminUserList() {
                                                 size="small"
                                             />
                                         </TableCell>
-                                        <TableCell>
-                                            <TextField
-                                                name="email"
-                                                value={editedData.email}
-                                                onChange={handleChange}
-                                                size="small"
-                                            />
-                                        </TableCell>
+                                        <TableCell>{user.email}</TableCell>
                                         <TableCell>
                                             <Select
                                                 name="role"

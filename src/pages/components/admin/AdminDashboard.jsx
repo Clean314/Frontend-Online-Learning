@@ -84,7 +84,11 @@ export default function AdminDashboard() {
                 "AI",
             ];
             setRecentCourses([
-                { id: 33, category: courseCategories[0], name: "React 심화" },
+                {
+                    id: 33,
+                    category: courseCategories[0],
+                    course_name: "React 심화",
+                },
                 {
                     id: 34,
                     category: courseCategories[1],
@@ -100,7 +104,11 @@ export default function AdminDashboard() {
                     category: courseCategories[3],
                     course_name: "네트워크 기초",
                 },
-                { id: 37, category: courseCategories[4], name: "AI 개론" },
+                {
+                    id: 37,
+                    category: courseCategories[4],
+                    course_name: "AI 개론",
+                },
             ]);
             setLoading(false);
         }, 500);
