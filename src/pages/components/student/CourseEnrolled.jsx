@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { getMyEnrollmentsAPI } from "../../../api/enrollment";
 
 export default function CourseEnrolled() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -33,57 +34,31 @@ export default function CourseEnrolled() {
     const navigate = useNavigate();
     const { enrolledStatus } = useParams();
 
-    const difficultyMap = {
-        EASY: 1,
-        MEDIUM: 2,
-        HARD: 3,
-    };
+    // 난이도 → 별점 매핑
+    const difficultyMap = { EASY: 1, MEDIUM: 2, HARD: 3 };
 
+    // API 호출 및 enrolledStatus에 따른 필터링
     useEffect(() => {
-        const educatorNames = [
-            "김철수",
-            "이영희",
-            "박민수",
-            "최유리",
-            "홍길동",
-        ];
+        (async () => {
+            try {
+                const data = await getMyEnrollmentsAPI();
+                let filtered = data;
 
-        const statuses = ["ENROLLED", "COMPLETED"];
-        const categories = [
-            "프로그래밍",
-            "데이터베이스",
-            "네트워크",
-            "보안",
-            "AI",
-        ];
-        const difficulties = ["EASY", "MEDIUM", "HARD"];
-        const baseEnroll = new Date(2025, 3, 5, 14, 0, 0);
+                if (enrolledStatus === "enrolled") {
+                    filtered = data.filter(
+                        (item) => item.status === "ENROLLED"
+                    );
+                } else if (enrolledStatus === "completed") {
+                    filtered = data.filter(
+                        (item) => item.status === "COMPLETED"
+                    );
+                }
 
-        const mockData = Array.from({ length: 30 }, (_, i) => {
-            const enrolledAt = new Date(baseEnroll);
-            enrolledAt.setDate(enrolledAt.getDate() + i);
-
-            return {
-                id: i + 1,
-                course_name: `강의 ${i + 1}`,
-                educatorName: educatorNames[i % educatorNames.length],
-                status: statuses[i % statuses.length],
-                enrolledAt: enrolledAt.toISOString(),
-                difficulty: difficulties[i % difficulties.length],
-                category: categories[i % categories.length],
-                point: (i % 3) + 1,
-            };
-        });
-
-        const filtered = mockData.filter((item) => {
-            if (enrolledStatus === "enrolled")
-                return item.status === "ENROLLED";
-            if (enrolledStatus === "completed")
-                return item.status === "COMPLETED";
-            return true;
-        });
-
-        setEnrollments(filtered);
+                setEnrollments(filtered);
+            } catch (err) {
+                console.error("내 수강목록 조회 실패", err);
+            }
+        })();
     }, [enrolledStatus]);
 
     const totalPages = Math.ceil(enrollments.length / rowsPerPage);
@@ -97,13 +72,10 @@ export default function CourseEnrolled() {
     };
 
     const changeRowsPerPage = (e) => {
-        const newRowsPerPage = parseInt(e.target.value, 10);
-        setRowsPerPage(newRowsPerPage);
+        const newSize = parseInt(e.target.value, 10);
+        setRowsPerPage(newSize);
         setPage(0);
-        setSearchParams({
-            page: "1",
-            rowsPerPage: newRowsPerPage.toString(),
-        });
+        setSearchParams({ page: "1", rowsPerPage: newSize.toString() });
     };
 
     const displayed = enrollments.slice(
@@ -113,6 +85,7 @@ export default function CourseEnrolled() {
 
     return (
         <Paper sx={{ p: 2 }}>
+            {/* 헤더 */}
             <Box
                 sx={{
                     display: "flex",
@@ -146,6 +119,7 @@ export default function CourseEnrolled() {
                 </Box>
             </Box>
 
+            {/* 테이블 */}
             <TableContainer sx={{ tableLayout: "fixed", width: "100%" }}>
                 <Table>
                     <colgroup>
@@ -171,22 +145,25 @@ export default function CourseEnrolled() {
                             <TableCell>강사</TableCell>
                             <TableCell>카테고리</TableCell>
                             <TableCell>난이도</TableCell>
-                            <TableCell>학점</TableCell>
+                            <TableCell>잔여 인원</TableCell>
                             <TableCell>수강 상태</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {displayed.map((item, idx) => (
-                            <TableRow key={item.id} hover>
+                            <TableRow key={item.course_id} hover>
+                                {/* 역순 넘버링 */}
                                 <TableCell>
                                     {enrollments.length -
                                         (page * rowsPerPage + idx)}
                                 </TableCell>
+
+                                {/* 강의명 클릭 이동 */}
                                 <TableCell>
                                     <Box
                                         onClick={() =>
                                             navigate(
-                                                `/courses/${item.id}/classroom`
+                                                `/courses/${item.course_id}/classroom`
                                             )
                                         }
                                         sx={{
@@ -207,11 +184,14 @@ export default function CourseEnrolled() {
                                         </Typography>
                                     </Box>
                                 </TableCell>
-                                <TableCell>{item.educatorName}</TableCell>
+
+                                <TableCell>{item.educator_name}</TableCell>
                                 <TableCell>{item.category}</TableCell>
+
+                                {/* 난이도 */}
                                 <TableCell>
                                     <Rating
-                                        name={`rating-${item.id}`}
+                                        name={`rating-${item.course_id}`}
                                         max={3}
                                         defaultValue={
                                             difficultyMap[item.difficulty]
@@ -220,6 +200,8 @@ export default function CourseEnrolled() {
                                         size="small"
                                     />
                                 </TableCell>
+
+                                {/* 학점 */}
                                 <TableCell>
                                     <Chip
                                         label={`${item.point} 학점`}
@@ -227,6 +209,8 @@ export default function CourseEnrolled() {
                                         size="medium"
                                     />
                                 </TableCell>
+
+                                {/* 수강 상태 */}
                                 <TableCell>
                                     <Chip
                                         label={
@@ -254,6 +238,7 @@ export default function CourseEnrolled() {
                 </Table>
             </TableContainer>
 
+            {/* 페이징 */}
             <Stack alignItems="center" mt={2}>
                 <Pagination
                     count={totalPages}

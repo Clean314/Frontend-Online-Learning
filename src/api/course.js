@@ -1,6 +1,7 @@
 import api from "./axios";
 
 // 전체 강의 목록 조회
+// {course_id, course_name, educator_name, category, difficulty, point, description, max_enrollment, available_enrollment}
 export const getAllCoursesAPI = async () => {
     const res = await api.get("/educators/courses");
     return res.data;

@@ -12,6 +12,7 @@ import {
     MenuItem,
 } from "@mui/material";
 import { createCourseAPI } from "../../../api/course";
+import useAuth from "../../../hooks/auth/useAuth";
 
 // TODO: 카테고리 목록을 API로부터 동적으로 가져오도록 수정
 const categories = ["프로그래밍", "데이터베이스", "네트워크", "보안", "AI"];
@@ -21,24 +22,38 @@ const difficulties = ["EASY", "MEDIUM", "HARD"];
 const credits = [1, 2, 3];
 
 export default function CourseRegister() {
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         course_name: "",
+        educator_name: user.name,
         point: "",
         category: "",
         difficulty: "",
         description: "",
-        maxEnrollment: "",
+        max_enrollment: "",
+        available_enrollment: "",
     });
 
     // 입력값 변경 핸들러
     const handleChange = (e) => {
         const { name, value, type } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: type === "number" ? Number(value) : value,
-        }));
+        const parsed = type === "number" ? Number(value) : value;
+
+        if (name === "max_enrollment") {
+            // max_enrollment가 바뀔 때마다 available_enrollment도 동일하게 세팅
+            setFormData((prev) => ({
+                ...prev,
+                max_enrollment: parsed,
+                available_enrollment: parsed,
+            }));
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: parsed,
+            }));
+        }
     };
 
     // 강의 등록 제출 핸들러

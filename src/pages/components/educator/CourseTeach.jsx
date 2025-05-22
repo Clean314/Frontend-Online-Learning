@@ -121,7 +121,7 @@ export default function CourseTeach() {
                     </TableHead>
                     <TableBody>
                         {displayed.map((course, idx) => (
-                            <TableRow key={course.id} hover>
+                            <TableRow key={course.course_id} hover>
                                 <TableCell>
                                     {courses.length -
                                         (page * rowsPerPage + idx)}
@@ -129,7 +129,9 @@ export default function CourseTeach() {
                                 <TableCell>
                                     <Box
                                         onClick={() =>
-                                            navigate(`/courses/${course.id}`)
+                                            navigate(
+                                                `/courses/${course.course_id}`
+                                            )
                                         }
                                         sx={{
                                             display: "inline-block",
@@ -170,7 +172,7 @@ export default function CourseTeach() {
                                         size="medium"
                                     />
                                 </TableCell>
-                                <TableCell>{course.maxEnrollment}</TableCell>
+                                <TableCell>{course.max_enrollment}</TableCell>
                                 <TableCell>
                                     {new Date(
                                         course.createdAt

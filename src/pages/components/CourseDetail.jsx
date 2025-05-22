@@ -31,18 +31,20 @@ export default function CourseDetail() {
 
     const navigate = useNavigate();
 
-    // // 강의 상세 정보 조회 (미구현)
-    // useEffect(() => {
-    //     const fetchCourse = async () => {
-    //         try {
-    //             const res = await api.get(`/courses/${courseId}`);
-    //             setCourse(res.data);
-    //         } catch (err) {
-    //             console.error(err);
-    //         }
-    //     };
-    //     fetchCourse();
-    // }, [id]);
+    // 내 수강 여부 조회
+    useEffect(() => {
+        if (user.role !== "STUDENT") return;
+        (async () => {
+            try {
+                const list = await getMyEnrollmentsAPI();
+                setIsEnrolled(
+                    list.some((e) => e.course_id === Number(courseId))
+                );
+            } catch (err) {
+                console.error("내 수강목록 조회 실패", err);
+            }
+        })();
+    }, [courseId, user.role]);
 
     // 수강 신청
     const enroll = async () => {
@@ -77,77 +79,41 @@ export default function CourseDetail() {
         }
     };
 
-    // 수강 신청된 강의인지 확인(내 수강 목록에서 이 강의가 신청됐는지 체크)
     useEffect(() => {
-        if (user.role === "STUDENT") {
-            const checkEnrollment = async () => {
-                try {
-                    const list = await getMyEnrollmentsAPI();
+        // TODO: 강의 상세 조회 & 강의 영상 목록 조회 API
 
-                    // EnrollmentDTO 에 courseId 프로퍼티가 있다고 가정
-                    const enrolled = list.some(
-                        (e) => e.courseId === Number(courseId)
-                    );
+        const now = new Date().toISOString();
 
-                    setIsEnrolled(enrolled);
-                } catch (err) {
-                    console.error("내 수강목록 조회 실패", err);
-                }
-            };
-            checkEnrollment();
-        }
-    }, [courseId, user.role]);
-
-    useEffect(() => {
-        // 임시 데이터 생성
-        const educatorNames = [
-            "김철수",
-            "이영희",
-            "박민수",
-            "최유리",
-            "홍길동",
+        const mockData = [
+            {
+                id: 1,
+                course_name: "Spring Framework",
+                educator_name: "교수1",
+                category: "프로그래밍",
+                difficulty: "EASY",
+                point: 3,
+                max_enrollment: 30,
+                available_enrollment: 30,
+                createdAt: now,
+                updatedAt: now,
+                description: "Spring Framework 강의 상세 설명입니다.",
+                lectures: [],
+            },
+            {
+                id: 2,
+                course_name: "Data Structures",
+                educatorName: "교수2",
+                category: "데이터베이스",
+                difficulty: "EASY",
+                point: 2,
+                max_enrollment: 40,
+                available_enrollment: 40,
+                createdAt: now,
+                updatedAt: now,
+                description: "Data Structures 강의 상세 설명입니다.",
+                lectures: [],
+            },
         ];
-        const categories = [
-            "프로그래밍",
-            "데이터베이스",
-            "네트워크",
-            "보안",
-            "AI",
-        ];
-        const difficulties = ["EASY", "MEDIUM", "HARD"];
-
-        const baseCreated = new Date(2025, 3, 1, 9, 0, 0);
-        const baseUpdated = new Date(2025, 3, 1, 10, 0, 0);
-
-        const mockData = Array.from({ length: 100 }, (_, i) => {
-            const created = new Date(baseCreated);
-            created.setDate(created.getDate() + i);
-
-            const updated = new Date(baseUpdated);
-            updated.setDate(updated.getDate() + i);
-
-            // mock lectures
-            const lectures = Array.from({ length: 5 }, (_, j) => ({
-                id: j + 1,
-                title: `${i + 1} - ${j + 1}강: 주요 주제 ${j + 1}`,
-                duration: `${10 + j * 5}분`,
-            }));
-
-            const point = (i % 3) + 1;
-
-            return {
-                id: i + 1,
-                course_name: `강의 ${i + 1}`,
-                educatorName: educatorNames[i % educatorNames.length],
-                point,
-                createdAt: created.toISOString(),
-                updatedAt: updated.toISOString(),
-                description: `강의 ${i + 1}에 대한 상세 설명입니다. 핵심 개념과 실습 예제를 포함합니다.`,
-                category: categories[i % categories.length],
-                difficulty: difficulties[i % difficulties.length],
-                lectures,
-            };
-        });
 
         const found = mockData.find((c) => c.id === Number(courseId));
         setCourse(found || null);
@@ -181,7 +147,7 @@ export default function CourseDetail() {
 
             <Box display="flex" gap={2} mb={3}>
                 {[
-                    { label: "강사", value: course.educatorName },
+                    { label: "강사", value: course.educator_name },
                     { label: "카테고리", value: course.category },
                     { label: "난이도", value: course.difficulty },
                     { label: "학점", value: course.point },
@@ -290,7 +256,7 @@ export default function CourseDetail() {
                         color="primary"
                         onClick={isEnrolled ? cancelEnroll : enroll}
                     >
-                        {isEnrolled ? "수강 취소" : "수강신청"}
+                        {isEnrolled ? "수강 취소" : "수강 신청"}
                     </Button>
                 ) : (
                     <Button

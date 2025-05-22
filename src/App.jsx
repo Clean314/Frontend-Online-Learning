@@ -14,8 +14,13 @@ import CourseEnrolled from "./pages/components/student/CourseEnrolled";
 import CourseDetail from "./pages/components/CourseDetail";
 import AdminUserList from "./pages/components/admin/AdminUserList";
 import AdminCourseList from "./pages/components/admin/AdminCourseList";
-import RoleBasedRedirect from "./pages/components/RoleBasedRedirect";
+import DashboardRedirect from "./routes/DashboardRedirect";
 import AdminDashboard from "./pages/components/admin/AdminDashboard";
+import CourseEdit from "./pages/components/educator/CourseEdit";
+import ClassPage from "./pages/ClassPage";
+import ClassDashboardRedirect from "./routes/ClassDashboardRedirect";
+import ClassEducatorDashboard from "./pages/components/educator/ClassEducatorDashboard";
+import ClassStudentDashboard from "./pages/components/student/ClassStudentDashboard";
 
 function App() {
     return (
@@ -28,9 +33,9 @@ function App() {
                 <Route path="/not-authorized" element={<NotAuthorizedPage />} />
 
                 <Route element={<ProtectedRoute />}>
-                    <Route element={<MainPage />}>
+                    <Route path="/" element={<MainPage />}>
                         {/* 루트(“/”)로 들어오면 역할별 Redirect */}
-                        <Route index element={<RoleBasedRedirect />} />
+                        <Route index element={<DashboardRedirect />} />
 
                         {/* 관리자 전용 */}
                         <Route
@@ -107,6 +112,14 @@ function App() {
                                 </RoleProtectedRoute>
                             }
                         />
+                        <Route
+                            path="courses/:courseId/edit"
+                            element={
+                                <RoleProtectedRoute allowedRoles={["EDUCATOR"]}>
+                                    <CourseEdit />
+                                </RoleProtectedRoute>
+                            }
+                        />
 
                         {/* 학생 전용 */}
                         <Route path="learn/myCourses">
@@ -126,6 +139,40 @@ function App() {
                             />
                         </Route>
                     </Route>
+                </Route>
+
+                {/* 강의실 */}
+                <Route
+                    path="/courses/:courseId/classroom"
+                    element={
+                        <RoleProtectedRoute
+                            allowedRoles={["EDUCATOR", "STUDENT"]}
+                        >
+                            <ClassPage />
+                        </RoleProtectedRoute>
+                    }
+                >
+                    <Route index element={<ClassDashboardRedirect />} />
+
+                    {/* 강사 전용 */}
+                    <Route
+                        path="teach/dashboard"
+                        element={
+                            <RoleProtectedRoute allowedRoles={["EDUCATOR"]}>
+                                <ClassEducatorDashboard />
+                            </RoleProtectedRoute>
+                        }
+                    />
+
+                    {/* 학생 전용 */}
+                    <Route
+                        path="learn/dashboard"
+                        element={
+                            <RoleProtectedRoute allowedRoles={["STUDENT"]}>
+                                <ClassStudentDashboard />
+                            </RoleProtectedRoute>
+                        }
+                    />
                 </Route>
             </Routes>
         </>
