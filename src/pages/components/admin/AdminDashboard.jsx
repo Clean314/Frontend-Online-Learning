@@ -133,11 +133,6 @@ export default function AdminDashboard() {
             value: stats.courseCount,
             icon: <MenuBookIcon fontSize="large" color="secondary" />,
         },
-        {
-            title: "평균 최대 수강인원",
-            value: stats.avgEnrollmentCapacity,
-            icon: <BarChartIcon fontSize="large" color="success" />,
-        },
     ];
 
     return (
