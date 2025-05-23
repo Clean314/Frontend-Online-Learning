@@ -2,7 +2,7 @@ import axios from "axios";
 
 // REST API 사용을 위해 기본 설정을 가진 axios 객체 설정
 const api = axios.create({
-    baseURL: "http://localhost:8989", // 요청 기본 주소
+    baseURL: "http://localhost:8080", // 요청 기본 주소
     headers: {
         "Content-Type": "application/json",
     },
