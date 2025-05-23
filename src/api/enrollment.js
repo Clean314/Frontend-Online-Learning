@@ -13,15 +13,15 @@ export const cancelEnrollmentAPI = async (courseId) => {
 };
 
 // 내 수강목록 조회
-// {course_id, course_name, educator_name, category, difficulty, status, available_enrollment, point}
+// {course_id, course_name, educator_name, category, difficulty, status, max_enrollment, available_enrollment, point}
 // status : ENROLLED, COMPLETED, WITHDRAWN, AVAILABLE
 export const getMyEnrollmentsAPI = async () => {
     const res = await api.get("/students/enrollments/my");
     return res.data;
 };
 
-// 수강 신청하지 않은 강의 목록 조회
-export const getMyAvailableEnrollmentsAPI = async () => {
-    const res = await api.get("/students/enrollments/available");
+// 전체 강의 목록 조회 (학생용 - status 있음)
+export const getAllCoursesWithStatusAPI = async () => {
+    const res = await api.get("/students/enrollments");
     return res.data;
 };

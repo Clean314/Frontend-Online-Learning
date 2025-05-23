@@ -52,6 +52,10 @@ export default function CourseEnrolled() {
                     filtered = data.filter(
                         (item) => item.status === "COMPLETED"
                     );
+                } else if (enrolledStatus === "withdrawn") {
+                    filtered = data.filter(
+                        (item) => item.status === "WITHDRAWN"
+                    );
                 }
 
                 setEnrollments(filtered);
@@ -99,7 +103,9 @@ export default function CourseEnrolled() {
                         ? "Total"
                         : enrolledStatus === "enrolled"
                           ? "수강중"
-                          : "수강 완료"}
+                          : enrolledStatus === "completed"
+                            ? "수강 완료"
+                            : "수강 취소"}
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Typography variant="body2" sx={{ mr: 1 }}>
@@ -216,18 +222,26 @@ export default function CourseEnrolled() {
                                         label={
                                             item.status === "ENROLLED"
                                                 ? "수강 중"
-                                                : "수강 완료"
+                                                : item.status === "COMPLETED"
+                                                  ? "수강 완료"
+                                                  : "수강 취소"
                                         }
                                         size="small"
                                         sx={{
                                             bgcolor:
                                                 item.status === "ENROLLED"
                                                     ? "#BFECFF"
-                                                    : "#FFCFEF",
+                                                    : item.status ===
+                                                        "COMPLETED"
+                                                      ? "#D4EDDA"
+                                                      : "#F8D7DA",
                                             color:
                                                 item.status === "ENROLLED"
                                                     ? "#005F8A"
-                                                    : "#8A0053",
+                                                    : item.status ===
+                                                        "COMPLETED"
+                                                      ? "#155724"
+                                                      : "#721C24",
                                             fontWeight: 500,
                                         }}
                                     />

@@ -19,9 +19,9 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Chip from "@mui/material/Chip";
-import { getAllCoursesAPI } from "../../api/course";
 import useAuth from "../../hooks/auth/useAuth";
-import { getMyAvailableEnrollmentsAPI } from "../../api/enrollment";
+import { getAllCoursesWithStatusAPI } from "../../api/enrollment";
+import { getAllCoursesAPI } from "../../api/course";
 
 export default function CourseList() {
     const { user } = useAuth();
@@ -43,27 +43,33 @@ export default function CourseList() {
 
     const difficultyMap = { EASY: 1, MEDIUM: 2, HARD: 3 };
 
-    // 강의 데이터 페칭 (전체 or 잔여만)
     useEffect(() => {
         const fetchCourses = async () => {
             try {
                 let data;
-                // STUDENT 이고 체크박스 on 이면 잔여 강의만, 아니면 전체 강의
-                if (user.role === "STUDENT" && isExcludeEnrolled) {
-                    data = await getMyAvailableEnrollmentsAPI();
-                    console.log(data);
-                } else {
+
+                if (user.role === "EDUCATOR") {
+                    // 강사인 경우 status 없이 전체 강의만 조회
                     data = await getAllCoursesAPI();
+                } else {
+                    // 학생인 경우 status 포함 전체 강의
+                    data = await getAllCoursesWithStatusAPI();
+
+                    // 체크박스가 켜져 있으면 AVAILABLE 상태만 필터
+                    if (isExcludeEnrolled) {
+                        data = data.filter((c) => c.status === "AVAILABLE");
+                    }
                 }
+
                 setCourses(data);
             } catch (err) {
                 console.error("강의 목록 조회 실패:", err);
             }
         };
+
         fetchCourses();
     }, [user.role, isExcludeEnrolled]);
 
-    // 페이지네이션 계산
     const totalPages = Math.ceil(courses.length / rowsPerPage);
     const shouldEllipsis = totalPages > 10;
     const boundaryCount = shouldEllipsis ? 1 : totalPages;
@@ -124,7 +130,7 @@ export default function CourseList() {
                                 onChange={toggleExclude}
                             />
                         }
-                        label="수강 중인 강의 제외하기 (구현중)"
+                        label="수강 중인 강의 제외하기"
                         sx={{ ml: 0, pl: 0 }}
                     />
                 )}

@@ -72,6 +72,10 @@ const navigationByRole = {
                     segment: "completed",
                     title: "수강 완료 강의",
                 },
+                {
+                    segment: "withdrawn",
+                    title: "수강 취소 강의",
+                },
             ],
         },
     ],
