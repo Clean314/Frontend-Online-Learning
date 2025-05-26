@@ -12,7 +12,6 @@ import {
     MenuItem,
 } from "@mui/material";
 import { createCourseAPI } from "../../../api/course";
-import useAuth from "../../../hooks/auth/useAuth";
 
 // TODO: 카테고리 목록을 API로부터 동적으로 가져오도록 수정
 const categories = ["프로그래밍", "데이터베이스", "네트워크", "보안", "AI"];
@@ -22,18 +21,15 @@ const difficulties = ["EASY", "MEDIUM", "HARD"];
 const credits = [1, 2, 3];
 
 export default function CourseRegister() {
-    const { user } = useAuth();
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         course_name: "",
-        educator_name: user.name,
         point: "",
         category: "",
         difficulty: "",
         description: "",
         max_enrollment: "",
-        available_enrollment: "",
     });
 
     // 입력값 변경 핸들러
@@ -60,10 +56,9 @@ export default function CourseRegister() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await createCourseAPI(formData);
+            const courseId = await createCourseAPI(formData);
 
-            alert("새 강의가 등록되었습니다.");
-            navigate("/teach/myCourses");
+            navigate(`/teach/newCourse/${courseId}/curriculum`);
         } catch (err) {
             console.error("강의 등록 실패:", err);
             alert("강의 등록에 실패했습니다. 다시 시도해주세요.");
@@ -73,7 +68,7 @@ export default function CourseRegister() {
     return (
         <Paper sx={{ p: 3 }}>
             <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
-                NEW
+                개요
             </Typography>
             <Box
                 component="form"
@@ -141,9 +136,9 @@ export default function CourseRegister() {
 
                     <TextField
                         label="최대 수강 인원"
-                        name="maxEnrollment"
+                        name="max_enrollment"
                         type="number"
-                        value={formData.maxEnrollment}
+                        value={formData.max_enrollment}
                         onChange={handleChange}
                         fullWidth
                         required
@@ -184,7 +179,7 @@ export default function CourseRegister() {
                         variant="contained"
                         color="primary"
                     >
-                        등록
+                        다음
                     </Button>
                 </Box>
             </Box>

@@ -21,6 +21,7 @@ import ClassPage from "./pages/ClassPage";
 import ClassDashboardRedirect from "./routes/ClassDashboardRedirect";
 import ClassEducatorDashboard from "./pages/components/educator/ClassEducatorDashboard";
 import ClassStudentDashboard from "./pages/components/student/ClassStudentDashboard";
+import CurriculumRegister from "./pages/components/educator/CurriculumRegister";
 
 function App() {
     return (
@@ -101,6 +102,14 @@ function App() {
                             element={
                                 <RoleProtectedRoute allowedRoles={["EDUCATOR"]}>
                                     <CourseRegister />
+                                </RoleProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="teach/newCourse/:courseId/curriculum"
+                            element={
+                                <RoleProtectedRoute allowedRoles={["EDUCATOR"]}>
+                                    <CurriculumRegister />
                                 </RoleProtectedRoute>
                             }
                         />

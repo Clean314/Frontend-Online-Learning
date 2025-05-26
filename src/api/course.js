@@ -14,7 +14,6 @@ export const getMyRegisteredCoursesAPI = async () => {
 };
 
 // 강의 생성
-// { name, maxEnrollment, point, category, difficulty, description }
 export const createCourseAPI = async (courseData) => {
     await api.post("/educators/courses", courseData);
 };

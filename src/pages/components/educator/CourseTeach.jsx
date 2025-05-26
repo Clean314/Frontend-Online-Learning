@@ -34,6 +34,7 @@ export default function CourseTeach() {
         try {
             const data = await getMyRegisteredCoursesAPI();
             setCourses(data);
+            console.log(data);
         } catch (err) {
             console.error("내 강의 목록 조회 실패:", err);
         }
@@ -120,12 +121,9 @@ export default function CourseTeach() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {displayed.map((course, idx) => (
+                        {displayed.map((course) => (
                             <TableRow key={course.course_id} hover>
-                                <TableCell>
-                                    {courses.length -
-                                        (page * rowsPerPage + idx)}
-                                </TableCell>
+                                <TableCell>{course.course_id}</TableCell>
                                 <TableCell>
                                     <Box
                                         onClick={() =>
