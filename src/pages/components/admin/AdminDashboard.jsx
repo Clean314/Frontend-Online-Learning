@@ -19,99 +19,40 @@ import {
 import { useNavigate } from "react-router-dom";
 import PeopleIcon from "@mui/icons-material/People";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-import BarChartIcon from "@mui/icons-material/BarChart";
+import { getAdminDashboardAPI } from "../../../api/admin";
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
     const [stats, setStats] = useState({
         userCount: 0,
         courseCount: 0,
-        avgEnrollmentCapacity: 0,
     });
     const [recentUsers, setRecentUsers] = useState([]);
     const [recentCourses, setRecentCourses] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // TODO: 대시보드 통계 API 호출 (/api/admin/dashboard)
-        // TODO: 최근 가입 회원 API 호출 (/api/admin/users?recent=true)
-        // TODO: 최근 강의 API 호출 (/api/admin/courses?recent=true)
-        setTimeout(() => {
-            // 더미 데이터 - 실제 API 호출 결과로 대체
-            setStats({
-                userCount: 124,
-                courseCount: 37,
-                avgEnrollmentCapacity: 45,
-            });
-            setRecentUsers([
-                {
-                    id: 121,
-                    name: "김철수",
-                    email: "chulsoo@example.com",
-                    role: "STUDENT",
-                },
-                {
-                    id: 122,
-                    name: "이영희",
-                    email: "younghee@example.com",
-                    role: "EDUCATOR",
-                },
-                {
-                    id: 123,
-                    name: "박민수",
-                    email: "minsu@example.com",
-                    role: "STUDENT",
-                },
-                {
-                    id: 124,
-                    name: "최유리",
-                    email: "yuri@example.com",
-                    role: "STUDENT",
-                },
-                {
-                    id: 125,
-                    name: "홍길동",
-                    email: "hong@example.com",
-                    role: "ADMIN",
-                },
-            ]);
-            // 과목 카테고리 목록 (예시)
-            const courseCategories = [
-                "프로그래밍",
-                "데이터베이스",
-                "네트워크",
-                "보안",
-                "AI",
-            ];
-            setRecentCourses([
-                {
-                    id: 33,
-                    category: courseCategories[0],
-                    course_name: "React 심화",
-                },
-                {
-                    id: 34,
-                    category: courseCategories[1],
-                    course_name: "Spring Boot 입문",
-                },
-                {
-                    id: 35,
-                    category: courseCategories[2],
-                    course_name: "데이터베이스 설계",
-                },
-                {
-                    id: 36,
-                    category: courseCategories[3],
-                    course_name: "네트워크 기초",
-                },
-                {
-                    id: 37,
-                    category: courseCategories[4],
-                    course_name: "AI 개론",
-                },
-            ]);
-            setLoading(false);
-        }, 500);
+        const fetchDashboard = async () => {
+            try {
+                const { members, courses, totalMember, totalCourses } =
+                    await getAdminDashboardAPI();
+
+                setStats({
+                    userCount: totalMember,
+                    courseCount: totalCourses,
+                });
+
+                // 최근 5개 데이터만 화면에 표시
+                setRecentUsers(members.slice(0, 5));
+                setRecentCourses(courses.slice(0, 5));
+            } catch (error) {
+                console.error("대시보드 데이터 로드 실패:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboard();
     }, []);
 
     if (loading) {
@@ -139,7 +80,7 @@ export default function AdminDashboard() {
         <Box p={3}>
             <Grid container spacing={2}>
                 {cards.map((card) => (
-                    <Grid item xs={12} sm={4} key={card.title}>
+                    <Grid size={{ xs: 12, sm: 4 }} key={card.title}>
                         <Card elevation={3}>
                             <CardContent>
                                 <Stack
@@ -184,7 +125,7 @@ export default function AdminDashboard() {
             </Box>
 
             <Grid container spacing={4} mt={4}>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Typography variant="h6" gutterBottom>
                         최근 가입 회원
                     </Typography>
@@ -211,7 +152,8 @@ export default function AdminDashboard() {
                         </Table>
                     </TableContainer>
                 </Grid>
-                <Grid item xs={12} md={6}>
+
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Typography variant="h6" gutterBottom>
                         최근 강의
                     </Typography>
@@ -226,8 +168,10 @@ export default function AdminDashboard() {
                             </TableHead>
                             <TableBody>
                                 {recentCourses.map((course) => (
-                                    <TableRow key={course.id} hover>
-                                        <TableCell>{course.id}</TableCell>
+                                    <TableRow key={course.course_id} hover>
+                                        <TableCell>
+                                            {course.course_id}
+                                        </TableCell>
                                         <TableCell>{course.category}</TableCell>
                                         <TableCell>
                                             {course.course_name}

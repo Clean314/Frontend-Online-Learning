@@ -1,24 +1,35 @@
 import api from "./axios";
 
-// 로그인
-// request: {username, password}
-// response: {username("Authenticated"), password(token)}
+/**
+ * 로그인
+ * @param {string} username - 사용자 이메일
+ * @param {string} password - 사용자 비밀번호
+ * @returns {Promise<LoginResponseDTO>}
+ */
 export const loginAPI = async (email, password) => {
     const res = await api.post("/auth/login", { username: email, password });
     return res.data.password; // 토큰 반환
 };
 
-// 회원가입
-// request: {email, password, name, role!}
-// response: message
+/**
+ * 회원가입
+ * @param {Object} userData - 회원가입 정보
+ * @param {string} userData.name
+ * @param {string} userData.email
+ * @param {string} userData.password
+ * @param {'USER'|'ADMIN'|'STUDENT'|'EDUCATOR'} userData.role
+ * @param {string} [userData.description]
+ * @returns {Promise<string>}
+ */
 export const signupAPI = async (user) => {
     const res = await api.post("/auth/register", user);
     return res.data;
 };
 
-// 사용자 정보 조회 & 인증 확인
-// request: token (interceptor가 자동으로 추가해줌)
-// response: {id, email, name, role}
+/**
+ * 내 프로필 조회
+ * @returns {Promise<MemberDTO>}
+ */
 export const checkAuthAPI = async () => {
     const res = await api.get("/member/profile");
     return res.data;

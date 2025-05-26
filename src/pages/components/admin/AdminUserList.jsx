@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
+    Box,
     TableContainer,
     Table,
     TableHead,
@@ -10,51 +11,59 @@ import {
     IconButton,
     Stack,
     Typography,
-    Box,
-    TextField,
     Select,
     MenuItem,
     Pagination,
+    TextField,
 } from "@mui/material";
 import {
     Edit as EditIcon,
     Delete as DeleteIcon,
     Save as SaveIcon,
     Cancel as CancelIcon,
+    Search as SearchIcon,
 } from "@mui/icons-material";
+import {
+    getMemberUpdateListAPI,
+    findMemberAPI,
+    updateMemberAPI,
+    deleteMemberAPI,
+} from "../../../api/admin";
 
 export default function AdminUserList() {
     const [users, setUsers] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [editedData, setEditedData] = useState({});
+    const [searchName, setSearchName] = useState("");
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     useEffect(() => {
-        // TODO: fetch users from API when endpoint is ready
-        const dummyUsers = [
-            {
-                id: 1,
-                name: "홍길동",
-                email: "hong@example.com",
-                role: "STUDENT",
-            },
-            {
-                id: 2,
-                name: "김철수",
-                email: "chulsoo@example.com",
-                role: "EDUCATOR",
-            },
-            {
-                id: 3,
-                name: "이영희",
-                email: "younghee@example.com",
-                role: "EDUCATOR",
-            },
-            // 추가 더미 회원...
-        ];
-        setUsers(dummyUsers);
+        fetchUsers();
     }, []);
+
+    const fetchUsers = async () => {
+        try {
+            const data = await getMemberUpdateListAPI();
+            setUsers(data);
+        } catch (error) {
+            console.error("유저 리스트 로드 실패:", error);
+        }
+    };
+
+    const handleSearch = async () => {
+        try {
+            if (searchName.trim()) {
+                const results = await findMemberAPI(searchName.trim());
+                setUsers(results);
+            } else {
+                fetchUsers();
+            }
+            setPage(0);
+        } catch (error) {
+            console.error("유저 검색 실패:", error);
+        }
+    };
 
     const handleEdit = (user) => {
         setEditingId(user.id);
@@ -71,16 +80,27 @@ export default function AdminUserList() {
         setEditedData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSave = (userId) => {
-        // TODO: 회원 정보 수정 API 호출
-        setUsers((prev) => prev.map((u) => (u.id === userId ? editedData : u)));
-        setEditingId(null);
-        setEditedData({});
+    const handleSave = async (userId) => {
+        try {
+            await updateMemberAPI(userId, {
+                name: editedData.name,
+                role: editedData.role,
+            });
+            await fetchUsers();
+            handleCancel();
+        } catch (error) {
+            console.error("유저 정보 수정 실패:", error);
+        }
     };
 
-    const handleDelete = (userId) => {
-        // TODO: 회원 삭제 API 호출
-        setUsers((prev) => prev.filter((user) => user.id !== userId));
+    const handleDelete = async (userId) => {
+        if (!window.confirm("정말 삭제하시겠습니까?")) return;
+        try {
+            await deleteMemberAPI(userId);
+            setUsers((prev) => prev.filter((u) => u.id !== userId));
+        } catch (error) {
+            console.error("유저 삭제 실패:", error);
+        }
     };
 
     const handlePageChange = (_e, value) => {
@@ -108,6 +128,7 @@ export default function AdminUserList() {
                     mb: 2,
                 }}
             >
+                {/* 좌측: 페이지당 + 검색란 */}
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Typography variant="body2" sx={{ mr: 1 }}>
                         페이지당:
@@ -116,6 +137,7 @@ export default function AdminUserList() {
                         size="small"
                         value={rowsPerPage}
                         onChange={handleRowsPerPageChange}
+                        sx={{ mr: 2 }}
                     >
                         {[5, 10, 20].map((n) => (
                             <MenuItem key={n} value={n}>
@@ -123,7 +145,21 @@ export default function AdminUserList() {
                             </MenuItem>
                         ))}
                     </Select>
+
+                    <TextField
+                        size="small"
+                        placeholder="이름 검색"
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                        sx={{ mr: 1, width: 200 }}
+                    />
+                    <IconButton color="primary" onClick={handleSearch}>
+                        <SearchIcon />
+                    </IconButton>
                 </Box>
+
+                {/* 우측: 총 개수 */}
                 <Typography variant="body2">총 {users.length}명</Typography>
             </Box>
 
@@ -135,7 +171,7 @@ export default function AdminUserList() {
                             <TableCell>이름</TableCell>
                             <TableCell>이메일</TableCell>
                             <TableCell>역할</TableCell>
-                            <TableCell align="right"></TableCell>
+                            <TableCell align="right" />
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -165,6 +201,9 @@ export default function AdminUserList() {
                                                 </MenuItem>
                                                 <MenuItem value="EDUCATOR">
                                                     EDUCATOR
+                                                </MenuItem>
+                                                <MenuItem value="ADMIN">
+                                                    ADMIN
                                                 </MenuItem>
                                             </Select>
                                         </TableCell>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
+    Box,
     TableContainer,
     Table,
     TableHead,
@@ -10,59 +11,62 @@ import {
     IconButton,
     Stack,
     Typography,
-    Box,
-    TextField,
     Select,
     MenuItem,
     Pagination,
+    TextField,
 } from "@mui/material";
 import {
     Edit as EditIcon,
     Delete as DeleteIcon,
     Save as SaveIcon,
     Cancel as CancelIcon,
+    Search as SearchIcon,
 } from "@mui/icons-material";
+import {
+    getCourseUpdateListAPI,
+    findCourseAPI,
+    updateCourseAPI,
+    deleteCourseAPI,
+} from "../../../api/admin";
 
 export default function AdminCourseList() {
     const [courses, setCourses] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [editedData, setEditedData] = useState({});
+    const [searchName, setSearchName] = useState("");
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     useEffect(() => {
-        // TODO: 전체 강의 조회 API
-        const categories = [
-            "프로그래밍",
-            "데이터베이스",
-            "네트워크",
-            "보안",
-            "AI",
-        ];
-        const difficulties = ["EASY", "MEDIUM", "HARD"];
-        const educatorNames = [
-            "김철수",
-            "이영희",
-            "박민수",
-            "최유리",
-            "홍길동",
-        ];
-
-        const dummyCourses = Array.from({ length: 15 }, (_, i) => ({
-            id: i + 1,
-            course_name: `강의 ${i + 1}`,
-            educatorName: educatorNames[i % educatorNames.length],
-            category: categories[i % categories.length],
-            difficulty: difficulties[i % difficulties.length],
-            point: (i % 3) + 1,
-            maxEnrollment: Math.floor(Math.random() * 91) + 10,
-        }));
-
-        setCourses(dummyCourses);
+        fetchCourses();
     }, []);
 
+    const fetchCourses = async () => {
+        try {
+            const data = await getCourseUpdateListAPI();
+            setCourses(data);
+        } catch (error) {
+            console.error("강의 리스트 로드 실패:", error);
+        }
+    };
+
+    const handleSearch = async () => {
+        try {
+            if (searchName.trim()) {
+                const results = await findCourseAPI(searchName.trim());
+                setCourses(results);
+            } else {
+                await fetchCourses();
+            }
+            setPage(0);
+        } catch (error) {
+            console.error("강의 검색 실패:", error);
+        }
+    };
+
     const handleEdit = (course) => {
-        setEditingId(course.id);
+        setEditingId(course.course_id);
         setEditedData({ ...course });
     };
 
@@ -76,16 +80,32 @@ export default function AdminCourseList() {
         setEditedData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSave = (id) => {
-        // TODO: 강의 수정 API(강의명, 카테고리, 난이도, 학점, 최대인원)
-        setCourses((prev) => prev.map((c) => (c.id === id ? editedData : c)));
-        setEditingId(null);
-        setEditedData({});
+    const handleSave = async (id) => {
+        const payload = {
+            courseName: editedData.course_name,
+            category: editedData.category,
+            difficulty: editedData.difficulty,
+            point: editedData.point,
+            maxEnrollment: editedData.max_enrollment,
+        };
+
+        try {
+            await updateCourseAPI(id, payload);
+            await fetchCourses();
+            handleCancel();
+        } catch (error) {
+            console.error("강의 정보 수정 실패:", error);
+        }
     };
 
-    const handleDelete = (id) => {
-        // TODO: 강의 삭제 API
-        setCourses((prev) => prev.filter((c) => c.id !== id));
+    const handleDelete = async (id) => {
+        if (!window.confirm("정말 삭제하시겠습니까?")) return;
+        try {
+            await deleteCourseAPI(id);
+            setCourses((prev) => prev.filter((c) => c.course_id !== id));
+        } catch (error) {
+            console.error("강의 삭제 실패:", error);
+        }
     };
 
     const handlePageChange = (_e, value) => {
@@ -121,6 +141,7 @@ export default function AdminCourseList() {
                         size="small"
                         value={rowsPerPage}
                         onChange={handleRowsPerPageChange}
+                        sx={{ mr: 2 }}
                     >
                         {[5, 10, 20].map((n) => (
                             <MenuItem key={n} value={n}>
@@ -128,7 +149,20 @@ export default function AdminCourseList() {
                             </MenuItem>
                         ))}
                     </Select>
+
+                    <TextField
+                        size="small"
+                        placeholder="강의명 검색"
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                        sx={{ mr: 1, width: 200 }}
+                    />
+                    <IconButton color="primary" onClick={handleSearch}>
+                        <SearchIcon />
+                    </IconButton>
                 </Box>
+
                 <Typography variant="body2">총 {courses.length}개</Typography>
             </Box>
 
@@ -143,30 +177,34 @@ export default function AdminCourseList() {
                             <TableCell>난이도</TableCell>
                             <TableCell>학점</TableCell>
                             <TableCell>최대인원</TableCell>
-                            <TableCell align="right"></TableCell>
+                            <TableCell align="right" />
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {displayed.map((course) => (
-                            <TableRow key={course.id} hover>
-                                <TableCell>{course.id}</TableCell>
-                                {editingId === course.id ? (
+                            <TableRow key={course.course_id} hover>
+                                <TableCell>{course.course_id}</TableCell>
+                                {editingId === course.course_id ? (
                                     <>
                                         <TableCell>
                                             <TextField
                                                 name="course_name"
-                                                value={editedData.course_name}
+                                                value={
+                                                    editedData.course_name || ""
+                                                }
                                                 onChange={handleChange}
                                                 size="small"
                                             />
                                         </TableCell>
                                         <TableCell>
-                                            {course.educatorName}
+                                            {course.educator_name}
                                         </TableCell>
                                         <TableCell>
                                             <Select
                                                 name="category"
-                                                value={editedData.category}
+                                                value={
+                                                    editedData.category || ""
+                                                }
                                                 onChange={handleChange}
                                                 size="small"
                                             >
@@ -189,7 +227,9 @@ export default function AdminCourseList() {
                                         <TableCell>
                                             <Select
                                                 name="difficulty"
-                                                value={editedData.difficulty}
+                                                value={
+                                                    editedData.difficulty || ""
+                                                }
                                                 onChange={handleChange}
                                                 size="small"
                                             >
@@ -208,30 +248,31 @@ export default function AdminCourseList() {
                                         <TableCell>
                                             <Select
                                                 name="point"
-                                                value={editedData.point}
+                                                value={editedData.point ?? ""}
                                                 onChange={handleChange}
                                                 size="small"
                                             >
-                                                {["1", "2", "3"].map((d) => (
-                                                    <MenuItem key={d} value={d}>
-                                                        {d}
+                                                {[1, 2, 3].map((p) => (
+                                                    <MenuItem key={p} value={p}>
+                                                        {p}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
                                         </TableCell>
                                         <TableCell>
                                             <TextField
-                                                name="maxEnrollment"
+                                                name="max_enrollment"
                                                 type="number"
-                                                value={editedData.maxEnrollment}
+                                                inputProps={{
+                                                    min: 10,
+                                                    max: 100,
+                                                }}
+                                                value={
+                                                    editedData.max_enrollment ||
+                                                    ""
+                                                }
                                                 onChange={handleChange}
                                                 size="small"
-                                                slotProps={{
-                                                    htmlInput: {
-                                                        min: 10,
-                                                        max: 100,
-                                                    },
-                                                }}
                                             />
                                         </TableCell>
                                         <TableCell align="right">
@@ -243,7 +284,9 @@ export default function AdminCourseList() {
                                                 <IconButton
                                                     color="primary"
                                                     onClick={() =>
-                                                        handleSave(course.id)
+                                                        handleSave(
+                                                            course.course_id
+                                                        )
                                                     }
                                                 >
                                                     <SaveIcon />
@@ -263,7 +306,7 @@ export default function AdminCourseList() {
                                             {course.course_name}
                                         </TableCell>
                                         <TableCell>
-                                            {course.educatorName}
+                                            {course.educator_name}
                                         </TableCell>
                                         <TableCell>{course.category}</TableCell>
                                         <TableCell>
@@ -271,7 +314,7 @@ export default function AdminCourseList() {
                                         </TableCell>
                                         <TableCell>{course.point}</TableCell>
                                         <TableCell>
-                                            {course.maxEnrollment}
+                                            {course.max_enrollment}
                                         </TableCell>
                                         <TableCell align="right">
                                             <Stack
@@ -290,7 +333,9 @@ export default function AdminCourseList() {
                                                 <IconButton
                                                     color="error"
                                                     onClick={() =>
-                                                        handleDelete(course.id)
+                                                        handleDelete(
+                                                            course.course_id
+                                                        )
                                                     }
                                                 >
                                                     <DeleteIcon />
