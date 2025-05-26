@@ -173,7 +173,7 @@ export default function CourseList() {
                                         : theme.palette.grey[100],
                             }}
                         >
-                            <TableCell></TableCell>
+                            <TableCell>ID</TableCell>
                             <TableCell>강의명</TableCell>
                             <TableCell>강사</TableCell>
                             <TableCell>카테고리</TableCell>
@@ -184,12 +184,9 @@ export default function CourseList() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {displayedCourses.map((course, idx) => (
+                        {displayedCourses.map((course) => (
                             <TableRow key={course.course_id} hover>
-                                <TableCell>
-                                    {courses.length -
-                                        (page * rowsPerPage + idx)}
-                                </TableCell>
+                                <TableCell>{course.course_id}</TableCell>
                                 <TableCell>
                                     <Box
                                         onClick={() =>

@@ -10,6 +10,7 @@ import {
     ListItemText,
     Divider,
     Button,
+    IconButton,
 } from "@mui/material";
 import useAuth from "../../hooks/auth/useAuth";
 import { useTheme } from "@emotion/react";
@@ -18,6 +19,7 @@ import {
     enrollCourseAPI,
     getMyEnrollmentsAPI,
 } from "../../api/enrollment";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export default function CourseDetail() {
     const { user } = useAuth();
@@ -97,12 +99,16 @@ export default function CourseDetail() {
                 createdAt: now,
                 updatedAt: now,
                 description: "Spring Framework 강의 상세 설명입니다.",
-                lectures: [],
+                lectures: [
+                    { id: 1, title: "강의 소개", duration: "05:00" },
+                    { id: 2, title: "개발 환경 설정", duration: "10:30" },
+                    { id: 3, title: "Hello World 실습", duration: "07:15" },
+                ],
             },
             {
                 id: 2,
                 course_name: "Data Structures",
-                educatorName: "교수2",
+                educator_name: "교수2",
                 category: "데이터베이스",
                 difficulty: "EASY",
                 point: 2,
@@ -111,7 +117,11 @@ export default function CourseDetail() {
                 createdAt: now,
                 updatedAt: now,
                 description: "Data Structures 강의 상세 설명입니다.",
-                lectures: [],
+                lectures: [
+                    { id: 1, title: "자료구조 개요", duration: "08:20" },
+                    { id: 2, title: "스택과 큐", duration: "12:45" },
+                    { id: 3, title: "연결 리스트 실습", duration: "09:50" },
+                ],
             },
         ];
 
@@ -132,17 +142,63 @@ export default function CourseDetail() {
         }
     };
 
+    const canGoClassroom =
+        user.role === "EDUCATOR" || (user.role === "STUDENT" && isEnrolled);
+
+    // 뒤로 가기: 이전 URL에 'myCourses'가 있으면 뒤로, 아니면 역할별 목록으로
+    const handleBack = () => {
+        const prev = document.referrer;
+        const cameFromMy =
+            prev.includes("/teach/myCourses") ||
+            prev.includes("/learn/myCourses") ||
+            prev.includes("/courses");
+
+        if (cameFromMy) {
+            navigate(-1);
+        } else if (user.role === "EDUCATOR") {
+            navigate("/teach/myCourses");
+        } else if (user.role === "STUDENT") {
+            navigate("/learn/myCourses");
+        } else {
+            navigate(-1);
+        }
+    };
+
     return (
         <Paper sx={{ p: 3 }}>
             <Box
                 display="flex"
-                alignItems="baseline"
-                gap={1}
+                alignItems="center"
+                justifyContent="space-between"
                 sx={{ borderBottom: 1, borderColor: "divider", pb: 1, mb: 3 }}
             >
-                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                {/* 뒤로 가기 화살표 */}
+                <IconButton size="small" onClick={handleBack} sx={{ mr: 1 }}>
+                    <ArrowBackIcon />
+                </IconButton>
+
+                <Typography variant="h5" sx={{ fontWeight: 600, flexGrow: 1 }}>
                     {course.course_name}
                 </Typography>
+
+                {/* 강의실 이동 버튼 */}
+                {canGoClassroom && (
+                    <Button
+                        variant="contained"
+                        size="medium"
+                        sx={{
+                            bgcolor: theme.palette.secondary.main,
+                            "&:hover": {
+                                bgcolor: theme.palette.secondary.dark,
+                            },
+                        }}
+                        onClick={() =>
+                            navigate(`/courses/${course.course_id}/classroom`)
+                        }
+                    >
+                        강의실로 이동
+                    </Button>
+                )}
             </Box>
 
             <Box display="flex" gap={2} mb={3}>
@@ -278,19 +334,6 @@ export default function CourseDetail() {
                         삭제
                     </Button>
                 )}
-                <Button
-                    size="medium"
-                    variant="outlined"
-                    sx={{
-                        color: theme.palette.primary.dark,
-                        "&:hover": {
-                            bgcolor: theme.palette.grey[50],
-                        },
-                    }}
-                    onClick={() => navigate("/courses")}
-                >
-                    목록
-                </Button>
             </Box>
         </Paper>
     );

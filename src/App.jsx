@@ -22,6 +22,7 @@ import ClassDashboardRedirect from "./routes/ClassDashboardRedirect";
 import ClassEducatorDashboard from "./pages/components/educator/ClassEducatorDashboard";
 import ClassStudentDashboard from "./pages/components/student/ClassStudentDashboard";
 import CurriculumRegister from "./pages/components/educator/CurriculumRegister";
+import CurriculumEdit from "./pages/components/educator/CurriculumEdit";
 
 function App() {
     return (
@@ -126,6 +127,14 @@ function App() {
                             element={
                                 <RoleProtectedRoute allowedRoles={["EDUCATOR"]}>
                                     <CourseEdit />
+                                </RoleProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="courses/:courseId/edit/curriculum"
+                            element={
+                                <RoleProtectedRoute allowedRoles={["EDUCATOR"]}>
+                                    <CurriculumEdit />
                                 </RoleProtectedRoute>
                             }
                         />

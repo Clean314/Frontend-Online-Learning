@@ -110,7 +110,7 @@ export default function CourseTeach() {
                                         : theme.palette.grey[100],
                             }}
                         >
-                            <TableCell></TableCell>
+                            <TableCell>ID</TableCell>
                             <TableCell>강의명</TableCell>
                             <TableCell>카테고리</TableCell>
                             <TableCell>난이도</TableCell>

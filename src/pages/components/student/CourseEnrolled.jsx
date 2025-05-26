@@ -146,7 +146,7 @@ export default function CourseEnrolled() {
                                         : theme.palette.grey[100],
                             }}
                         >
-                            <TableCell>#</TableCell>
+                            <TableCell>ID</TableCell>
                             <TableCell>강의명</TableCell>
                             <TableCell>강사</TableCell>
                             <TableCell>카테고리</TableCell>
@@ -156,20 +156,16 @@ export default function CourseEnrolled() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {displayed.map((item, idx) => (
+                        {displayed.map((item) => (
                             <TableRow key={item.course_id} hover>
-                                {/* 역순 넘버링 */}
-                                <TableCell>
-                                    {enrollments.length -
-                                        (page * rowsPerPage + idx)}
-                                </TableCell>
+                                <TableCell>{item.course_id}</TableCell>
 
                                 {/* 강의명 클릭 이동 */}
                                 <TableCell>
                                     <Box
                                         onClick={() =>
                                             navigate(
-                                                `/courses/${item.course_id}/classroom`
+                                                `/courses/${item.course_id}`
                                             )
                                         }
                                         sx={{
