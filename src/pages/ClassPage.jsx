@@ -95,7 +95,7 @@ export default function MainPage(props) {
             window={props.window ? window() : undefined}
             branding={{
                 logo: <img src="/logo.png" alt="LMS logo" />,
-                title: "LMS",
+                title: "EduON",
                 homeUrl: "/",
             }}
         >
