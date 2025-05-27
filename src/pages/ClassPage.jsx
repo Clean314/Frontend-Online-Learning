@@ -3,7 +3,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { PageContainer } from "@toolpad/core/PageContainer";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import useAuth from "../hooks/auth/useAuth";
 import { ColorModeContext } from "../ColorModeContext";
 import { useContext, useMemo } from "react";
@@ -21,22 +21,22 @@ const navigationByRole = {
         {
             title: "대시보드",
             icon: <DashboardIcon />,
-            segment: `./teach/dashboard`,
+            segment: `teach/dashboard`,
         },
         {
             title: "강의 영상",
             icon: <VideoLibraryIcon />,
-            segment: `./teach/videos`,
+            segment: `teach/videos`,
         },
         {
             title: "출결",
             icon: <EventAvailableIcon />,
-            segment: `./teach/attendance`,
+            segment: `teach/attendance`,
         },
         {
             title: "시험",
             icon: <AssignmentIcon />,
-            segment: `./teach/exams`,
+            segment: `teach/exams`,
         },
     ],
     STUDENT: [
@@ -44,22 +44,22 @@ const navigationByRole = {
         {
             title: "대시보드",
             icon: <DashboardIcon />,
-            segment: `./learn/dashboard`,
+            segment: `learn/dashboard`,
         },
         {
             title: "강의 영상",
             icon: <VideoLibraryIcon />,
-            segment: `./learn/videos`,
+            segment: `learn/videos`,
         },
         {
             title: "출결",
             icon: <EventAvailableIcon />,
-            segment: `./learn/attendance`,
+            segment: `learn/attendance`,
         },
         {
             title: "시험",
             icon: <AssignmentIcon />,
-            segment: `./learn/exams`,
+            segment: `learn/exams`,
         },
     ],
 };
@@ -72,10 +72,19 @@ export default function MainPage(props) {
 
     const navigate = useNavigate();
     const location = useLocation();
+    const { courseId } = useParams();
 
     // 사용자 role에 따른 메뉴 설정
     const role = user?.role;
-    const NAVIGATION = navigationByRole[role] || [];
+    const NAVIGATION =
+        navigationByRole[role]?.map((item) => {
+            if (item.kind === "header") return item;
+
+            return {
+                ...item,
+                segment: `./courses/${courseId}/classroom/${item.segment}`,
+            };
+        }) || [];
 
     // react Router와 동기화된 router 객체
     const router = useMemo(

@@ -19,10 +19,13 @@ import AdminDashboard from "./pages/components/admin/AdminDashboard";
 import CourseEdit from "./pages/components/educator/CourseEdit";
 import ClassPage from "./pages/ClassPage";
 import ClassDashboardRedirect from "./routes/ClassDashboardRedirect";
-import ClassEducatorDashboard from "./pages/components/educator/ClassEducatorDashboard";
 import ClassStudentDashboard from "./pages/components/student/ClassStudentDashboard";
 import CurriculumRegister from "./pages/components/educator/CurriculumRegister";
 import CurriculumEdit from "./pages/components/educator/CurriculumEdit";
+import ClassEducatorDashboard from "./pages/components/educator/ClassEducatorDashboard";
+import ClassEducatorVideos from "./pages/components/educator/ClassEducatorVideos";
+import ClassEducatorAttendance from "./pages/components/educator/ClassEducatorAttendance";
+import ClassEducatorExams from "./pages/components/educator/ClassEducatorExams";
 
 function App() {
     return (
@@ -157,40 +160,63 @@ function App() {
                             />
                         </Route>
                     </Route>
-                </Route>
-
-                {/* 강의실 */}
-                <Route
-                    path="/courses/:courseId/classroom"
-                    element={
-                        <RoleProtectedRoute
-                            allowedRoles={["EDUCATOR", "STUDENT"]}
-                        >
-                            <ClassPage />
-                        </RoleProtectedRoute>
-                    }
-                >
-                    <Route index element={<ClassDashboardRedirect />} />
-
-                    {/* 강사 전용 */}
+                    {/* 강의실 */}
                     <Route
-                        path="teach/dashboard"
+                        path="/courses/:courseId/classroom/*"
                         element={
-                            <RoleProtectedRoute allowedRoles={["EDUCATOR"]}>
-                                <ClassEducatorDashboard />
+                            <RoleProtectedRoute
+                                allowedRoles={["EDUCATOR", "STUDENT"]}
+                            >
+                                <ClassPage />
                             </RoleProtectedRoute>
                         }
-                    />
+                    >
+                        <Route index element={<ClassDashboardRedirect />} />
 
-                    {/* 학생 전용 */}
-                    <Route
-                        path="learn/dashboard"
-                        element={
-                            <RoleProtectedRoute allowedRoles={["STUDENT"]}>
-                                <ClassStudentDashboard />
-                            </RoleProtectedRoute>
-                        }
-                    />
+                        {/* 강사 전용 */}
+                        <Route
+                            path="teach/dashboard"
+                            element={
+                                <RoleProtectedRoute allowedRoles={["EDUCATOR"]}>
+                                    <ClassEducatorDashboard />
+                                </RoleProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="teach/videos"
+                            element={
+                                <RoleProtectedRoute allowedRoles={["EDUCATOR"]}>
+                                    <ClassEducatorVideos />
+                                </RoleProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="teach/attendance"
+                            element={
+                                <RoleProtectedRoute allowedRoles={["EDUCATOR"]}>
+                                    <ClassEducatorAttendance />
+                                </RoleProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="teach/exams"
+                            element={
+                                <RoleProtectedRoute allowedRoles={["EDUCATOR"]}>
+                                    <ClassEducatorExams />
+                                </RoleProtectedRoute>
+                            }
+                        />
+
+                        {/* 학생 전용 */}
+                        <Route
+                            path="learn/dashboard"
+                            element={
+                                <RoleProtectedRoute allowedRoles={["STUDENT"]}>
+                                    <ClassStudentDashboard />
+                                </RoleProtectedRoute>
+                            }
+                        />
+                    </Route>
                 </Route>
             </Routes>
         </>
