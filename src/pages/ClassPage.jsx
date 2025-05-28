@@ -15,53 +15,57 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 
-const navigationByRole = {
-    EDUCATOR: [
-        { kind: "header", title: "EDUCATOR" },
+const getNavigationByRole = (role) => {
+    return (
         {
-            title: "대시보드",
-            icon: <DashboardIcon />,
-            segment: `teach/dashboard`,
-        },
-        {
-            title: "강의 영상",
-            icon: <VideoLibraryIcon />,
-            segment: `teach/videos`,
-        },
-        {
-            title: "출결",
-            icon: <EventAvailableIcon />,
-            segment: `teach/attendance`,
-        },
-        {
-            title: "시험",
-            icon: <AssignmentIcon />,
-            segment: `teach/exams`,
-        },
-    ],
-    STUDENT: [
-        { kind: "header", title: "STUDENT" },
-        {
-            title: "대시보드",
-            icon: <DashboardIcon />,
-            segment: `learn/dashboard`,
-        },
-        {
-            title: "강의 영상",
-            icon: <VideoLibraryIcon />,
-            segment: `learn/videos`,
-        },
-        {
-            title: "출결",
-            icon: <EventAvailableIcon />,
-            segment: `learn/attendance`,
-        },
-        {
-            title: "시험",
-            icon: <AssignmentIcon />,
-            segment: `learn/exams`,
-        },
-    ],
+            EDUCATOR: [
+                { kind: "header", title: "EDUCATOR - 강의실" },
+                {
+                    title: "대시보드",
+                    icon: <DashboardIcon />,
+                    segment: `teach/dashboard`,
+                },
+                {
+                    title: "강의 영상",
+                    icon: <VideoLibraryIcon />,
+                    segment: `teach/videos`,
+                },
+                {
+                    title: "출결",
+                    icon: <EventAvailableIcon />,
+                    segment: `teach/attendance`,
+                },
+                {
+                    title: "시험",
+                    icon: <AssignmentIcon />,
+                    segment: `teach/exams`,
+                },
+            ],
+            STUDENT: [
+                { kind: "header", title: "STUDENT - 강의실" },
+                {
+                    title: "대시보드",
+                    icon: <DashboardIcon />,
+                    segment: `learn/dashboard`,
+                },
+                {
+                    title: "강의 영상",
+                    icon: <VideoLibraryIcon />,
+                    segment: `learn/videos`,
+                },
+                {
+                    title: "출결",
+                    icon: <EventAvailableIcon />,
+                    segment: `learn/attendance`,
+                },
+                {
+                    title: "시험",
+                    icon: <AssignmentIcon />,
+                    segment: `learn/exams`,
+                },
+            ],
+        }[role] || []
+    );
 };
 
 export default function MainPage(props) {
@@ -74,27 +78,31 @@ export default function MainPage(props) {
     const location = useLocation();
     const { courseId } = useParams();
 
+    const base = `/courses/${courseId}/classroom`;
+
     // 사용자 role에 따른 메뉴 설정
-    const role = user?.role;
-    const NAVIGATION =
-        navigationByRole[role]?.map((item) => {
-            if (item.kind === "header") return item;
+    const NAVIGATION = getNavigationByRole(user?.role);
 
-            return {
-                ...item,
-                segment: `./courses/${courseId}/classroom/${item.segment}`,
-            };
-        }) || [];
+    // ② AppProvider에 넘길 router 객체
+    const router = useMemo(() => {
+        // 현재 URL에서 base 부분을 떼고 나머지만 AppProvider에 넘김
+        let path = location.pathname;
+        if (path.startsWith(base)) {
+            path = path.slice(base.length);
+        }
+        if (!path || path === "") path = "/";
 
-    // react Router와 동기화된 router 객체
-    const router = useMemo(
-        () => ({
-            pathname: location.pathname,
+        return {
+            pathname: path, // ex. "/teach/dashboard"
             searchParams: new URLSearchParams(location.search),
-            navigate: (path) => navigate(path),
-        }),
-        [location, navigate]
-    );
+            // AppProvider 내부 navigate("teach/videos") 호출 시
+            // 실제 이동은 base + "/teach/videos"
+            navigate: (relPath) => {
+                const seg = relPath.startsWith("/") ? relPath : `/${relPath}`;
+                navigate(base + seg);
+            },
+        };
+    }, [location, navigate, courseId]);
 
     return (
         <AppProvider
