@@ -35,28 +35,36 @@ const navigationByRole = {
     ],
     EDUCATOR: [
         { kind: "header", title: "EDUCATOR" },
-        { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
         {
-            segment: "teach/newCourse",
+            segment: "teach/dashboard",
+            title: "대시보드",
+            icon: <DashboardIcon />,
+        },
+        {
+            segment: "teach/courses/new",
             title: "강의 등록",
             icon: <PlaylistAddIcon />,
         },
         {
-            segment: "teach/myCourses",
+            segment: "teach/courses/my",
             title: "내 강의 목록",
             icon: <AssignmentIcon />,
         },
     ],
     STUDENT: [
         { kind: "header", title: "STUDENT" },
-        { segment: "dashboard", title: "대시보드", icon: <DashboardIcon /> },
+        {
+            segment: "learn/dashboard",
+            title: "대시보드",
+            icon: <DashboardIcon />,
+        },
         {
             segment: "courses",
             title: "전체 강의 보기",
             icon: <LibraryBooksIcon />,
         },
         {
-            segment: "learn/myCourses",
+            segment: "learn/courses/my",
             title: "내 수강 강의",
             icon: <SchoolIcon />,
             children: [

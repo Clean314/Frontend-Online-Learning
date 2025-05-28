@@ -1,23 +1,36 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/auth/useAuth";
 
-export default function DashboardRedirect() {
-    const { user, loading } = useAuth();
+const DashboardRedirect = () => {
+    const { user } = useAuth();
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-    if (!user) {
-        // 로그인 안 된 상태면 로그인 페이지로
-        return <Navigate to="/login" replace />;
-    }
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    // ADMIN 계정은 /admin/dashboard
-    if (user.role === "ADMIN") {
-        return <Navigate to="/admin/dashboard" replace />;
-    }
+    useEffect(() => {
+        if (!user) return;
 
-    // 나머지(EDUCATOR, STUDENT) 계정은 기존 /dashboard
-    return <Navigate to="/dashboard" replace />;
-}
+        const isInClassroom = location.pathname.includes("/classroom");
+
+        const roleRedirectMap = {
+            ADMIN: "admin/dashboard",
+            EDUCATOR: "teach/dashboard",
+            STUDENT: "learn/dashboard",
+        };
+
+        const target = roleRedirectMap[user.role];
+
+        if (isInClassroom) {
+            // 상대 경로 리디렉션
+            navigate(target, { replace: true });
+        } else {
+            // 절대 경로 리디렉션
+            navigate(`/${target}`, { replace: true });
+        }
+    }, [user, location, navigate]);
+
+    return null;
+};
+
+export default DashboardRedirect;

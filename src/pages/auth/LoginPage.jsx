@@ -10,7 +10,7 @@ import {
     CssBaseline,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import useAuth from "../hooks/auth/useAuth";
+import useAuth from "../../hooks/auth/useAuth";
 import { useTheme } from "@emotion/react";
 
 export default function LoginPage() {

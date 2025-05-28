@@ -1,7 +1,7 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import useAuth from "../hooks/auth/useAuth";
 
-export default function RoleProtectedRoute({ allowedRoles, children }) {
+export default function RoleProtectedRoute({ allowedRoles }) {
     const { user } = useAuth();
     const location = useLocation();
 
@@ -16,5 +16,5 @@ export default function RoleProtectedRoute({ allowedRoles, children }) {
     }
 
     // 접근 허용된 role은 자식 컴포넌트 렌더링
-    return children;
+    return <Outlet />;
 }
