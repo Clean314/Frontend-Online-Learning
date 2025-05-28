@@ -4,14 +4,17 @@ import LoginPage from "./pages/auth/LoginPage";
 import SignUpPage from "./pages/auth/SignUpPage";
 import RoleSelectPage from "./pages/auth/RoleSelectPage";
 import NotAuthorizedPage from "./pages/NotAuthorizedPage";
+import ClassPage from "./pages/ClassPage";
 import MainPage from "./pages/MainPage";
-import DashboardRedirect from "./routes/DashboardRedirect";
+import DashboardClassRedirect from "./routes/DashboardClassRedirect";
+import DashboardHomeRedirect from "./routes/DashboardHomeRedirect";
 
 import AdminRoutes from "./routes/AdminRoutes";
-import ClassroomRoutes from "./routes/ClassroomRoutes";
 import CourseRoutes from "./routes/CourseRoutes";
 import EducatorRoutes from "./routes/EducatorRoutes";
+import EducatorClassRoutes from "./routes/EducatorClassRoutes";
 import StudentRoutes from "./routes/StudentRoutes";
+import StudentClassRoutes from "./routes/StudentClassRoutes";
 
 function App() {
     return (
@@ -24,7 +27,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
                 {/* MainPage */}
                 <Route path="/" element={<MainPage />}>
-                    <Route index element={<DashboardRedirect />} />
+                    <Route index element={<DashboardHomeRedirect />} />
                     <Route path="admin/*" element={<AdminRoutes />} />
                     <Route path="teach/*" element={<EducatorRoutes />} />
                     <Route path="learn/*" element={<StudentRoutes />} />
@@ -34,8 +37,12 @@ function App() {
                 {/* ClassPage */}
                 <Route
                     path="courses/:courseId/classroom/*"
-                    element={<ClassroomRoutes />}
-                />
+                    element={<ClassPage />}
+                >
+                    <Route index element={<DashboardClassRedirect />} />
+                    <Route path="teach/*" element={<EducatorClassRoutes />} />
+                    <Route path="learn/*" element={<StudentClassRoutes />} />
+                </Route>
             </Route>
         </Routes>
     );

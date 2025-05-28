@@ -9,11 +9,12 @@ import { ColorModeContext } from "../ColorModeContext";
 import { useContext, useMemo } from "react";
 import SidebarFooter from "./components/SidebarFooter";
 import { useTheme } from "@emotion/react";
-import { Box, IconButton } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import HomeIcon from "@mui/icons-material/Home";
 
 const getNavigationByRole = (role) => {
     return (
@@ -111,9 +112,9 @@ export default function MainPage(props) {
             theme={theme}
             window={props.window ? window() : undefined}
             branding={{
-                logo: <img src="/logo.png" alt="LMS logo" />,
-                title: "EduON",
-                homeUrl: "/",
+                logo: <></>,
+                title: "",
+                homeUrl: "",
             }}
         >
             <DashboardLayout
@@ -122,6 +123,33 @@ export default function MainPage(props) {
                     sidebarFooter: ({ mini }) => ({ mini }),
                 }}
             >
+                {/* 사이드바 상단 홈 버튼 */}
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: 8,
+                        left: 50,
+                        zIndex: 1300,
+                    }}
+                >
+                    <IconButton onClick={() => navigate("/")} color="inherit">
+                        <HomeIcon
+                            sx={{
+                                fontSize: 33,
+                                color: theme.palette.primary.main,
+                                mr: 1,
+                            }}
+                        />
+                        <Typography
+                            variant="h5"
+                            color={theme.palette.primary.main}
+                        >
+                            HOME
+                        </Typography>
+                    </IconButton>
+                </Box>
+
+                {/* 우측 상단 다크모드 버튼 */}
                 <Box
                     sx={{
                         position: "absolute",

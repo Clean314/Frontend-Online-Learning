@@ -4,16 +4,11 @@ import ClassEducatorDashboard from "../pages/components/educator/ClassEducatorDa
 import ClassEducatorVideos from "../pages/components/educator/ClassEducatorVideos";
 import ClassEducatorAttendance from "../pages/components/educator/ClassEducatorAttendance";
 import ClassEducatorExams from "../pages/components/educator/ClassEducatorExams";
-import ClassStudentDashboard from "../pages/components/student/ClassStudentDashboard";
 import { ROLES } from "../roles";
-import DashboardRedirect from "./DashboardRedirect";
 
-export default function ClassroomRoutes() {
+export default function EducatorClassRoutes() {
     return (
         <Routes>
-            <Route index element={<DashboardRedirect />} />
-
-            {/* 강사 전용 */}
             <Route
                 element={<RoleProtectedRoute allowedRoles={[ROLES.EDUCATOR]} />}
             >
@@ -27,16 +22,6 @@ export default function ClassroomRoutes() {
                     element={<ClassEducatorAttendance />}
                 />
                 <Route path="teach/exams" element={<ClassEducatorExams />} />
-            </Route>
-
-            {/* 학생 전용 */}
-            <Route
-                element={<RoleProtectedRoute allowedRoles={[ROLES.STUDENT]} />}
-            >
-                <Route
-                    path="learn/dashboard"
-                    element={<ClassStudentDashboard />}
-                />
             </Route>
         </Routes>
     );
