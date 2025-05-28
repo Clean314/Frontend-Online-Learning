@@ -1,4 +1,3 @@
-// src/pages/components/educator/ClassEducatorDashboard.jsx
 import React, { useState, useEffect } from "react";
 import {
     Box,
@@ -26,7 +25,6 @@ import PeopleIcon from "@mui/icons-material/People";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 dayjs.locale("ko");
 
-// 강사 대시보드 페이지
 export default function ClassEducatorDashboard() {
     const theme = useTheme();
 
