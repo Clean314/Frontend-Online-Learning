@@ -1,70 +1,45 @@
 # frontend
 
-```
-frontend,
-├─ .gitattributes,
-├─ .gitignore,
-├─ eslint.config.js,
-├─ index.html,
-├─ package.json,
-├─ public,
-│  ├─ favicon.ico,
-│  └─ logo.png,
-├─ README.md,
-├─ src,
-│  ├─ api,
-│  │  ├─ admin.js,
-│  │  ├─ auth.js,
-│  │  ├─ axios.js,
-│  │  ├─ course.js,
-│  │  └─ enrollment.js,
-│  ├─ App.css,
-│  ├─ App.jsx,
-│  ├─ assets,
-│  │  └─ react.svg,
-│  ├─ ColorModeContext.jsx,
-│  ├─ hooks,
-│  │  ├─ auth,
-│  │  │  ├─ AuthProvider.jsx,
-│  │  │  └─ useAuth.js,
-│  │  └─ useFormatDate.js,
-│  ├─ index.css,
-│  ├─ main.jsx,
-│  ├─ pages,
-│  │  ├─ ClassPage.jsx,
-│  │  ├─ components,
-│  │  │  ├─ admin,
-│  │  │  │  ├─ AdminCourseList.jsx,
-│  │  │  │  ├─ AdminDashboard.jsx,
-│  │  │  │  └─ AdminUserList.jsx,
-│  │  │  ├─ CourseDetail.jsx,
-│  │  │  ├─ CourseList.jsx,
-│  │  │  ├─ DashboardHome.jsx,
-│  │  │  ├─ educator,
-│  │  │  │  ├─ ClassEducatorAttendance.jsx,
-│  │  │  │  ├─ ClassEducatorDashboard.jsx,
-│  │  │  │  ├─ ClassEducatorExams.jsx,
-│  │  │  │  ├─ ClassEducatorVideos.jsx,
-│  │  │  │  ├─ CourseEdit.jsx,
-│  │  │  │  ├─ CourseRegister.jsx,
-│  │  │  │  ├─ CourseTeach.jsx,
-│  │  │  │  ├─ CurriculumEdit.jsx,
-│  │  │  │  └─ CurriculumRegister.jsx,
-│  │  │  ├─ SidebarFooter.jsx,
-│  │  │  └─ student,
-│  │  │     ├─ ClassStudentDashboard.jsx,
-│  │  │     └─ CourseEnrolled.jsx,
-│  │  ├─ LoginPage.jsx,
-│  │  ├─ MainPage.jsx,
-│  │  ├─ NotAuthorizedPage.jsx,
-│  │  └─ sign_up,
-│  │     ├─ RoleSelectPage.jsx,
-│  │     └─ SignUpPage.jsx,
-│  └─ routes,
-│     ├─ ClassDashboardRedirect.jsx,
-│     ├─ DashboardRedirect.jsx,
-│     ├─ ProtectedRoute.jsx,
-│     └─ RoleProtectedRoute.jsx,
-└─ vite.config.js,
+## URL
 
-```
+### Public
+
+- `/login`
+- `/signup`
+- `/role-select`
+- `/not-authorized`
+
+### Protected (로그인 필요)
+
+- `/` → DashboardHomeRedirect
+
+### Admin (ADMIN 전용)
+
+- `/admin/dashboard`
+- `/admin/users`
+- `/admin/courses`
+
+### Courses (EDUCATOR, STUDENT)
+
+- `/courses`
+- `/courses/:courseId`
+- `/courses/:courseId/edit`
+- `/courses/:courseId/edit/curriculum`
+- `/courses/:courseId/classroom/teach/dashboard`
+- `/courses/:courseId/classroom/teach/videos`
+- `/courses/:courseId/classroom/teach/attendance`
+- `/courses/:courseId/classroom/teach/exams`
+- `/courses/:courseId/classroom/learn/dashboard`
+
+### Educator (EDUCATOR 전용)
+
+- `/teach/dashboard`
+- `/teach/courses/my`
+- `/teach/courses/new`
+- `/teach/courses/new/:courseId/curriculum`
+
+### Student (STUDENT 전용)
+
+- `/learn/dashboard`
+- `/learn/courses/my/total`
+- `/learn/courses/my/:enrolledStatus`
