@@ -127,7 +127,7 @@ export default function MainPage(props) {
                 <Box
                     sx={{
                         position: "absolute",
-                        top: 8,
+                        top: 7,
                         left: 50,
                         zIndex: 1300,
                     }}
@@ -141,8 +141,10 @@ export default function MainPage(props) {
                             }}
                         />
                         <Typography
-                            variant="h5"
+                            variant="h6"
                             color={theme.palette.primary.main}
+                            display={"inline-block"}
+                            paddingTop={0.5}
                         >
                             HOME
                         </Typography>
