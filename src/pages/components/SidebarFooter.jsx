@@ -5,8 +5,6 @@ import {
     Button,
     useTheme,
     Menu,
-    Divider,
-    MenuItem,
     IconButton,
 } from "@mui/material";
 import useAuth from "../../hooks/auth/useAuth";

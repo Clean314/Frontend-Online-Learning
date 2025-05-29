@@ -58,7 +58,7 @@ export default function CourseRegister() {
         try {
             const courseId = await createCourseAPI(formData);
 
-            navigate(`/teach/newCourse/${courseId}/curriculum`);
+            navigate(`/teach/courses/new/${courseId}/curriculum`);
         } catch (err) {
             console.error("강의 등록 실패:", err);
             alert("강의 등록에 실패했습니다. 다시 시도해주세요.");
@@ -169,7 +169,7 @@ export default function CourseRegister() {
                     <Button
                         size="large"
                         variant="outlined"
-                        onClick={() => navigate("/courses")}
+                        onClick={() => navigate("/teach/courses/my")}
                     >
                         취소
                     </Button>

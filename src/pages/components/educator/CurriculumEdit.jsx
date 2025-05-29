@@ -32,7 +32,7 @@ export default function CurriculumEdit() {
     }, [courseId]);
 
     if (!courseId) {
-        return <Navigate to="/teach/myCourses" replace />;
+        return <Navigate to="/teach/courses/my" replace />;
     }
 
     // 입력값 변경 핸들러

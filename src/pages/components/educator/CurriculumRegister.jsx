@@ -20,7 +20,7 @@ export default function CurriculumRegister() {
     ]);
 
     if (!courseId) {
-        return <Navigate to="/teach/newCourse" replace />;
+        return <Navigate to="/teach/courses/new" replace />;
     }
 
     // 입력값 변경 핸들러

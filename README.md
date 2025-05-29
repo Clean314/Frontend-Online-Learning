@@ -23,12 +23,18 @@
 
 - `/courses`
 - `/courses/:courseId`
+
+### Courses (EDUCATOR)
+
 - `/courses/:courseId/edit`
 - `/courses/:courseId/edit/curriculum`
 - `/courses/:courseId/classroom/teach/dashboard`
 - `/courses/:courseId/classroom/teach/videos`
 - `/courses/:courseId/classroom/teach/attendance`
 - `/courses/:courseId/classroom/teach/exams`
+
+### Courses (STUDENT)
+
 - `/courses/:courseId/classroom/learn/dashboard`
 
 ### Educator (EDUCATOR 전용)

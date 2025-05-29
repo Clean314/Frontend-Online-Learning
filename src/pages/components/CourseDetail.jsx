@@ -54,7 +54,7 @@ export default function CourseDetail() {
             await enrollCourseAPI(Number(courseId));
 
             alert("수강 신청이 완료되었습니다.");
-            navigate("/learn/myCourses");
+            navigate("/learn/courses/my");
         } catch (err) {
             console.error(err);
             alert(
@@ -71,7 +71,7 @@ export default function CourseDetail() {
 
             alert("수강이 취소되었습니다.");
             setIsEnrolled(false);
-            navigate("/learn/myCourses");
+            navigate("/learn/courses/my");
         } catch (err) {
             console.error(err);
             alert(
@@ -138,7 +138,7 @@ export default function CourseDetail() {
             // TODO: delete API 호출
 
             alert("삭제되었습니다.");
-            navigate("/learn/courses");
+            navigate("/teach/courses/my");
         }
     };
 
@@ -149,16 +149,16 @@ export default function CourseDetail() {
     const handleBack = () => {
         const prev = document.referrer;
         const cameFromMy =
-            prev.includes("/teach/myCourses") ||
-            prev.includes("/learn/myCourses") ||
+            prev.includes("/teach/courses/my") ||
+            prev.includes("/learn/courses/my") ||
             prev.includes("/courses");
 
         if (cameFromMy) {
             navigate(-1);
         } else if (user.role === "EDUCATOR") {
-            navigate("/teach/myCourses");
+            navigate("/teach/courses/my");
         } else if (user.role === "STUDENT") {
-            navigate("/learn/myCourses");
+            navigate("/learn/courses/my");
         } else {
             navigate(-1);
         }
