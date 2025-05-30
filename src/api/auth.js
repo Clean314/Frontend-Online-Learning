@@ -8,7 +8,12 @@ import api from "./axios";
  */
 export const loginAPI = async (email, password) => {
     const res = await api.post("/auth/login", { username: email, password });
-    return res.data.password; // 토큰 반환
+
+    // 수정) response 헤더에서 토큰 정보 꺼내기
+    const header = res.headers["authorization"] || res.headers["Authorization"];
+    // header === "Bearer eyJ...."
+    const token = header.split(" ")[1];
+    return token;
 };
 
 /**
