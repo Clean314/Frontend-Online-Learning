@@ -190,7 +190,10 @@ export default function ClassEducatorDashboard() {
         max_enrollment: "",
     });
 
+    // “강의 기본 정보 수정” 버튼을 가리키는 ref
     const editButtonRef = useRef(null);
+    // 첫 포커스가 들어가야 할 모달 내의 첫 번째 필드(ref)
+    const firstFieldRef = useRef(null);
 
     // 모달 열기: 기존 courseInfo를 formData로 복사
     const handleOpenEditModal = () => {
@@ -208,11 +211,16 @@ export default function ClassEducatorDashboard() {
     // 모달 닫기
     const handleCloseEditModal = () => {
         setOpenEditModal(false);
+    };
 
-        // 편집 버튼으로 포커스 복귀
-        if (editButtonRef.current) {
-            editButtonRef.current.focus();
-        }
+    // 모달이 완전히 열렸을 때, 포커스 이동
+    const handleAfterModalOpen = () => {
+        firstFieldRef.current?.focus?.();
+    };
+
+    // 모달이 완전히 닫혔을 때, 포커스 이동
+    const handleAfterModalClose = () => {
+        editButtonRef.current?.focus?.();
     };
 
     // 폼 입력 변경 처리
@@ -476,6 +484,12 @@ export default function ClassEducatorDashboard() {
                 onClose={handleCloseEditModal}
                 maxWidth="sm"
                 fullWidth
+                slotProps={{
+                    transition: {
+                        onEntered: handleAfterModalOpen,
+                        onExited: handleAfterModalClose,
+                    },
+                }}
             >
                 <DialogTitle>강의 기본 정보 수정</DialogTitle>
                 <DialogContent>
@@ -501,6 +515,7 @@ export default function ClassEducatorDashboard() {
                                     name="category"
                                     value={formData.category}
                                     onChange={handleChange}
+                                    inputRef={firstFieldRef}
                                 >
                                     {categories.map((cat) => (
                                         <MenuItem key={cat} value={cat}>
