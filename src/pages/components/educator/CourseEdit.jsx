@@ -188,7 +188,7 @@ export default function CourseEdit() {
                     <Button
                         size="large"
                         variant="outlined"
-                        onClick={() => navigate(`/courses/${courseId}`)}
+                        onClick={() => navigate(-1)}
                     >
                         취소
                     </Button>

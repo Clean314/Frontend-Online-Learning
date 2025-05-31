@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Box,
     Typography,
@@ -10,6 +10,15 @@ import {
     ListItemText,
     List,
     ListItem,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    FormControl,
+    InputLabel,
+    Select,
+    TextField,
+    MenuItem,
+    DialogActions,
 } from "@mui/material";
 import { Edit as EditIcon } from "@mui/icons-material";
 import { alpha, styled, useTheme } from "@mui/material/styles";
@@ -23,18 +32,24 @@ import "dayjs/locale/ko";
 import dayjs from "dayjs";
 import PeopleIcon from "@mui/icons-material/People";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
+import { modifyCourseInfoAPI } from "../../../api/course";
 dayjs.locale("ko");
+
+const categories = ["프로그래밍", "데이터베이스", "네트워크", "보안", "AI"];
+const difficulties = ["EASY", "MEDIUM", "HARD"];
+const credits = [1, 2, 3];
 
 export default function ClassEducatorDashboard() {
     const theme = useTheme();
 
     // 강의 기본 정보 (임시 데이터)
-    const [courseInfo] = useState({
+    const [courseInfo, setCourseInfo] = useState({
         course_id: 1,
         title: "React 기초부터 심화까지",
         instructor: "홍길동",
         category: "프로그래밍",
-        difficulty: "중급",
+        difficulty: "MEDIUM",
+        point: 1,
         description:
             "이 강의는 React의 기초 문법부터 고급 Hooks 사용법까지 다룹니다.",
         max_enrollment: 40,
@@ -165,6 +180,84 @@ export default function ClassEducatorDashboard() {
         // TODO: API 연동 후 courseInfo, stats, lectureEvents 업데이트
     }, []);
 
+    const [openEditModal, setOpenEditModal] = useState(false);
+    const [formData, setFormData] = useState({
+        course_name: "",
+        category: "",
+        difficulty: "",
+        point: "",
+        description: "",
+        max_enrollment: "",
+    });
+
+    const editButtonRef = useRef(null);
+
+    // 모달 열기: 기존 courseInfo를 formData로 복사
+    const handleOpenEditModal = () => {
+        setFormData({
+            course_name: courseInfo.title,
+            category: courseInfo.category,
+            difficulty: courseInfo.difficulty,
+            point: courseInfo.point,
+            description: courseInfo.description,
+            max_enrollment: courseInfo.max_enrollment,
+        });
+        setOpenEditModal(true);
+    };
+
+    // 모달 닫기
+    const handleCloseEditModal = () => {
+        setOpenEditModal(false);
+
+        // 편집 버튼으로 포커스 복귀
+        if (editButtonRef.current) {
+            editButtonRef.current.focus();
+        }
+    };
+
+    // 폼 입력 변경 처리
+    const handleChange = (e) => {
+        const { name, value, type } = e.target;
+        const parsed = type === "number" ? Number(value) : value;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: parsed,
+        }));
+    };
+
+    // “저장” 버튼 클릭 시 API 호출 & 로컬 상태 업데이트
+    const handleSaveCourseInfo = async (e) => {
+        e.preventDefault();
+        try {
+            // API 호출: modifyCourseInfoAPI(courseId, payload)
+            await modifyCourseInfoAPI(courseInfo.course_id, {
+                courseName: formData.course_name,
+                category: formData.category,
+                difficulty: formData.difficulty,
+                point: formData.point,
+                description: formData.description,
+                maxEnrollment: formData.max_enrollment,
+            });
+
+            // 성공 시 로컬 상태에도 반영
+            setCourseInfo((prev) => ({
+                ...prev,
+                title: formData.course_name,
+                category: formData.category,
+                difficulty: formData.difficulty,
+                point: formData.point,
+                description: formData.description,
+                max_enrollment: formData.max_enrollment,
+            }));
+
+            setOpenEditModal(false);
+            alert("강의 정보가 성공적으로 수정되었습니다.");
+        } catch (error) {
+            console.error("강의 수정 실패:", error);
+            alert("강의 수정에 실패했습니다. 다시 시도해주세요.");
+        }
+    };
+
     return (
         <Paper sx={{ p: 3 }}>
             {/* 상단 헤더 */}
@@ -189,7 +282,11 @@ export default function ClassEducatorDashboard() {
                         </Typography>
                     )}
                 </Box>
-                <Button variant="outlined" startIcon={<EditIcon />}>
+                <Button
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    onClick={handleOpenEditModal}
+                >
                     강의 기본 정보 편집
                 </Button>
             </Box>
@@ -372,6 +469,133 @@ export default function ClassEducatorDashboard() {
                     </Box>
                 </Box>
             </Card>
+
+            {/* 강의 기본 정보 편집 모달 */}
+            <Dialog
+                open={openEditModal}
+                onClose={handleCloseEditModal}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle>강의 기본 정보 수정</DialogTitle>
+                <DialogContent>
+                    <Box
+                        component="form"
+                        id="edit-course-form"
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                            mt: 1,
+                        }}
+                    >
+                        <Box sx={{ display: "flex", gap: 2 }}>
+                            {/* 카테고리 Select */}
+                            <FormControl
+                                sx={{ width: "30%", minWidth: 120 }}
+                                required
+                            >
+                                <InputLabel>카테고리</InputLabel>
+                                <Select
+                                    label="카테고리"
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleChange}
+                                >
+                                    {categories.map((cat) => (
+                                        <MenuItem key={cat} value={cat}>
+                                            {cat}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                            {/* 강의명 TextField */}
+                            <TextField
+                                label="강의명"
+                                name="course_name"
+                                value={formData.course_name}
+                                onChange={handleChange}
+                                fullWidth
+                                required
+                            />
+                        </Box>
+
+                        <Box sx={{ display: "flex", gap: 2 }}>
+                            {/* 학점 Select */}
+                            <FormControl fullWidth required>
+                                <InputLabel>학점</InputLabel>
+                                <Select
+                                    label="학점"
+                                    name="point"
+                                    value={formData.point}
+                                    onChange={handleChange}
+                                >
+                                    {credits.map((c) => (
+                                        <MenuItem key={c} value={c}>
+                                            {c}학점
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                            {/* 난이도 Select */}
+                            <FormControl fullWidth required>
+                                <InputLabel>난이도</InputLabel>
+                                <Select
+                                    label="난이도"
+                                    name="difficulty"
+                                    value={formData.difficulty}
+                                    onChange={handleChange}
+                                >
+                                    {difficulties.map((level) => (
+                                        <MenuItem key={level} value={level}>
+                                            {level}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                            {/* 최대 수강 인원 TextField */}
+                            <TextField
+                                label="최대 수강 인원"
+                                name="max_enrollment"
+                                type="number"
+                                slotProps={{
+                                    htmlInput: { min: 10, max: 100 },
+                                }}
+                                value={formData.max_enrollment}
+                                onChange={handleChange}
+                                fullWidth
+                                required
+                                helperText="최소 10명, 최대 100명까지 입력 가능합니다."
+                            />
+                        </Box>
+
+                        {/* 상세 설명 TextField */}
+                        <TextField
+                            label="상세 설명"
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            multiline
+                            rows={4}
+                            fullWidth
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={handleCloseEditModal}>취소</Button>
+                    <Button
+                        type="submit"
+                        form="edit-course-form"
+                        variant="contained"
+                        onClick={handleSaveCourseInfo}
+                    >
+                        저장
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Paper>
     );
 }

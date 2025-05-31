@@ -232,9 +232,9 @@ export default function CourseList() {
                                         size="small"
                                     />
                                 </TableCell>
-                                <TableCell>{course.max_enrollment}명</TableCell>
+                                <TableCell>{course.max_enrollment}</TableCell>
                                 <TableCell>
-                                    {course.available_enrollment}명
+                                    {course.available_enrollment}
                                 </TableCell>
                             </TableRow>
                         ))}

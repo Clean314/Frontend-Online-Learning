@@ -15,9 +15,7 @@ export default function CurriculumRegister() {
     const { courseId } = useParams();
 
     // 강의 영상 리스트 상태
-    const [lectures, setLectures] = useState([
-        { title: "", videoUrl: "", file: null },
-    ]);
+    const [lectures, setLectures] = useState([{ title: "", videoUrl: "" }]);
 
     if (!courseId) {
         return <Navigate to="/teach/courses/new" replace />;
@@ -50,9 +48,6 @@ export default function CurriculumRegister() {
         lectures.forEach((lec, idx) => {
             formData.append(`lectures[${idx}].title`, lec.title);
             formData.append(`lectures[${idx}].videoUrl`, lec.videoUrl);
-            if (lec.file) {
-                formData.append(`lectures[${idx}].file`, lec.file);
-            }
         });
 
         try {
@@ -84,6 +79,15 @@ export default function CurriculumRegister() {
                         gap={1}
                         mb={2}
                     >
+                        <Typography
+                            sx={{
+                                width: 24,
+                                textAlign: "center",
+                                fontWeight: 500,
+                            }}
+                        >
+                            {idx + 1}.
+                        </Typography>
                         <TextField
                             label="강의 제목"
                             value={lec.title}
@@ -96,14 +100,6 @@ export default function CurriculumRegister() {
                             onChange={handleLectureChange(idx, "videoUrl")}
                             fullWidth
                         />
-                        {/* <Button variant="outlined" component="label">
-                            파일
-                            <input
-                                type="file"
-                                hidden
-                                onChange={handleLectureChange(idx, "file")}
-                            />
-                        </Button> */}
                         <IconButton
                             onClick={removeLecture(idx)}
                             disabled={lectures.length === 1}

@@ -47,9 +47,9 @@ export default function CourseDetail() {
     // TODO: 강의 영상 목록 조회 API 연결
     useEffect(() => {
         const mockLectures = [
-            { id: 1, title: "강의 소개", duration: "05:00" },
-            { id: 2, title: "개발 환경 설정", duration: "10:30" },
-            { id: 3, title: "Hello World 실습", duration: "07:15" },
+            { id: 1, title: "강의 소개" },
+            { id: 2, title: "개발 환경 설정" },
+            { id: 3, title: "Hello World 실습" },
         ];
         setLectures(mockLectures);
     }, []);
@@ -225,7 +225,7 @@ export default function CourseDetail() {
             </Typography>
             <List disablePadding sx={{ mb: 4 }}>
                 {lectures.map((lec, idx) => (
-                    <React.Fragment key={lec.id}>
+                    <React.Fragment key={lec.id ?? idx}>
                         <ListItem
                             sx={{
                                 px: 0,
@@ -240,12 +240,8 @@ export default function CourseDetail() {
                                         variant="body2"
                                         fontWeight={500}
                                     >
-                                        {lec.title}
-                                    </Typography>
-                                }
-                                secondary={
-                                    <Typography variant="caption">
-                                        {lec.duration}
+                                        {/* 인덱스(번호) + 제목 */}
+                                        {idx + 1}. {lec.title}
                                     </Typography>
                                 }
                             />

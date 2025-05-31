@@ -1,5 +1,9 @@
 # frontend
 
+## YouTube Data API v3
+
+API 키 적용을 위해 Notion에서 .env.local 파일 다운받아서 루트 폴더에 놓기
+
 ## URL
 
 ### Public
@@ -30,6 +34,7 @@
 - `/courses/:courseId/edit/curriculum`
 - `/courses/:courseId/classroom/teach/dashboard`
 - `/courses/:courseId/classroom/teach/videos`
+- `/courses/:courseId/classroom/teach/videos/edit`
 - `/courses/:courseId/classroom/teach/attendance`
 - `/courses/:courseId/classroom/teach/exams`
 

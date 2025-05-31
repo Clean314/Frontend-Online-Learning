@@ -9,10 +9,7 @@ export default function ClassroomRoutes() {
             <Route
                 element={<RoleProtectedRoute allowedRoles={[ROLES.STUDENT]} />}
             >
-                <Route
-                    path="learn/dashboard"
-                    element={<ClassStudentDashboard />}
-                />
+                <Route path="dashboard" element={<ClassStudentDashboard />} />
             </Route>
         </Routes>
     );

@@ -34,7 +34,6 @@ export default function CourseTeach() {
         try {
             const data = await getMyRegisteredCoursesAPI();
             setCourses(data);
-            console.log(data);
         } catch (err) {
             console.error("내 강의 목록 조회 실패:", err);
         }
@@ -98,8 +97,8 @@ export default function CourseTeach() {
                         <col style={{ width: "8%" }} />
                         <col style={{ width: "8%" }} />
                         <col style={{ width: "10%" }} />
-                        <col style={{ width: "13%" }} />
-                        <col style={{ width: "13%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "10%" }} />
                     </colgroup>
                     <TableHead>
                         <TableRow
@@ -116,8 +115,8 @@ export default function CourseTeach() {
                             <TableCell>난이도</TableCell>
                             <TableCell>학점</TableCell>
                             <TableCell>최대인원</TableCell>
-                            <TableCell>등록일</TableCell>
-                            <TableCell>수정일</TableCell>
+                            <TableCell>수강인원</TableCell>
+                            <TableCell>여석</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -177,14 +176,11 @@ export default function CourseTeach() {
                                 </TableCell>
                                 <TableCell>{course.max_enrollment}</TableCell>
                                 <TableCell>
-                                    {new Date(
-                                        course.createdAt
-                                    ).toLocaleDateString()}
+                                    {course.max_enrollment -
+                                        course.available_enrollment}
                                 </TableCell>
                                 <TableCell>
-                                    {new Date(
-                                        course.updatedAt
-                                    ).toLocaleDateString()}
+                                    {course.available_enrollment}
                                 </TableCell>
                             </TableRow>
                         ))}

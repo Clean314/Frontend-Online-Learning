@@ -4,6 +4,7 @@ import ClassEducatorDashboard from "../pages/components/educator/ClassEducatorDa
 import ClassEducatorVideos from "../pages/components/educator/ClassEducatorVideos";
 import ClassEducatorAttendance from "../pages/components/educator/ClassEducatorAttendance";
 import ClassEducatorExams from "../pages/components/educator/ClassEducatorExams";
+import CurriculumEdit from "../pages/components/educator/CurriculumEdit";
 import { ROLES } from "../roles";
 
 export default function EducatorClassRoutes() {
@@ -12,16 +13,14 @@ export default function EducatorClassRoutes() {
             <Route
                 element={<RoleProtectedRoute allowedRoles={[ROLES.EDUCATOR]} />}
             >
+                <Route path="dashboard" element={<ClassEducatorDashboard />} />
+                <Route path="videos" element={<ClassEducatorVideos />} />
+                <Route path="videos/edit" element={<CurriculumEdit />} />
                 <Route
-                    path="teach/dashboard"
-                    element={<ClassEducatorDashboard />}
-                />
-                <Route path="teach/videos" element={<ClassEducatorVideos />} />
-                <Route
-                    path="teach/attendance"
+                    path="attendance"
                     element={<ClassEducatorAttendance />}
                 />
-                <Route path="teach/exams" element={<ClassEducatorExams />} />
+                <Route path="exams" element={<ClassEducatorExams />} />
             </Route>
         </Routes>
     );
