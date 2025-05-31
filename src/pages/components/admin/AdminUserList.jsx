@@ -25,9 +25,9 @@ import {
 } from "@mui/icons-material";
 import {
     getMemberUpdateListAPI,
-    findMemberAPI,
     updateMemberAPI,
     deleteMemberAPI,
+    findMemberAPI,
 } from "../../../api/admin";
 
 export default function AdminUserList() {
@@ -55,6 +55,7 @@ export default function AdminUserList() {
         try {
             if (searchName.trim()) {
                 const results = await findMemberAPI(searchName.trim());
+                console.log(results);
                 setUsers(results);
             } else {
                 fetchUsers();
@@ -95,6 +96,7 @@ export default function AdminUserList() {
 
     const handleDelete = async (userId) => {
         if (!window.confirm("정말 삭제하시겠습니까?")) return;
+
         try {
             await deleteMemberAPI(userId);
             setUsers((prev) => prev.filter((u) => u.id !== userId));

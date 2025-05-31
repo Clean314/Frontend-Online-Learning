@@ -190,7 +190,11 @@ export default function CourseList() {
                                 <TableCell>
                                     <Box
                                         onClick={() =>
-                                            navigate(`${course.course_id}`)
+                                            navigate(`${course.course_id}`, {
+                                                state: {
+                                                    courseData: course,
+                                                },
+                                            })
                                         }
                                         sx={{
                                             display: "inline-block",

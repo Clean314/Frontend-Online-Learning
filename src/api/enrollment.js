@@ -1,8 +1,8 @@
 import api from "./axios";
 
 /**
- * 전체 강의 목록 조회 (수강 상태 포함)
- * @returns {Promise<EnrollmentCourseDTO[]>}
+ * 전체 강의 목록 조회 (본인의 수강 상태 포함, 학생용)
+ * @returns {Promise<Array<EnrollmentCourseDTO>>} - 모든 강의 정보와 현재 신청 상태 반환
  */
 export const getAllCoursesWithStatusAPI = async () => {
     const res = await api.get("/students/enrollments");
@@ -10,8 +10,8 @@ export const getAllCoursesWithStatusAPI = async () => {
 };
 
 /**
- * 내 수강 목록 조회
- * @returns {Promise<EnrollmentCourseDTO[]>}
+ * 내 수강 목록 조회 (학생용)
+ * @returns {Promise<Array<EnrollmentCourseDTO>>} - 본인이 신청한 강의 정보 리스트 반환
  */
 export const getMyEnrollmentsAPI = async () => {
     const res = await api.get("/students/enrollments/my");
@@ -19,7 +19,7 @@ export const getMyEnrollmentsAPI = async () => {
 };
 
 /**
- * 수강 신청
+ * 수강 신청 (학생용)
  * @param {number} courseId - 신청할 강의 ID
  * @returns {Promise<void>}
  */
@@ -28,7 +28,7 @@ export const enrollCourseAPI = async (courseId) => {
 };
 
 /**
- * 수강 취소
+ * 수강 취소 (학생용)
  * @param {number} courseId - 취소할 강의 ID
  * @returns {Promise<void>}
  */

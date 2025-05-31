@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
     Box,
     Paper,
@@ -11,6 +11,7 @@ import {
     Select,
     MenuItem,
 } from "@mui/material";
+import { modifyCourseInfoAPI } from "../../../api/course";
 
 // TODO: 실제 API 연동해서 카테고리/난이도/학점은 받아오도록 수정
 const categories = ["프로그래밍", "데이터베이스", "네트워크", "보안", "AI"];
@@ -20,6 +21,7 @@ const credits = [1, 2, 3];
 export default function CourseEdit() {
     const { courseId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [formData, setFormData] = useState({
         course_name: "",
@@ -30,42 +32,51 @@ export default function CourseEdit() {
         max_enrollment: "",
     });
 
-    // 기존 강의 정보 불러와서 기본값 세팅
+    // 기존 강의 정보 불러오기
     useEffect(() => {
-        (async () => {
-            try {
-                // TODO: 강의 상세 조회 API 호출
-            } catch (err) {
-                console.error("강의 정보 조회 실패:", err);
-                alert("강의 정보를 불러오는 데 실패했습니다.");
-            }
-        })();
-    }, [courseId]);
+        if (!location.state || !location.state.courseData) {
+            alert("수정할 강의 정보를 찾을 수 없습니다.");
+            navigate(-1);
+            return;
+        }
+
+        const data = location.state.courseData;
+
+        setFormData({
+            course_name: data.course_name ?? "",
+            point: data.point ?? "",
+            category: data.category ?? "",
+            difficulty: data.difficulty ?? "",
+            description: data.description ?? "",
+            max_enrollment: data.max_enrollment ?? "",
+        });
+    }, [location.state, navigate]);
 
     // 입력값 변경 핸들러
     const handleChange = (e) => {
         const { name, value, type } = e.target;
         const parsed = type === "number" ? Number(value) : value;
 
-        if (name === "max_enrollment") {
-            setFormData((prev) => ({
-                ...prev,
-                max_enrollment: parsed,
-            }));
-        } else {
-            setFormData((prev) => ({
-                ...prev,
-                [name]: parsed,
-            }));
-        }
+        setFormData((prev) => ({
+            ...prev,
+            [name]: parsed,
+        }));
     };
 
     // 수정 제출 핸들러
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // TODO: 강의 정보 수정 API 호출
+            await modifyCourseInfoAPI(Number(courseId), {
+                courseName: formData.course_name,
+                category: formData.category,
+                difficulty: formData.difficulty,
+                point: formData.point,
+                description: formData.description,
+                maxEnrollment: formData.max_enrollment,
+            });
 
+            alert("강의 정보가 성공적으로 수정되었습니다.");
             navigate(`/courses/${courseId}/edit/curriculum`);
         } catch (err) {
             console.error("강의 수정 실패:", err);
@@ -150,7 +161,9 @@ export default function CourseEdit() {
                         onChange={handleChange}
                         fullWidth
                         required
-                        InputProps={{ inputProps: { min: 10, max: 100 } }}
+                        slotProps={{
+                            htmlInput: { min: 10, max: 100 },
+                        }}
                         helperText="최소 10명, 최대 100명까지 입력 가능합니다."
                     />
                 </Box>

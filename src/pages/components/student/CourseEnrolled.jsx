@@ -52,10 +52,6 @@ export default function CourseEnrolled() {
                     filtered = data.filter(
                         (item) => item.status === "COMPLETED"
                     );
-                } else if (enrolledStatus === "withdrawn") {
-                    filtered = data.filter(
-                        (item) => item.status === "WITHDRAWN"
-                    );
                 }
 
                 setEnrollments(filtered);
@@ -165,7 +161,12 @@ export default function CourseEnrolled() {
                                     <Box
                                         onClick={() =>
                                             navigate(
-                                                `/courses/${item.course_id}`
+                                                `/courses/${item.course_id}`,
+                                                {
+                                                    state: {
+                                                        courseData: item,
+                                                    },
+                                                }
                                             )
                                         }
                                         sx={{
@@ -227,17 +228,11 @@ export default function CourseEnrolled() {
                                             bgcolor:
                                                 item.status === "ENROLLED"
                                                     ? "#BFECFF"
-                                                    : item.status ===
-                                                        "COMPLETED"
-                                                      ? "#D4EDDA"
-                                                      : "#F8D7DA",
+                                                    : "#F8D7DA",
                                             color:
                                                 item.status === "ENROLLED"
                                                     ? "#005F8A"
-                                                    : item.status ===
-                                                        "COMPLETED"
-                                                      ? "#155724"
-                                                      : "#721C24",
+                                                    : "#721C24",
                                             fontWeight: 500,
                                         }}
                                     />

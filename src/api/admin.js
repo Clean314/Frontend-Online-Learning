@@ -1,8 +1,8 @@
 import api from "./axios";
 
 /**
- * 관리자 대시보드 정보 조회
- * @returns {Promise<{members: Array, courses: Array, totalMember: number, totalCourses: number}>}
+ * 대시보드 통계 (최근 가입·등록 10개, 총 회원·강의 수)
+ * @returns {Promise<{ members: Array<AdminMemberDTO>, courses: Array<AdminCourseDTO>, totalMember: number, totalCourses: number }>}
  */
 export const getAdminDashboardAPI = async () => {
     const res = await api.get("/admin/list");
@@ -10,7 +10,7 @@ export const getAdminDashboardAPI = async () => {
 };
 
 /**
- * 사용자 전체 목록 조회
+ * 사용자 전체 목록 조회 (관리자용)
  * @returns {Promise<Array<AdminMemberDTO>>}
  */
 export const getMemberUpdateListAPI = async () => {
@@ -19,9 +19,9 @@ export const getMemberUpdateListAPI = async () => {
 };
 
 /**
- * 사용자 정보 수정
- * @param {number} id      - 수정할 사용자 ID
- * @param {Object} memberData - { name: string, role: string }
+ * 특정 사용자 정보 수정 (관리자용)
+ * @param {number} id            - 수정할 사용자 ID
+ * @param {{ name: string, role: string }} memberData - { name: 회원명, role: 역할 }
  * @returns {Promise<void>}
  */
 export const updateMemberAPI = async (id, memberData) => {
@@ -29,7 +29,7 @@ export const updateMemberAPI = async (id, memberData) => {
 };
 
 /**
- * 사용자 삭제
+ * 특정 사용자 삭제 (관리자용)
  * @param {number} id - 삭제할 사용자 ID
  * @returns {Promise<void>}
  */
@@ -38,7 +38,7 @@ export const deleteMemberAPI = async (id) => {
 };
 
 /**
- * 강의 전체 목록 조회
+ * 강의 전체 목록 조회 (관리자용)
  * @returns {Promise<Array<AdminCourseDetailDTO>>}
  */
 export const getCourseUpdateListAPI = async () => {
@@ -47,17 +47,17 @@ export const getCourseUpdateListAPI = async () => {
 };
 
 /**
- * 강의 정보 수정
- * @param {number} id         - 수정할 강의 ID
- * @param {Object} courseData - {
+ * 특정 강의 정보 수정 (관리자용)
+ * @param {number} id                - 수정할 강의 ID
+ * @param {{
  *   courseName: string,
  *   category: string,
- *   difficulty: string,
+ *   difficulty: 'EASY' | 'MEDIUM' | 'HARD',
  *   point: number,
  *   maxEnrollment: number,
  *   availableEnrollment?: number,
  *   description?: string
- * }
+ * }} courseData - 수정할 강의 정보 객체
  * @returns {Promise<void>}
  */
 export const updateCourseAPI = async (id, courseData) => {
@@ -65,7 +65,7 @@ export const updateCourseAPI = async (id, courseData) => {
 };
 
 /**
- * 강의 삭제
+ * 특정 강의 삭제 (관리자용)
  * @param {number} id - 삭제할 강의 ID
  * @returns {Promise<void>}
  */
@@ -74,8 +74,8 @@ export const deleteCourseAPI = async (id) => {
 };
 
 /**
- * 사용자 검색 (이름)
- * @param {string} name - 검색할 사용자 이름
+ * 사용자 검색 (이름으로 조회, 관리자용)
+ * @param {string} name - 검색할 사용자 이름 키워드
  * @returns {Promise<Array<AdminMemberDTO>>}
  */
 export const findMemberAPI = async (name) => {
@@ -86,8 +86,8 @@ export const findMemberAPI = async (name) => {
 };
 
 /**
- * 강의 검색 (강의명)
- * @param {string} courseName - 검색할 강의명
+ * 강의 검색 (강의명으로 조회, 관리자용)
+ * @param {string} courseName - 검색할 강의명 키워드
  * @returns {Promise<Array<AdminCourseDetailDTO>>}
  */
 export const findCourseAPI = async (courseName) => {

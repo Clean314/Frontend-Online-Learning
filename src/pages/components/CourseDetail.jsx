@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import useFormatDate from "../../hooks/useFormatDate";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
     Box,
     Typography,
@@ -20,18 +19,40 @@ import {
     getMyEnrollmentsAPI,
 } from "../../api/enrollment";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { deleteCourseAPI } from "../../api/course";
 
 export default function CourseDetail() {
     const { user } = useAuth();
     const theme = useTheme();
 
     const { courseId } = useParams();
+
+    // 강의 정보
     const [course, setCourse] = useState(null);
+    // 강의 영상 목록
+    const [lectures, setLectures] = useState([]);
+
     const [isEnrolled, setIsEnrolled] = useState(false);
 
-    const formatDate = useFormatDate();
-
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // 강의 정보 조회
+    useEffect(() => {
+        if (location.state) {
+            setCourse(location.state.courseData);
+        }
+    }, [courseId, location.state]);
+
+    // TODO: 강의 영상 목록 조회 API 연결
+    useEffect(() => {
+        const mockLectures = [
+            { id: 1, title: "강의 소개", duration: "05:00" },
+            { id: 2, title: "개발 환경 설정", duration: "10:30" },
+            { id: 3, title: "Hello World 실습", duration: "07:15" },
+        ];
+        setLectures(mockLectures);
+    }, []);
 
     // 내 수강 여부 조회
     useEffect(() => {
@@ -81,64 +102,21 @@ export default function CourseDetail() {
         }
     };
 
-    useEffect(() => {
-        // TODO: 강의 상세 조회 & 강의 영상 목록 조회 API
-
-        const now = new Date().toISOString();
-
-        const mockData = [
-            {
-                id: 1,
-                course_name: "Spring Framework",
-                educator_name: "교수1",
-                category: "프로그래밍",
-                difficulty: "EASY",
-                point: 3,
-                max_enrollment: 30,
-                available_enrollment: 30,
-                createdAt: now,
-                updatedAt: now,
-                description: "Spring Framework 강의 상세 설명입니다.",
-                lectures: [
-                    { id: 1, title: "강의 소개", duration: "05:00" },
-                    { id: 2, title: "개발 환경 설정", duration: "10:30" },
-                    { id: 3, title: "Hello World 실습", duration: "07:15" },
-                ],
-            },
-            {
-                id: 2,
-                course_name: "Data Structures",
-                educator_name: "교수2",
-                category: "데이터베이스",
-                difficulty: "EASY",
-                point: 2,
-                max_enrollment: 40,
-                available_enrollment: 40,
-                createdAt: now,
-                updatedAt: now,
-                description: "Data Structures 강의 상세 설명입니다.",
-                lectures: [
-                    { id: 1, title: "자료구조 개요", duration: "08:20" },
-                    { id: 2, title: "스택과 큐", duration: "12:45" },
-                    { id: 3, title: "연결 리스트 실습", duration: "09:50" },
-                ],
-            },
-        ];
-
-        const found = mockData.find((c) => c.id === Number(courseId));
-        setCourse(found || null);
-    }, [courseId]);
-
     if (!course) {
         return <Typography>해당 강의를 찾을 수 없습니다.</Typography>;
     }
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         if (window.confirm("정말 이 강의를 삭제하시겠습니까?")) {
-            // TODO: delete API 호출
+            try {
+                await deleteCourseAPI(Number(courseId));
 
-            alert("삭제되었습니다.");
-            navigate("/teach/courses/my");
+                alert("삭제되었습니다.");
+                navigate("/teach/courses/my");
+            } catch (error) {
+                alert("강의 삭제 중 오류가 발생했습니다.");
+                console.log("강의 삭제 실패 : " + error);
+            }
         }
     };
 
@@ -246,7 +224,7 @@ export default function CourseDetail() {
                 커리큘럼
             </Typography>
             <List disablePadding sx={{ mb: 4 }}>
-                {course.lectures.map((lec, idx) => (
+                {lectures.map((lec, idx) => (
                     <React.Fragment key={lec.id}>
                         <ListItem
                             sx={{
@@ -272,30 +250,12 @@ export default function CourseDetail() {
                                 }
                             />
                         </ListItem>
-                        {idx < course.lectures.length - 1 && (
+                        {idx < lectures.length - 1 && (
                             <Divider component="li" />
                         )}
                     </React.Fragment>
                 ))}
             </List>
-
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    gap: 4,
-                    borderTop: 1,
-                    borderColor: "divider",
-                    pt: 2,
-                }}
-            >
-                <Typography variant="body2">
-                    <strong>등록일:</strong> {formatDate(course.createdAt)}
-                </Typography>
-                <Typography variant="body2">
-                    <strong>수정일:</strong> {formatDate(course.updatedAt)}
-                </Typography>
-            </Box>
 
             <Box
                 sx={{
@@ -319,7 +279,11 @@ export default function CourseDetail() {
                         size="medium"
                         variant="contained"
                         color="primary"
-                        onClick={() => navigate("edit")}
+                        onClick={() =>
+                            navigate("edit", {
+                                state: { courseData: course },
+                            })
+                        }
                     >
                         수정
                     </Button>

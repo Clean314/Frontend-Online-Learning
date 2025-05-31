@@ -128,7 +128,12 @@ export default function CourseTeach() {
                                     <Box
                                         onClick={() =>
                                             navigate(
-                                                `/courses/${course.course_id}`
+                                                `/courses/${course.course_id}`,
+                                                {
+                                                    state: {
+                                                        courseData: course,
+                                                    },
+                                                }
                                             )
                                         }
                                         sx={{
