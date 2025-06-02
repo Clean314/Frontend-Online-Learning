@@ -24,22 +24,22 @@ export default function ClassEducatorVideos() {
         const tempData = [
             {
                 id: "1",
-                title: "Boogie Man",
-                videoUrl: "https://youtu.be/qmiVexsy-gU?si=bUILIBWjflIYwpQP",
+                title: "봄 스케치, 하늘, 구름",
+                videoUrl: "https://youtu.be/44wq3kI02pM?si=Vk6IzNkhsjh9u-kx",
                 duration: "",
                 publishedAt: "",
             },
             {
                 id: "2",
-                title: "Marguerite tram",
-                videoUrl: "https://youtu.be/gIsukV5QUwI?si=DYmO2Mz9PlcTKf72",
+                title: "개나리,벚꽃,봄길,봄거리",
+                videoUrl: "https://youtu.be/Nvrj6Mjy4Do?si=1yJxiulTuJbI-RSQ",
                 duration: "",
                 publishedAt: "",
             },
             {
                 id: "3",
-                title: "The Angler",
-                videoUrl: "https://youtu.be/as8MXI5OjCI?si=VBf3NxC-obNoljAz",
+                title: "토끼풀,클로바,바람,오월",
+                videoUrl: "https://youtu.be/gCLUmdSguYc?si=qNoIsA6tZAZlnINr",
                 duration: "",
                 publishedAt: "",
             },
