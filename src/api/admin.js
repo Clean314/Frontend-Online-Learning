@@ -14,7 +14,7 @@ export const getAdminDashboardAPI = async () => {
  * @returns {Promise<Array<AdminMemberDTO>>}
  */
 export const getMemberUpdateListAPI = async () => {
-    const res = await api.get("/admin/list/memberUpdate");
+    const res = await api.get("/admin/list/member-update");
     return res.data;
 };
 
@@ -25,16 +25,17 @@ export const getMemberUpdateListAPI = async () => {
  * @returns {Promise<void>}
  */
 export const updateMemberAPI = async (id, memberData) => {
-    await api.patch(`/admin/list/memberUpdate/${id}`, memberData);
+    await api.patch(`/admin/list/member-update/${id}`, memberData);
 };
 
 /**
  * 특정 사용자 삭제 (관리자용)
  * @param {number} id - 삭제할 사용자 ID
- * @returns {Promise<void>}
+ * @returns {Promise<String>} -- API 결과 메시지
  */
 export const deleteMemberAPI = async (id) => {
-    await api.delete(`/admin/list/memberDelete/${id}`);
+    const res = await api.delete(`/admin/list/member-delete/${id}`);
+    return res.data;
 };
 
 /**
@@ -42,7 +43,7 @@ export const deleteMemberAPI = async (id) => {
  * @returns {Promise<Array<AdminCourseDetailDTO>>}
  */
 export const getCourseUpdateListAPI = async () => {
-    const res = await api.get("/admin/list/courseUpdate");
+    const res = await api.get("/admin/list/course-update");
     return res.data;
 };
 
@@ -61,16 +62,17 @@ export const getCourseUpdateListAPI = async () => {
  * @returns {Promise<void>}
  */
 export const updateCourseAPI = async (id, courseData) => {
-    await api.patch(`/admin/list/courseUpdate/${id}`, courseData);
+    await api.patch(`/admin/list/course-update/${id}`, courseData);
 };
 
 /**
  * 특정 강의 삭제 (관리자용)
  * @param {number} id - 삭제할 강의 ID
- * @returns {Promise<void>}
+ * @returns {Promise<String>} -- API 결과 메시지
  */
 export const deleteCourseAPI = async (id) => {
-    await api.delete(`/admin/list/courseDelete/${id}`);
+    const res = await api.delete(`/admin/list/course-delete/${id}`);
+    return res.data;
 };
 
 /**
@@ -79,7 +81,7 @@ export const deleteCourseAPI = async (id) => {
  * @returns {Promise<Array<AdminMemberDTO>>}
  */
 export const findMemberAPI = async (name) => {
-    const res = await api.get("/admin/list/findMember", {
+    const res = await api.get("/admin/list/find-member", {
         params: { name },
     });
     return res.data;
@@ -91,7 +93,7 @@ export const findMemberAPI = async (name) => {
  * @returns {Promise<Array<AdminCourseDetailDTO>>}
  */
 export const findCourseAPI = async (courseName) => {
-    const res = await api.get("/admin/list/findCourse", {
+    const res = await api.get("/admin/list/find-course", {
         params: { courseName },
     });
     return res.data;

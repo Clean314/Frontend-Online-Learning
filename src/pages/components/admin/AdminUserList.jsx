@@ -62,7 +62,23 @@ export default function AdminUserList() {
             }
             setPage(0);
         } catch (error) {
-            console.error("유저 검색 실패:", error);
+            if (error.response) {
+                const statusCode = error.response.status;
+                const message = error.response.data;
+
+                if (statusCode === 404) {
+                    // 404
+                    alert(message); // "일치하는 사용자가 없습니다."
+                } else {
+                    console.error(
+                        "유저 검색 중 오류 발생:",
+                        statusCode,
+                        message
+                    );
+                }
+            } else {
+                console.error("서버와 통신 중 오류가 발생했습니다.", error);
+            }
         }
     };
 
@@ -98,10 +114,29 @@ export default function AdminUserList() {
         if (!window.confirm("정말 삭제하시겠습니까?")) return;
 
         try {
-            await deleteMemberAPI(userId);
+            const message = await deleteMemberAPI(userId);
+            alert(message);
             setUsers((prev) => prev.filter((u) => u.id !== userId));
         } catch (error) {
-            console.error("유저 삭제 실패:", error);
+            if (error.response) {
+                const statusCode = error.response.status;
+                const message = error.response.data;
+
+                if (statusCode === 404) {
+                    // 404 Not Found
+                    alert(message); // "사용자를 찾을 수 없습니다."
+                } else if (statusCode === 400) {
+                    // 400 Bad Request
+                    alert(message); // "사용자의 상태를 확인 후 삭제해주세요."
+                } else {
+                    alert(
+                        `알 수 없는 오류가 발생했습니다. (${statusCode})\n${message}`
+                    );
+                }
+            } else {
+                alert("서버와 통신 중 오류가 발생했습니다.");
+                console.error("유저 삭제 실패:", error);
+            }
         }
     };
 
