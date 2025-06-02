@@ -19,7 +19,6 @@ import {
     getMyEnrollmentsAPI,
 } from "../../api/enrollment";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { deleteCourseAPI } from "../../api/course";
 
 export default function CourseDetail() {
     const { user } = useAuth();
@@ -91,8 +90,7 @@ export default function CourseDetail() {
             await cancelEnrollmentAPI(Number(courseId));
 
             alert("수강이 취소되었습니다.");
-            setIsEnrolled(false);
-            navigate("/learn/courses/my");
+            navigate(-1);
         } catch (err) {
             console.error(err);
             alert(
@@ -106,42 +104,6 @@ export default function CourseDetail() {
         return <Typography>해당 강의를 찾을 수 없습니다.</Typography>;
     }
 
-    const handleDelete = async () => {
-        if (window.confirm("정말 이 강의를 삭제하시겠습니까?")) {
-            try {
-                await deleteCourseAPI(Number(courseId));
-
-                alert("삭제되었습니다.");
-                navigate("/teach/courses/my");
-            } catch (error) {
-                alert("강의 삭제 중 오류가 발생했습니다.");
-                console.log("강의 삭제 실패 : " + error);
-            }
-        }
-    };
-
-    const canGoClassroom =
-        user.role === "EDUCATOR" || (user.role === "STUDENT" && isEnrolled);
-
-    // 뒤로 가기: 이전 URL에 'myCourses'가 있으면 뒤로, 아니면 역할별 목록으로
-    const handleBack = () => {
-        const prev = document.referrer;
-        const cameFromMy =
-            prev.includes("/teach/courses/my") ||
-            prev.includes("/learn/courses/my") ||
-            prev.includes("/courses");
-
-        if (cameFromMy) {
-            navigate(-1);
-        } else if (user.role === "EDUCATOR") {
-            navigate("/teach/courses/my");
-        } else if (user.role === "STUDENT") {
-            navigate("/learn/courses/my");
-        } else {
-            navigate(-1);
-        }
-    };
-
     return (
         <Paper sx={{ p: 3 }}>
             <Box
@@ -151,32 +113,17 @@ export default function CourseDetail() {
                 sx={{ borderBottom: 1, borderColor: "divider", pb: 1, mb: 3 }}
             >
                 {/* 뒤로 가기 화살표 */}
-                <IconButton size="small" onClick={handleBack} sx={{ mr: 1 }}>
+                <IconButton
+                    size="small"
+                    onClick={() => navigate(-1)}
+                    sx={{ mr: 1 }}
+                >
                     <ArrowBackIcon />
                 </IconButton>
 
                 <Typography variant="h5" sx={{ fontWeight: 600, flexGrow: 1 }}>
                     {course.course_name}
                 </Typography>
-
-                {/* 강의실 이동 버튼 */}
-                {canGoClassroom && (
-                    <Button
-                        variant="contained"
-                        size="medium"
-                        sx={{
-                            bgcolor: theme.palette.secondary.main,
-                            "&:hover": {
-                                bgcolor: theme.palette.secondary.dark,
-                            },
-                        }}
-                        onClick={() =>
-                            navigate(`/courses/${course.course_id}/classroom`)
-                        }
-                    >
-                        강의실로 이동
-                    </Button>
-                )}
             </Box>
 
             <Box display="flex" gap={2} mb={3}>
@@ -261,37 +208,14 @@ export default function CourseDetail() {
                     mt: 4,
                 }}
             >
-                {user.role === "STUDENT" ? (
+                {user.role === "STUDENT" && (
                     <Button
                         size="medium"
                         variant="contained"
-                        color="primary"
+                        color={isEnrolled ? "error" : "primary"}
                         onClick={isEnrolled ? cancelEnroll : enroll}
                     >
                         {isEnrolled ? "수강 취소" : "수강 신청"}
-                    </Button>
-                ) : (
-                    <Button
-                        size="medium"
-                        variant="contained"
-                        color="primary"
-                        onClick={() =>
-                            navigate("edit", {
-                                state: { courseData: course },
-                            })
-                        }
-                    >
-                        수정
-                    </Button>
-                )}
-                {user.role === "EDUCATOR" && (
-                    <Button
-                        size="medium"
-                        variant="contained"
-                        color="error"
-                        onClick={handleDelete}
-                    >
-                        삭제
                     </Button>
                 )}
             </Box>

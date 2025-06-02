@@ -54,7 +54,7 @@ export default function CurriculumRegister() {
             // TODO: 강의 영상 리스트 등록 API
 
             alert("커리큘럼이 등록되었습니다.");
-            navigate(`/courses/${courseId}`);
+            navigate(`/courses/${courseId}/classroom`);
         } catch (err) {
             console.error(err);
             alert("등록 중 오류가 발생했습니다.");

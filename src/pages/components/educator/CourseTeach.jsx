@@ -18,8 +18,11 @@ import {
     Select,
     MenuItem,
     Chip,
+    IconButton,
 } from "@mui/material";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { getMyRegisteredCoursesAPI } from "../../../api/course";
+import { deleteCourseAPI } from "../../../api/admin";
 
 export default function CourseTeach() {
     const { user } = useAuth();
@@ -43,6 +46,21 @@ export default function CourseTeach() {
         if (!user) return;
         fetchCourses();
     }, [user]);
+
+    // 강의 삭제
+    const handleDelete = async (courseId) => {
+        if (window.confirm("정말 이 강의를 삭제하시겠습니까?")) {
+            try {
+                await deleteCourseAPI(Number(courseId));
+
+                alert("삭제되었습니다.");
+                navigate("/teach/courses/my");
+            } catch (error) {
+                alert("강의 삭제 중 오류가 발생했습니다.");
+                console.log("강의 삭제 실패 : " + error);
+            }
+        }
+    };
 
     const totalPages = Math.ceil(courses.length / rowsPerPage);
 
@@ -93,12 +111,13 @@ export default function CourseTeach() {
                     <colgroup>
                         <col style={{ width: "6%" }} />
                         <col style={{ width: "27%" }} />
-                        <col style={{ width: "15%" }} />
+                        <col style={{ width: "13%" }} />
                         <col style={{ width: "8%" }} />
-                        <col style={{ width: "8%" }} />
                         <col style={{ width: "10%" }} />
                         <col style={{ width: "10%" }} />
                         <col style={{ width: "10%" }} />
+                        <col style={{ width: "7%" }} />
+                        <col style={{ width: "2%" }} />
                     </colgroup>
                     <TableHead>
                         <TableRow
@@ -112,27 +131,24 @@ export default function CourseTeach() {
                             <TableCell>ID</TableCell>
                             <TableCell>강의명</TableCell>
                             <TableCell>카테고리</TableCell>
-                            <TableCell>난이도</TableCell>
-                            <TableCell>학점</TableCell>
-                            <TableCell>최대인원</TableCell>
-                            <TableCell>수강인원</TableCell>
-                            <TableCell>여석</TableCell>
+                            <TableCell align="center">난이도</TableCell>
+                            <TableCell align="center">학점</TableCell>
+                            <TableCell align="cetner">최대인원</TableCell>
+                            <TableCell align="center">수강인원</TableCell>
+                            <TableCell align="center">여석</TableCell>
+                            <TableCell></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {displayed.map((course) => (
                             <TableRow key={course.course_id} hover>
                                 <TableCell>{course.course_id}</TableCell>
+                                {/* 강의명 */}
                                 <TableCell>
                                     <Box
                                         onClick={() =>
                                             navigate(
-                                                `/courses/${course.course_id}`,
-                                                {
-                                                    state: {
-                                                        courseData: course,
-                                                    },
-                                                }
+                                                `/courses/${course.course_id}/classroom`
                                             )
                                         }
                                         sx={{
@@ -153,8 +169,10 @@ export default function CourseTeach() {
                                         </Typography>
                                     </Box>
                                 </TableCell>
+                                {/* 카테고리 */}
                                 <TableCell>{course.category}</TableCell>
-                                <TableCell>
+                                {/* 난이도 */}
+                                <TableCell align="center">
                                     <Rating
                                         name="difficulty"
                                         max={3}
@@ -167,20 +185,40 @@ export default function CourseTeach() {
                                         size="small"
                                     />
                                 </TableCell>
-                                <TableCell>
+                                {/* 학점 */}
+                                <TableCell align="center">
                                     <Chip
                                         label={`${course.point} 학점`}
                                         variant="outlined"
                                         size="medium"
                                     />
                                 </TableCell>
-                                <TableCell>{course.max_enrollment}</TableCell>
-                                <TableCell>
+                                {/* 최대 인원 */}
+                                <TableCell align="center">
+                                    {course.max_enrollment}
+                                </TableCell>
+                                {/* 수강 인원 */}
+                                <TableCell align="center">
                                     {course.max_enrollment -
                                         course.available_enrollment}
                                 </TableCell>
-                                <TableCell>
+                                {/* 여석 */}
+                                <TableCell align="center">
                                     {course.available_enrollment}
+                                </TableCell>
+
+                                {/* 강의 삭제 버튼 */}
+                                <TableCell>
+                                    <IconButton
+                                        size="medium"
+                                        color="error"
+                                        title="강의 삭제"
+                                        onClick={() =>
+                                            handleDelete(course.course_id)
+                                        }
+                                    >
+                                        <DeleteOutlinedIcon fontSize="small" />
+                                    </IconButton>
                                 </TableCell>
                             </TableRow>
                         ))}

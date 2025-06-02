@@ -156,9 +156,9 @@ export default function CourseList() {
                 <Table>
                     <colgroup>
                         <col style={{ width: "7%" }} />
-                        <col style={{ width: "23%" }} />
-                        <col style={{ width: "10%" }} />
-                        <col style={{ width: "13%" }} />
+                        <col style={{ width: "30%" }} />
+                        <col style={{ width: "8%" }} />
+                        <col style={{ width: "12%" }} />
                         <col style={{ width: "10%" }} />
                         <col style={{ width: "10%" }} />
                         <col style={{ width: "10%" }} />
@@ -177,16 +177,17 @@ export default function CourseList() {
                             <TableCell>강의명</TableCell>
                             <TableCell>강사</TableCell>
                             <TableCell>카테고리</TableCell>
-                            <TableCell>난이도</TableCell>
-                            <TableCell>학점</TableCell>
-                            <TableCell>최대인원</TableCell>
-                            <TableCell>여석</TableCell>
+                            <TableCell align="center">난이도</TableCell>
+                            <TableCell align="center">학점</TableCell>
+                            <TableCell align="center">최대인원</TableCell>
+                            <TableCell align="center">여석</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {displayedCourses.map((course) => (
                             <TableRow key={course.course_id} hover>
                                 <TableCell>{course.course_id}</TableCell>
+                                {/* 강의명 */}
                                 <TableCell>
                                     <Box
                                         onClick={() =>
@@ -214,9 +215,12 @@ export default function CourseList() {
                                         </Typography>
                                     </Box>
                                 </TableCell>
+                                {/* 강사명 */}
                                 <TableCell>{course.educator_name}</TableCell>
+                                {/* 카테고리 */}
                                 <TableCell>{course.category}</TableCell>
-                                <TableCell>
+                                {/* 난이도 */}
+                                <TableCell align="center">
                                     <Rating
                                         name={`rating-${course.course_id}`}
                                         max={3}
@@ -225,15 +229,20 @@ export default function CourseList() {
                                         size="small"
                                     />
                                 </TableCell>
-                                <TableCell>
+                                {/* 학점 */}
+                                <TableCell align="center">
                                     <Chip
                                         label={`${course.point} 학점`}
                                         variant="outlined"
                                         size="small"
                                     />
                                 </TableCell>
-                                <TableCell>{course.max_enrollment}</TableCell>
-                                <TableCell>
+                                {/* 최대 인원 */}
+                                <TableCell align="center">
+                                    {course.max_enrollment}
+                                </TableCell>
+                                {/* 여석 */}
+                                <TableCell align="center">
                                     {course.available_enrollment}
                                 </TableCell>
                             </TableRow>

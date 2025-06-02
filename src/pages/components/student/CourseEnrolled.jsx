@@ -1,6 +1,7 @@
 import {
     Box,
     Chip,
+    IconButton,
     MenuItem,
     Pagination,
     Paper,
@@ -15,11 +16,17 @@ import {
     TableRow,
     Typography,
 } from "@mui/material";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { getMyEnrollmentsAPI } from "../../../api/enrollment";
+import {
+    cancelEnrollmentAPI,
+    getMyEnrollmentsAPI,
+} from "../../../api/enrollment";
 
 export default function CourseEnrolled() {
+    const [refreshFlag, setRefreshFlag] = useState(false);
+
     const [searchParams, setSearchParams] = useSearchParams();
     const initPage = parseInt(searchParams.get("page") || "1", 10);
     const initRowsPerPage = parseInt(
@@ -59,7 +66,23 @@ export default function CourseEnrolled() {
                 console.error("내 수강목록 조회 실패", err);
             }
         })();
-    }, [enrolledStatus]);
+    }, [enrolledStatus, refreshFlag]);
+
+    // 수강 취소
+    const cancelEnroll = async (courseId) => {
+        try {
+            await cancelEnrollmentAPI(Number(courseId));
+
+            alert("수강이 취소되었습니다.");
+            setRefreshFlag((prev) => !prev);
+        } catch (err) {
+            console.error(err);
+            alert(
+                err.response?.data?.message ||
+                    "수강 취소 중 오류가 발생했습니다."
+            );
+        }
+    };
 
     const totalPages = Math.ceil(enrollments.length / rowsPerPage);
 
@@ -99,9 +122,7 @@ export default function CourseEnrolled() {
                         ? "Total"
                         : enrolledStatus === "enrolled"
                           ? "수강중"
-                          : enrolledStatus === "completed"
-                            ? "수강 완료"
-                            : "수강 취소"}
+                          : "수강 완료"}
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Typography variant="body2" sx={{ mr: 1 }}>
@@ -129,9 +150,10 @@ export default function CourseEnrolled() {
                         <col style={{ width: "25%" }} />
                         <col style={{ width: "10%" }} />
                         <col style={{ width: "15%" }} />
-                        <col style={{ width: "5%" }} />
-                        <col style={{ width: "8%" }} />
-                        <col style={{ width: "12%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "7%" }} />
+                        <col style={{ width: "2%" }} />
                     </colgroup>
                     <TableHead>
                         <TableRow
@@ -149,6 +171,7 @@ export default function CourseEnrolled() {
                             <TableCell>난이도</TableCell>
                             <TableCell>잔여 인원</TableCell>
                             <TableCell>수강 상태</TableCell>
+                            <TableCell></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -161,12 +184,7 @@ export default function CourseEnrolled() {
                                     <Box
                                         onClick={() =>
                                             navigate(
-                                                `/courses/${item.course_id}`,
-                                                {
-                                                    state: {
-                                                        courseData: item,
-                                                    },
-                                                }
+                                                `/courses/${item.course_id}/classroom`
                                             )
                                         }
                                         sx={{
@@ -236,6 +254,22 @@ export default function CourseEnrolled() {
                                             fontWeight: 500,
                                         }}
                                     />
+                                </TableCell>
+
+                                {/* item.status === "ENROLLED"일 때만 '수강 취소' 버튼 표시 */}
+                                <TableCell align="right">
+                                    {item.status === "ENROLLED" && (
+                                        <IconButton
+                                            size="medium"
+                                            color="error"
+                                            title="수강 취소"
+                                            onClick={() =>
+                                                cancelEnroll(item.course_id)
+                                            }
+                                        >
+                                            <DeleteOutlinedIcon fontSize="small" />
+                                        </IconButton>
+                                    )}
                                 </TableCell>
                             </TableRow>
                         ))}
