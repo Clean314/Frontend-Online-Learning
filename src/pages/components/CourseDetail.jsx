@@ -12,7 +12,6 @@ import {
     IconButton,
 } from "@mui/material";
 import useAuth from "../../hooks/auth/useAuth";
-import { useTheme } from "@emotion/react";
 import {
     cancelEnrollmentAPI,
     enrollCourseAPI,
@@ -22,14 +21,11 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export default function CourseDetail() {
     const { user } = useAuth();
-    const theme = useTheme();
 
     const { courseId } = useParams();
 
-    // 강의 정보
-    const [course, setCourse] = useState(null);
-    // 강의 영상 목록
-    const [lectures, setLectures] = useState([]);
+    const [course, setCourse] = useState(null); // 강의 정보
+    const [lectures, setLectures] = useState([]); // 강의 영상 목록
 
     const [isEnrolled, setIsEnrolled] = useState(false);
 
@@ -43,7 +39,7 @@ export default function CourseDetail() {
         }
     }, [courseId, location.state]);
 
-    // TODO: 강의 영상 목록 조회 API 연결
+    // TODO: 학생용 강의 영상 목록 조회 API 연결
     useEffect(() => {
         const mockLectures = [
             { id: 1, title: "강의 소개" },

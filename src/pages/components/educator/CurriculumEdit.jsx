@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
     Navigate,
     useNavigate,
@@ -14,6 +14,7 @@ import {
     IconButton,
 } from "@mui/material";
 import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
+import { deleteLectureAPI, updateLectureAPI } from "../../../api/lecture";
 
 export default function CurriculumEdit() {
     const navigate = useNavigate();
@@ -26,7 +27,7 @@ export default function CurriculumEdit() {
 
     // video 객체를 lecture 형태로 변환
     const [lectures, setLectures] = useState([
-        { id: null, title: "", videoUrl: "", file: null },
+        { id: null, title: "", videoUrl: "" },
     ]);
 
     useEffect(() => {
@@ -42,7 +43,7 @@ export default function CurriculumEdit() {
             setLectures(mapped);
         } else {
             // 전달된 videos가 없으면 기본으로 한 줄만 남겨놓기
-            setLectures([{ id: null, title: "", videoUrl: "", file: null }]);
+            setLectures([{ id: null, title: "", videoUrl: "" }]);
         }
     }, [courseId, incomingVideos]);
 
@@ -52,43 +53,59 @@ export default function CurriculumEdit() {
     }
 
     // 입력값 변경 핸들러
-    const handleLectureChange = (index) => () => {
+    const handleLectureChange = (index, key) => (e) => {
+        const value = e.target.value;
+
         setLectures((prev) => {
             const list = [...prev];
-            list[index] = { ...list[index] };
+
+            list[index] = {
+                ...list[index],
+                [key]: value,
+            };
+
             return list;
         });
     };
 
     // 강의 추가
     const addLecture = () => {
-        setLectures((prev) => [
-            ...prev,
-            { id: null, title: "", videoUrl: "", file: null },
-        ]);
+        setLectures((prev) => [...prev, { id: null, title: "", videoUrl: "" }]);
     };
 
-    // 특정 강의 삭제
-    const removeLecture = (index) => () => {
+    // 특정 강의 삭제 (삭제 API 호출 후 상태 갱신)
+    const removeLecture = (index) => async () => {
+        const lecToRemove = lectures[index];
         if (lectures.length === 1) return;
+
+        // 이미 DB에 저장된 강의일 경우 deleteLectureAPI 호출
+        if (lecToRemove.id) {
+            try {
+                await deleteLectureAPI(Number(courseId), lecToRemove.id);
+            } catch (err) {
+                console.error("강의 영상 삭제 실패:", err);
+                alert("삭제 중 오류가 발생했습니다.");
+                return;
+            }
+        }
+
+        // 로컬 상태에서 해당 인덱스 제거
         setLectures((prev) => prev.filter((_, i) => i !== index));
     };
 
-    // 폼 제출 핸들러 (예시: 서버로 FormData 전송)
+    // 폼 제출 핸들러
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData();
-        lectures.forEach((lec, idx) => {
-            if (lec.id != null) {
-                formData.append(`lectures[${idx}].id`, lec.id);
-            }
-            formData.append(`lectures[${idx}].title`, lec.title);
-            formData.append(`lectures[${idx}].videoUrl`, lec.videoUrl);
-        });
+        const lecturesData = lectures.map((lec) => ({
+            lecture_id: lec.id,
+            title: lec.title,
+            videoUrl: lec.videoUrl,
+        }));
 
         try {
-            // TODO: updateCurriculumAPI(courseId, formData) 호출
+            await updateLectureAPI(Number(courseId), lecturesData);
+
             alert("커리큘럼이 수정되었습니다.");
 
             if (
@@ -98,7 +115,7 @@ export default function CurriculumEdit() {
             ) {
                 navigate(`/courses/${courseId}/classroom/teach/videos`);
             }
-            // 그 외 (예: /courses/:courseId/edit/curriculum )인 경우
+            // 그 외
             else {
                 navigate(`/courses/${courseId}`);
             }

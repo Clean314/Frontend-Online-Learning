@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import {
     Box,
@@ -9,14 +9,17 @@ import {
     Paper,
 } from "@mui/material";
 import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
+import { createLectureAPI } from "../../../api/lecture";
 
 export default function CurriculumRegister() {
     const navigate = useNavigate();
     const { courseId } = useParams();
+    console.log(courseId);
 
     // 강의 영상 리스트 상태
     const [lectures, setLectures] = useState([{ title: "", videoUrl: "" }]);
 
+    // courseId가 없는 경우, 새 강의 등록 페이지로 리다이렉트
     if (!courseId) {
         return <Navigate to="/teach/courses/new" replace />;
     }
@@ -43,21 +46,34 @@ export default function CurriculumRegister() {
     // 폼 제출 핸들러
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const formData = new FormData();
 
-        lectures.forEach((lec, idx) => {
-            formData.append(`lectures[${idx}].title`, lec.title);
-            formData.append(`lectures[${idx}].videoUrl`, lec.videoUrl);
-        });
+        // 모든 강의 항목이 비어 있는지 확인
+        const hasAnyData = lectures.some(
+            (lec) => lec.title.trim() !== "" || lec.videoUrl.trim() !== ""
+        );
+
+        if (!hasAnyData) {
+            // 입력 데이터가 하나도 없으면 API 호출 없이 강의실 페이지로 이동
+            navigate(`/courses/${courseId}/classroom`);
+            return;
+        }
 
         try {
-            // TODO: 강의 영상 리스트 등록 API
+            // lectures 배열을 순차적으로 순회하면서, 각 lecture를 API로 생성
+            for (const lec of lectures) {
+                const lectureData = {
+                    title: lec.title,
+                    videoUrl: lec.videoUrl,
+                };
+                // (여기서 courseId는 URL 파라미터로 넘어감) :contentReference[oaicite:0]{index=0}
+                await createLectureAPI(Number(courseId), lectureData);
+            }
 
             alert("커리큘럼이 등록되었습니다.");
             navigate(`/courses/${courseId}/classroom`);
         } catch (err) {
-            console.error(err);
-            alert("등록 중 오류가 발생했습니다.");
+            console.error("강의 영상 등록 중 오류 발생", err);
+            alert(err.response?.data || "등록 중 오류가 발생했습니다.");
         }
     };
 

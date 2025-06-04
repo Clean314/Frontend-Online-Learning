@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
     Box,
     Paper,
@@ -10,42 +10,36 @@ import {
     Button,
     useTheme,
 } from "@mui/material";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { getLectureListAPI } from "../../../api/lecture";
 
 export default function ClassEducatorVideos() {
     const theme = useTheme();
     const navigate = useNavigate();
+    const { courseId } = useParams();
 
     // 영상 목록 (메타정보 포함)
     const [videos, setVideos] = useState([]);
 
     useEffect(() => {
-        // TODO: 강의 영상 목록 조회 API 연동
-        const tempData = [
-            {
-                id: "1",
-                title: "봄 스케치, 하늘, 구름",
-                videoUrl: "https://youtu.be/44wq3kI02pM?si=Vk6IzNkhsjh9u-kx",
-                duration: "",
-                publishedAt: "",
-            },
-            {
-                id: "2",
-                title: "개나리,벚꽃,봄길,봄거리",
-                videoUrl: "https://youtu.be/Nvrj6Mjy4Do?si=1yJxiulTuJbI-RSQ",
-                duration: "",
-                publishedAt: "",
-            },
-            {
-                id: "3",
-                title: "토끼풀,클로바,바람,오월",
-                videoUrl: "https://youtu.be/gCLUmdSguYc?si=qNoIsA6tZAZlnINr",
-                duration: "",
-                publishedAt: "",
-            },
-        ];
-        setVideos(tempData);
-    }, []);
+        (async () => {
+            try {
+                const lectureList = await getLectureListAPI(Number(courseId));
+
+                // LectureDTO 배열을 컴포넌트에서 사용할 형태로 변환
+                const formatted = lectureList.map((lec) => ({
+                    id: lec.lecture_id.toString(),
+                    title: lec.title,
+                    videoUrl: lec.videoUrl,
+                    duration: "",
+                    publishedAt: "",
+                }));
+                setVideos(formatted);
+            } catch (err) {
+                console.error("강사용 강의 영상 목록 조회 실패", err);
+            }
+        })();
+    }, [courseId]);
 
     // 영상 메타 정보 조회 (YouTube Data API)
     useEffect(() => {

@@ -54,7 +54,9 @@ export default function CourseTeach() {
                 await deleteCourseAPI(Number(courseId));
 
                 alert("삭제되었습니다.");
-                navigate("/teach/courses/my");
+
+                // 삭제 후 다시 목록 조회
+                fetchCourses();
             } catch (error) {
                 alert("강의 삭제 중 오류가 발생했습니다.");
                 console.log("강의 삭제 실패 : " + error);
