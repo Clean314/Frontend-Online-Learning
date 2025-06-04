@@ -4,8 +4,8 @@ import ClassEducatorDashboard from "../pages/components/educator/ClassEducatorDa
 import ClassEducatorVideos from "../pages/components/educator/ClassEducatorVideos";
 import ClassEducatorAttendance from "../pages/components/educator/ClassEducatorAttendance";
 import ClassEducatorExams from "../pages/components/educator/ClassEducatorExams";
-import CurriculumEdit from "../pages/components/educator/CurriculumEdit";
 import { ROLES } from "../roles";
+import CurriculumForm from "../pages/common/CurriculumForm";
 
 export default function EducatorClassRoutes() {
     return (
@@ -15,7 +15,7 @@ export default function EducatorClassRoutes() {
             >
                 <Route path="dashboard" element={<ClassEducatorDashboard />} />
                 <Route path="videos" element={<ClassEducatorVideos />} />
-                <Route path="videos/edit" element={<CurriculumEdit />} />
+                <Route path="videos/edit" element={<CurriculumForm />} />
                 <Route
                     path="attendance"
                     element={<ClassEducatorAttendance />}

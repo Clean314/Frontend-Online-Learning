@@ -32,7 +32,8 @@ import "dayjs/locale/ko";
 import dayjs from "dayjs";
 import PeopleIcon from "@mui/icons-material/People";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
-import { modifyCourseInfoAPI } from "../../../api/course";
+import { getCourseInfoAPI, modifyCourseInfoAPI } from "../../../api/course";
+import { useParams } from "react-router-dom";
 dayjs.locale("ko");
 
 const categories = ["프로그래밍", "데이터베이스", "네트워크", "보안", "AI"];
@@ -41,27 +42,45 @@ const credits = [1, 2, 3];
 
 export default function ClassEducatorDashboard() {
     const theme = useTheme();
+    const { courseId } = useParams();
 
-    // 강의 기본 정보 (임시 데이터)
-    const [courseInfo, setCourseInfo] = useState({
-        course_id: 1,
-        title: "React 기초부터 심화까지",
-        instructor: "홍길동",
-        category: "프로그래밍",
-        difficulty: "MEDIUM",
-        point: 1,
-        description:
-            "이 강의는 React의 기초 문법부터 고급 Hooks 사용법까지 다룹니다.",
-        max_enrollment: 40,
-    });
+    const [courseInfo, setCourseInfo] = useState(null);
+    const [currentEnrolled, setCurrentEnrolled] = useState(0);
 
-    // 수강생 총괄 현황 (임시 데이터)
+    useEffect(() => {
+        (async () => {
+            try {
+                const data = await getCourseInfoAPI(Number(courseId));
+                setCourseInfo({
+                    course_id: data.course_id,
+                    title: data.course_name,
+                    educator_name: data.educator_name,
+                    category: data.category,
+                    difficulty: data.difficulty,
+                    point: data.point,
+                    description: data.description,
+                    max_enrollment: data.max_enrollment,
+                    available_enrollment: data.available_enrollment,
+                });
+            } catch (err) {
+                console.error("강의 정보 조회 실패:", err);
+            }
+        })();
+    }, [courseId]);
+
+    // courseInfo가 설정된 후 currentEnrolled 계산
+    useEffect(() => {
+        if (courseInfo) {
+            setCurrentEnrolled(
+                courseInfo.max_enrollment - courseInfo.available_enrollment
+            );
+        }
+    }, [courseInfo]);
+
     const [stats] = useState({
-        studentCount: 25,
         avgCompletionRate: 72,
     });
 
-    // 강의 일정 캘린더 상태
     const [selectedDate, setSelectedDate] = useState(dayjs());
     const [viewDate, setViewDate] = useState(dayjs());
 
@@ -88,23 +107,16 @@ export default function ClassEducatorDashboard() {
         },
     ];
 
-    // LectureEvents 정의 아래에 추가
     const startEvent = lectureEvents.find((e) => e.label === "개강");
     const endEvent = lectureEvents.find((e) => e.label === "종강");
-
-    // 현재 보이는 월의 1일~말일 구하기
     const monthStart = dayjs(viewDate).startOf("month");
     const monthEnd = dayjs(viewDate).endOf("month");
-
-    // start~end 범위 기준으로 연·월에 맞는 이벤트 필터링
     const monthEvents = lectureEvents.filter(
         ({ start, end }) =>
-            // 이벤트 기간이 보이는 월과 한 칸이라도 겹치면 포함
             dayjs(start).isBefore(monthEnd, "day") &&
             dayjs(end).isAfter(monthStart, "day")
     );
 
-    // PickersDay를 상속해 하이라이트 스타일 정의
     const HighlightedDay = styled(PickersDay)(({ theme }) => ({
         "&.Mui-selected, &.MuiPickersDay-root[event-day]": {
             backgroundColor: theme.palette.primary.light,
@@ -112,17 +124,12 @@ export default function ClassEducatorDashboard() {
         },
     }));
 
-    // slots.day에 사용할 커스텀 컴포넌트
     function CustomDay(props) {
         const { day, outsideCurrentMonth, ...other } = props;
-
-        // 오늘인지 체크
         const isToday = day.isSame(dayjs(), "day");
-
-        // 각 이벤트별로 start/end/in-between 체크
-        let isStart = false;
-        let isEnd = false;
-        let isBetween = false;
+        let isStart = false,
+            isEnd = false,
+            isBetween = false;
 
         lectureEvents.forEach(({ start, end }) => {
             if (day.isSame(dayjs(start), "day")) isStart = true;
@@ -140,10 +147,8 @@ export default function ClassEducatorDashboard() {
                 day={day}
                 outsideCurrentMonth={outsideCurrentMonth}
                 sx={{
-                    // 공통으로 좌우 마진 제거
                     mr: 0,
                     ml: 0,
-                    // 시작일: 진한 배경
                     ...(isStart && {
                         bgcolor: theme.palette.primary.main,
                         color: theme.palette.primary.contrastText,
@@ -152,7 +157,6 @@ export default function ClassEducatorDashboard() {
                             bgcolor: theme.palette.primary.dark,
                         },
                     }),
-                    // 종료일: 진한 배경
                     ...(isEnd && {
                         bgcolor: theme.palette.primary.main,
                         color: theme.palette.primary.contrastText,
@@ -161,12 +165,10 @@ export default function ClassEducatorDashboard() {
                             bgcolor: theme.palette.primary.dark,
                         },
                     }),
-                    // 사이 구간: 연한 배경
                     ...(isBetween && {
                         bgcolor: alpha(theme.palette.primary.main, 0.3),
                         borderRadius: 0,
                     }),
-                    // 오늘 날짜에는 굵은 테두리
                     ...(isToday && {
                         border: `2px solid ${theme.palette.primary.dark}`,
                         padding: "0.25rem",
@@ -175,10 +177,6 @@ export default function ClassEducatorDashboard() {
             />
         );
     }
-
-    useEffect(() => {
-        // TODO: API 연동 후 courseInfo, stats, lectureEvents 업데이트
-    }, []);
 
     const [openEditModal, setOpenEditModal] = useState(false);
     const [formData, setFormData] = useState({
@@ -190,13 +188,11 @@ export default function ClassEducatorDashboard() {
         max_enrollment: "",
     });
 
-    // “강의 기본 정보 수정” 버튼을 가리키는 ref
     const editButtonRef = useRef(null);
-    // 첫 포커스가 들어가야 할 모달 내의 첫 번째 필드(ref)
     const firstFieldRef = useRef(null);
 
-    // 모달 열기: 기존 courseInfo를 formData로 복사
     const handleOpenEditModal = () => {
+        if (!courseInfo) return;
         setFormData({
             course_name: courseInfo.title,
             category: courseInfo.category,
@@ -208,22 +204,18 @@ export default function ClassEducatorDashboard() {
         setOpenEditModal(true);
     };
 
-    // 모달 닫기
     const handleCloseEditModal = () => {
         setOpenEditModal(false);
     };
 
-    // 모달이 완전히 열렸을 때, 포커스 이동
     const handleAfterModalOpen = () => {
         firstFieldRef.current?.focus?.();
     };
 
-    // 모달이 완전히 닫혔을 때, 포커스 이동
     const handleAfterModalClose = () => {
         editButtonRef.current?.focus?.();
     };
 
-    // 폼 입력 변경 처리
     const handleChange = (e) => {
         const { name, value, type } = e.target;
         const parsed = type === "number" ? Number(value) : value;
@@ -233,21 +225,19 @@ export default function ClassEducatorDashboard() {
         }));
     };
 
-    // “저장” 버튼 클릭 시 API 호출 & 로컬 상태 업데이트
     const handleSaveCourseInfo = async (e) => {
         e.preventDefault();
+        if (!courseInfo) return;
         try {
-            // API 호출: modifyCourseInfoAPI(courseId, payload)
             await modifyCourseInfoAPI(courseInfo.course_id, {
-                courseName: formData.course_name,
+                course_name: formData.course_name,
                 category: formData.category,
                 difficulty: formData.difficulty,
                 point: formData.point,
                 description: formData.description,
-                maxEnrollment: formData.max_enrollment,
+                max_enrollment: formData.max_enrollment,
             });
 
-            // 성공 시 로컬 상태에도 반영
             setCourseInfo((prev) => ({
                 ...prev,
                 title: formData.course_name,
@@ -265,6 +255,10 @@ export default function ClassEducatorDashboard() {
             alert("강의 수정에 실패했습니다. 다시 시도해주세요.");
         }
     };
+
+    if (!courseInfo) {
+        return <Typography>강의 정보를 불러오는 중입니다...</Typography>;
+    }
 
     return (
         <Paper sx={{ p: 3 }}>
@@ -291,6 +285,7 @@ export default function ClassEducatorDashboard() {
                     )}
                 </Box>
                 <Button
+                    ref={editButtonRef}
                     variant="outlined"
                     startIcon={<EditIcon />}
                     onClick={handleOpenEditModal}
@@ -302,7 +297,7 @@ export default function ClassEducatorDashboard() {
             {/* 강의 기본 정보 */}
             <Box display="flex" gap={2} mb={3}>
                 {[
-                    { label: "강사명", value: courseInfo.instructor },
+                    { label: "강사명", value: courseInfo.educator_name },
                     { label: "카테고리", value: courseInfo.category },
                     { label: "난이도", value: courseInfo.difficulty },
                 ].map((item) => (
@@ -357,7 +352,7 @@ export default function ClassEducatorDashboard() {
                         <Typography variant="overline">수강자 수</Typography>
                         <Box display={"flex"} alignItems={"flex-end"} gap={2}>
                             <Typography variant="h6">
-                                {stats.studentCount}명
+                                {currentEnrolled}명
                             </Typography>
                             <Typography
                                 variant="caption"
@@ -365,7 +360,7 @@ export default function ClassEducatorDashboard() {
                             >
                                 (
                                 {Math.round(
-                                    (stats.studentCount /
+                                    (currentEnrolled /
                                         courseInfo.max_enrollment) *
                                         100
                                 )}
@@ -375,15 +370,14 @@ export default function ClassEducatorDashboard() {
                         <LinearProgress
                             variant="determinate"
                             value={
-                                (stats.studentCount /
-                                    courseInfo.max_enrollment) *
+                                (currentEnrolled / courseInfo.max_enrollment) *
                                 100
                             }
                             sx={{ mt: 1, height: 8, borderRadius: 4 }}
                         />
                     </Box>
                 </Box>
-                {/* 완료율 평균 시각화 */}
+                {/* 완료율 평균 */}
                 <Box
                     sx={{ flex: 1 }}
                     display={"flex"}
@@ -412,18 +406,14 @@ export default function ClassEducatorDashboard() {
                 <Typography variant="h6" gutterBottom>
                     강의 일정
                 </Typography>
-
                 <Box display="flex" gap={4}>
-                    {/* 1) 좌측: 캘린더 */}
                     <LocalizationProvider
                         dateAdapter={AdapterDayjs}
                         adapterLocale="ko"
                     >
                         <StaticDatePicker
                             slotProps={{
-                                // 하단 Cancel/OK 버튼 제거
                                 actionBar: { actions: [] },
-                                // day마다 스페이싱 0으로 셋팅
                                 day: {
                                     sx: { "--PickersDay-daySpacing": "0px" },
                                 },
@@ -431,9 +421,7 @@ export default function ClassEducatorDashboard() {
                             displayStaticWrapperAs="desktop"
                             value={selectedDate}
                             onChange={(newDate) => setSelectedDate(newDate)}
-                            // 달 네비게이션 시 viewDate 업데이트
                             onMonthChange={(newView) => setViewDate(newView)}
-                            // slots.day에 CustomDay 등록
                             slots={{
                                 day: CustomDay,
                             }}
@@ -441,7 +429,6 @@ export default function ClassEducatorDashboard() {
                         />
                     </LocalizationProvider>
 
-                    {/* 2) 우측: 해당 월 강의 일정 리스트 */}
                     <Box sx={{ minWidth: 160 }}>
                         <Typography variant="subtitle1" gutterBottom>
                             {viewDate.format("YYYY년 M월")} 일정
@@ -461,8 +448,20 @@ export default function ClassEducatorDashboard() {
                                             <ListItemText
                                                 primary={
                                                     sameDay
-                                                        ? `${dayjs(start).format("MM월 DD일 (ddd)")} — ${label}`
-                                                        : `${dayjs(start).format("MM월 DD일 (ddd)")} ~ ${dayjs(end).format("MM월 DD일 (ddd)")} — ${label}`
+                                                        ? `${dayjs(
+                                                              start
+                                                          ).format(
+                                                              "MM월 DD일 (ddd)"
+                                                          )} — ${label}`
+                                                        : `${dayjs(
+                                                              start
+                                                          ).format(
+                                                              "MM월 DD일 (ddd)"
+                                                          )} ~ ${dayjs(
+                                                              end
+                                                          ).format(
+                                                              "MM월 DD일 (ddd)"
+                                                          )} — ${label}`
                                                 }
                                             />
                                         </ListItem>
@@ -504,7 +503,6 @@ export default function ClassEducatorDashboard() {
                         }}
                     >
                         <Box sx={{ display: "flex", gap: 2 }}>
-                            {/* 카테고리 Select */}
                             <FormControl
                                 sx={{ width: "30%", minWidth: 120 }}
                                 required
@@ -524,8 +522,6 @@ export default function ClassEducatorDashboard() {
                                     ))}
                                 </Select>
                             </FormControl>
-
-                            {/* 강의명 TextField */}
                             <TextField
                                 label="강의명"
                                 name="course_name"
@@ -537,7 +533,6 @@ export default function ClassEducatorDashboard() {
                         </Box>
 
                         <Box sx={{ display: "flex", gap: 2 }}>
-                            {/* 학점 Select */}
                             <FormControl fullWidth required>
                                 <InputLabel>학점</InputLabel>
                                 <Select
@@ -554,7 +549,6 @@ export default function ClassEducatorDashboard() {
                                 </Select>
                             </FormControl>
 
-                            {/* 난이도 Select */}
                             <FormControl fullWidth required>
                                 <InputLabel>난이도</InputLabel>
                                 <Select
@@ -571,7 +565,6 @@ export default function ClassEducatorDashboard() {
                                 </Select>
                             </FormControl>
 
-                            {/* 최대 수강 인원 TextField */}
                             <TextField
                                 label="최대 수강 인원"
                                 name="max_enrollment"
@@ -587,7 +580,6 @@ export default function ClassEducatorDashboard() {
                             />
                         </Box>
 
-                        {/* 상세 설명 TextField */}
                         <TextField
                             label="상세 설명"
                             name="description"

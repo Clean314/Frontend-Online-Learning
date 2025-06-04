@@ -1,5 +1,10 @@
 # frontend
 
+## 최초 실행
+
+1. `npm install`
+2. `npm run dev`
+
 ## YouTube Data API v3
 
 API 키 적용을 위해 Notion에서 .env.local 파일 다운받아서 루트 폴더에 놓기
