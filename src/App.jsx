@@ -12,8 +12,8 @@ const MainPage = lazy(() => import("./pages/MainPage"));
 const DashboardClassRedirect = lazy(
     () => import("./routes/DashboardClassRedirect")
 );
-const DashboardHomeRedirect = lazy(
-    () => import("./routes/DashboardHomeRedirect")
+const MainDashboardRedirect = lazy(
+    () => import("./routes/MainDashboardRedirect")
 );
 
 const AdminRoutes = lazy(() => import("./routes/AdminRoutes"));
@@ -49,7 +49,7 @@ function App() {
                 <Route element={<ProtectedRoute />}>
                     {/* 메인 페이지 라우트 */}
                     <Route path="/" element={<MainPage />}>
-                        <Route index element={<DashboardHomeRedirect />} />
+                        <Route index element={<MainDashboardRedirect />} />
                         <Route path="admin/*" element={<AdminRoutes />} />
                         <Route path="teach/*" element={<EducatorRoutes />} />
                         <Route path="learn/*" element={<StudentRoutes />} />

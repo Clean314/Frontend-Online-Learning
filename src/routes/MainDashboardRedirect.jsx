@@ -13,7 +13,7 @@ export default function DashboardHomeRedirect() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!user) return;
+        if (!user || !user.role) return;
 
         const target = roleRedirectMap[user.role];
 

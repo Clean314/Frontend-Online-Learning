@@ -1,8 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import RoleProtectedRoute from "./RoleProtectedRoute";
-import DashboardHome from "../pages/components/DashboardHome";
 import CourseEnrolled from "../pages/components/student/CourseEnrolled";
 import { ROLES } from "../roles";
+import MainDashboard from "../pages/main/MainDashboard";
 
 export default function StudentRoutes() {
     return (
@@ -10,7 +10,7 @@ export default function StudentRoutes() {
             <Route
                 element={<RoleProtectedRoute allowedRoles={[ROLES.STUDENT]} />}
             >
-                <Route path="dashboard" element={<DashboardHome />} />
+                <Route path="dashboard" element={<MainDashboard />} />
 
                 <Route path="courses/my">
                     <Route index element={<Navigate to="total" replace />} />
