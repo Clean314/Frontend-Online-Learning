@@ -1,3 +1,4 @@
+// src/components/curriculum/CurriculumForm.jsx
 import { useState, useEffect } from "react";
 import { Box, Paper, Button, CircularProgress } from "@mui/material";
 import {
@@ -46,6 +47,7 @@ export default function CurriculumForm() {
                 title: vid.title || "",
                 videoUrl: vid.videoUrl || "",
             }));
+
             setLectures(
                 mapped.length > 0
                     ? mapped
@@ -57,7 +59,7 @@ export default function CurriculumForm() {
         }
 
         setLoading(false);
-    }, [courseId, isEditMode]);
+    }, [courseId, isEditMode, incomingVideos]);
 
     // courseId가 없으면 리다이렉트
     if (!courseId) {
@@ -66,6 +68,7 @@ export default function CurriculumForm() {
             : "/teach/courses/new";
         return <Navigate to={redirectPath} replace />;
     }
+
     if (loading) {
         return (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
@@ -92,7 +95,9 @@ export default function CurriculumForm() {
     // 특정 강의 항목을 삭제
     const removeLecture = (index) => async () => {
         if (lectures.length === 1) return;
+
         const lec = lectures[index];
+
         if (isEditMode && lec.id) {
             try {
                 await deleteLectureAPI(Number(courseId), lec.id);
@@ -109,14 +114,27 @@ export default function CurriculumForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // 제목과 URL 둘 다 빈 문자열인 항목 필터링
+        const filteredLectures = lectures.filter(
+            (lec) => lec.title.trim() !== "" || lec.videoUrl.trim() !== ""
+        );
+
         if (isEditMode) {
+            // 수정 모드: lectures 배열을 백엔드 API 스펙에 맞게 바꿔서 전송
             const lecturesData = lectures.map((lec) => ({
-                lecture_id: lec.id,
+                lecture_id: Number(lec.id) === 0 ? null : Number(lec.id),
                 title: lec.title,
-                videoUrl: lec.videoUrl,
+                video_url: lec.videoUrl,
             }));
+
+            if (lecturesData.length === 0) {
+                alert("변경할 강의가 없습니다.");
+                return;
+            }
+
             try {
                 await updateLectureAPI(Number(courseId), lecturesData);
+
                 alert("커리큘럼이 수정되었습니다.");
                 const { pathname } = location;
                 if (
@@ -129,30 +147,75 @@ export default function CurriculumForm() {
                     navigate(`/courses/${courseId}`);
                 }
             } catch (err) {
-                console.error("커리큘럼 수정 실패:", err);
-                alert("수정 중 오류가 발생했습니다.");
+                console.error("강의 영상 수정 중 오류 발생", err);
+
+                const msg =
+                    err.response?.data?.message ??
+                    err.response?.data ??
+                    err.message;
+
+                // msg가 문자열인지, 객체인지 확인 후 문자열로 변환
+                const msgText =
+                    typeof msg === "string" ? msg : JSON.stringify(msg);
+
+                // "이미 등록된 강의 제목입니다."로 시작하면 제목 중복 오류
+                if (msgText.includes("이미 등록된 강의 제목입니다")) {
+                    alert(
+                        "오류: 이미 등록된 강의 제목이 존재합니다.\n다른 제목을 입력해주세요."
+                    );
+                }
+                // "이미 등록된 URL입니다."로 시작하면 URL 중복 오류
+                else if (msgText.includes("이미 등록된 URL입니다")) {
+                    alert(
+                        "오류: 이미 등록된 영상 URL이 존재합니다.\n다른 URL을 입력해주세요."
+                    );
+                }
+                // 그 외 기타 오류
+                else {
+                    alert("수정 중 오류가 발생했습니다.");
+                }
             }
         } else {
-            const hasAnyData = lectures.some(
-                (lec) => lec.title.trim() !== "" || lec.videoUrl.trim() !== ""
-            );
-            if (!hasAnyData) {
+            // 실제 입력된 데이터가 없으면 API 호출 없이 강의실로 이동
+            if (filteredLectures.length === 0) {
                 navigate(`/courses/${courseId}/classroom`);
                 return;
             }
+
+            // 입력된 데이터가 있으면 API에 넘길 형태(배열)로 매핑
+            const lecturesData = filteredLectures.map((lec) => ({
+                title: lec.title,
+                video_url: lec.videoUrl, // 바뀐 필드명
+            }));
+
             try {
-                for (const lec of lectures) {
-                    const lectureData = {
-                        title: lec.title,
-                        videoUrl: lec.videoUrl,
-                    };
-                    await createLectureAPI(Number(courseId), lectureData);
-                }
+                // createLectureAPI 호출 (배열 전체 전달)
+                await createLectureAPI(Number(courseId), lecturesData);
+
                 alert("커리큘럼이 등록되었습니다.");
                 navigate(`/courses/${courseId}/classroom`);
             } catch (err) {
                 console.error("강의 영상 등록 중 오류 발생", err);
-                alert(err.response?.data || "등록 중 오류가 발생했습니다.");
+
+                const msg =
+                    err.response?.data?.message ||
+                    err.response?.data ||
+                    err.message;
+
+                const msgText =
+                    typeof msg === "string" ? msg : JSON.stringify(msg);
+
+                if (msgText.includes("이미 등록된 강의 제목입니다")) {
+                    alert(
+                        "오류: 이미 등록된 강의 제목이 존재합니다.\n다른 제목을 입력해주세요."
+                    );
+                } else if (msgText.includes("이미 등록된 URL입니다")) {
+                    alert(
+                        "오류: 이미 등록된 영상 URL이 존재합니다.\n다른 URL을 입력해주세요."
+                    );
+                } else {
+                    alert(err.response?.data || "등록 중 오류가 발생했습니다.");
+                }
             }
         }
     };

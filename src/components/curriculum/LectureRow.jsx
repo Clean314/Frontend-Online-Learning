@@ -30,6 +30,7 @@ export default function LectureRow({
             />
             <TextField
                 label="영상 URL"
+                type="url"
                 value={lecture.videoUrl}
                 onChange={onChange(index, "videoUrl")}
                 fullWidth

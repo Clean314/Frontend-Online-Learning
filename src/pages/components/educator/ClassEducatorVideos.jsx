@@ -30,7 +30,7 @@ export default function ClassEducatorVideos() {
                 const formatted = lectureList.map((lec) => ({
                     id: lec.lecture_id.toString(),
                     title: lec.title,
-                    videoUrl: lec.videoUrl,
+                    videoUrl: lec.video_url,
                     duration: "",
                     publishedAt: "",
                 }));
