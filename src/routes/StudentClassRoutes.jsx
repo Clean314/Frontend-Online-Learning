@@ -4,6 +4,7 @@ import ClassStudentDashboard from "../pages/components/student/ClassStudentDashb
 import ClassStudentVideos from "../pages/components/student/ClassStudentVideos";
 import ClassStudentVideosWatch from "../pages/components/student/ClassStudentVideosWatch";
 import { ROLES } from "../roles";
+import ClassStudentExams from "../pages/components/student/ClassStudentExams";
 
 export default function ClassroomRoutes() {
     return (
@@ -17,6 +18,7 @@ export default function ClassroomRoutes() {
                     path="videos/:videoId"
                     element={<ClassStudentVideosWatch />}
                 />
+                <Route path="exams" element={<ClassStudentExams />} />
             </Route>
         </Routes>
     );
