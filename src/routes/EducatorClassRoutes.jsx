@@ -26,6 +26,8 @@ export default function EducatorClassRoutes() {
                     element={<ClassEducatorAttendance />}
                 />
                 <Route path="exams" element={<ClassEducatorExams />} />
+                <Route path="exams/new" element={<ExamFormPage />} />
+                <Route path="exams/:examId/edit" element={<ExamFormPage />} />
                 <Route
                     path="exams/:examId/scores"
                     element={<AllStudentScoresPage />}
@@ -46,8 +48,6 @@ export default function EducatorClassRoutes() {
                     path="exams/:examId/questions/:questionId/detail"
                     element={<QuestionDetailPage />}
                 />
-                <Route path="exams/new" element={<ExamFormPage />} />
-                <Route path="exams/:examId/edit" element={<ExamFormPage />} />
             </Route>
         </Routes>
     );

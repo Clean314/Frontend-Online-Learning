@@ -145,7 +145,7 @@ export default function QuestionListPage() {
     };
 
     return (
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Container maxWidth="lg" sx={{ mb: 4 }}>
             <Paper sx={{ p: 3 }}>
                 <Box
                     display="flex"
@@ -160,13 +160,15 @@ export default function QuestionListPage() {
                         </IconButton>
                         <Typography variant="h5">문제 목록</Typography>
                     </Box>
-                    <Button
-                        variant="contained"
-                        startIcon={<AddIcon />}
-                        onClick={() => navigate(`new`)}
-                    >
-                        새 문제 추가
-                    </Button>
+                    {examStatus !== "COMPLETED" && (
+                        <Button
+                            variant="contained"
+                            startIcon={<AddIcon />}
+                            onClick={() => navigate(`new`)}
+                        >
+                            새 문제 추가
+                        </Button>
+                    )}
                 </Box>
 
                 {loading ? (
@@ -235,8 +237,8 @@ export default function QuestionListPage() {
                                         </TableCell>
                                         {/* 작업 버튼 */}
                                         <TableCell align="center">
-                                            {examStatus === "COMPLETED" ? (
-                                                // "COMPLETED" 상태일 때는 수정/삭제 대신 "자세히" 버튼
+                                            {examStatus !== "PREPARED" ? (
+                                                // "PREPARED" 가 아닌 상태일 때는 수정/삭제 대신 "자세히" 버튼
                                                 <Button
                                                     variant="outlined"
                                                     size="small"

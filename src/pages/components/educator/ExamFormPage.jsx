@@ -9,18 +9,20 @@ import {
     Stack,
     CircularProgress,
 } from "@mui/material";
-// MUI X DateTimePicker 및 LocalizationProvider, 어댑터(import 경로 주의)
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
+dayjs.locale("ko");
 
 export default function ExamFormPage() {
     const { courseId, examId } = useParams();
-    const location = useLocation();
     const navigate = useNavigate();
+
+    const location = useLocation();
+    const existingExam = location.state?.exam; // 상위에서 넘겨준 exam 데이터
 
     const isEditMode = Boolean(examId);
     const [title, setTitle] = useState("");
@@ -31,24 +33,14 @@ export default function ExamFormPage() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        if (isEditMode) {
-            // TODO: API 호출 구현 필요 (getExamByIdAPI)
-            // 임시 데이터로 수정 모드 화면 테스트
-            const dummyExam = {
-                title: "기말고사 수정",
-                description: "2025년 기말고사 시험입니다.",
-                startTime: "2025-07-15T14:00:00",
-                endTime: "2025-07-15T16:00:00",
-            };
-            setTimeout(() => {
-                setTitle(dummyExam.title);
-                setDescription(dummyExam.description);
-                setStartTime(dayjs(dummyExam.startTime));
-                setEndTime(dayjs(dummyExam.endTime));
-                setLoading(false);
-            }, 500);
+        if (isEditMode && existingExam) {
+            setTitle(existingExam.title);
+            setDescription(existingExam.description);
+            setStartTime(dayjs(existingExam.startTime));
+            setEndTime(dayjs(existingExam.endTime));
+            setLoading(false);
         }
-    }, [courseId, examId, isEditMode]);
+    }, [isEditMode, existingExam]);
 
     const handleSubmit = async () => {
         if (!title.trim()) {
@@ -74,13 +66,12 @@ export default function ExamFormPage() {
             // TODO: API 호출 구현 필요 (createExamAPI)
             console.log("생성 데이터:", payload);
         }
-        navigate(`/courses/${courseId}/exams`);
+        navigate(`/courses/${courseId}/classroom/teach/exams`);
     };
 
     return (
-        // LocalizationProvider로 감싸야 DateTimePicker가 동작합니다.
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Container sx={{ mt: 4, mb: 4 }}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ko">
+            <Container sx={{ mb: 4 }}>
                 <Paper sx={{ p: 3 }}>
                     <Typography variant="h5" mb={2}>
                         {isEditMode ? "시험 수정" : "새 시험 생성"}
@@ -115,6 +106,8 @@ export default function ExamFormPage() {
                                     label="시작 시각"
                                     value={startTime}
                                     onChange={(newVal) => setStartTime(newVal)}
+                                    inputFormat="YYYY.MM.DD A hh:mm"
+                                    mask="____.__.__ _ __:__"
                                     slotProps={{
                                         textField: { fullWidth: true },
                                         dialog: {
@@ -128,6 +121,8 @@ export default function ExamFormPage() {
                                     label="종료 시각"
                                     value={endTime}
                                     onChange={(newVal) => setEndTime(newVal)}
+                                    inputFormat="YYYY.MM.DD A hh:mm"
+                                    mask="____.__.__ _ __:__"
                                     slotProps={{
                                         textField: { fullWidth: true },
                                         dialog: {

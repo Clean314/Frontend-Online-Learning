@@ -21,6 +21,8 @@ import {
     Add as AddIcon,
     Edit as EditIcon,
     Delete as DeleteIcon,
+    Publish as PublishIcon,
+    Unpublished as UnpublishedIcon,
     ListAlt as QuestionIcon,
     BarChart as BarChartIcon,
 } from "@mui/icons-material";
@@ -46,6 +48,7 @@ export default function ClassEducatorExams() {
                 endTime: "2025-06-10T11:00:00",
                 status: "COMPLETED",
                 questionCount: 10,
+                participants: 35,
             },
             {
                 id: 2,
@@ -55,6 +58,26 @@ export default function ClassEducatorExams() {
                 endTime: "2025-07-15T16:00:00",
                 status: "PREPARED",
                 questionCount: 20,
+            },
+            {
+                id: 3,
+                title: "추가 시험",
+                description: "현재 진행중인 시험입니다.",
+                startTime: "2025-08-01T09:00:00",
+                endTime: "2025-08-01T10:00:00",
+                status: "IN_PROGRESS",
+                questionCount: 15,
+                participants: 0,
+            },
+            {
+                id: 4,
+                title: "심화 시험",
+                description: "진행중이며 이미 응시자가 있는 시험입니다.",
+                startTime: "2025-09-05T13:00:00",
+                endTime: "2025-09-05T15:00:00",
+                status: "IN_PROGRESS",
+                questionCount: 25,
+                participants: 12,
             },
         ];
         setTimeout(() => {
@@ -72,14 +95,63 @@ export default function ClassEducatorExams() {
     // 상태에 따라 Chip 색상을 매핑하는 헬퍼 함수
     const getStatusChipProps = (status) => {
         switch (status) {
-            case "준비중":
-                return { label: "준비중", color: "warning" };
-            case "진행중":
-                return { label: "진행중", color: "info" };
-            case "종료":
-                return { label: "종료", color: "success" };
+            case "PREPARED":
+                return {
+                    label: "준비중",
+                    sx: {
+                        bgcolor: "#BFECFF",
+                        color: "#005F8A",
+                        fontWeight: 500,
+                    },
+                };
+            case "IN_PROGRESS":
+                return {
+                    label: "진행중",
+                    sx: {
+                        bgcolor: "#D6EFD8",
+                        color: "#155724",
+                        fontWeight: 500,
+                    },
+                };
+            case "COMPLETED":
+                return {
+                    label: "종료",
+                    sx: {
+                        bgcolor: "#F8D7DA",
+                        color: "#721C24",
+                        fontWeight: 500,
+                    },
+                };
             default:
-                return { label: status, color: "default" };
+                return { label: status, sx: {} };
+        }
+    };
+
+    // 시험 게시 : PREPARED -> IN_PROGUESSS
+    const handlePublish = async (examId) => {
+        if (window.confirm("시험을 게시하시겠습니까?")) {
+            // TODO: 시험 상태를 PREPARED에서 IN_PROGRESS로 변경하는 API 호출 구현 필요
+            console.log(`시험 ${examId} 상태를 IN_PROGRESS로 변경 요청`);
+            setExams((prev) =>
+                prev.map((e) =>
+                    e.id === examId ? { ...e, status: "IN_PROGRESS" } : e
+                )
+            );
+        }
+    };
+
+    // 시험 게시 철회 : IN_PROGUESS -> PREPARED
+    const handleWithdraw = async (examId) => {
+        if (window.confirm("시험 게시를 철회하시겠습니까?")) {
+            // TODO: 시험 상태를 IN_PROGRESS에서 PREPARED로 변경하는 API 호출 구현 필요
+            console.log(`시험 ${examId} 상태를 PREPARED로 변경 요청`);
+            setExams((prev) =>
+                prev.map((e) =>
+                    e.id === examId
+                        ? { ...e, status: "PREPARED", participants: 0 }
+                        : e
+                )
+            );
         }
     };
 
@@ -118,7 +190,8 @@ export default function ClassEducatorExams() {
                                 <col style={{ width: "12%" }} />
                                 <col style={{ width: "8%" }} />
                                 <col style={{ width: "7%" }} />
-                                <col style={{ width: "15%" }} />
+                                <col style={{ width: "9%" }} />
+                                <col style={{ width: "12%" }} />
                             </colgroup>
                             <TableHead>
                                 <TableRow>
@@ -128,6 +201,9 @@ export default function ClassEducatorExams() {
                                     <TableCell>종료</TableCell>
                                     <TableCell>상태</TableCell>
                                     <TableCell align="center">문제수</TableCell>
+                                    <TableCell align="center">
+                                        응시자 수
+                                    </TableCell>
                                     <TableCell align="center">작업</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -155,30 +231,25 @@ export default function ClassEducatorExams() {
                                         {/* 시험 상태을 Chip으로 표시 */}
                                         <TableCell>
                                             <Chip
-                                                label={
-                                                    exam.status === "PREPARED"
-                                                        ? "준비중"
-                                                        : "종료"
-                                                }
+                                                {...getStatusChipProps(
+                                                    exam.status
+                                                )}
                                                 size="medium"
-                                                sx={{
-                                                    bgcolor:
-                                                        exam.status ===
-                                                        "PREPARED"
-                                                            ? "#BFECFF"
-                                                            : "#F8D7DA",
-                                                    color:
-                                                        exam.status ===
-                                                        "PREPARED"
-                                                            ? "#005F8A"
-                                                            : "#721C24",
-                                                    fontWeight: 500,
-                                                }}
                                             />
                                         </TableCell>
                                         {/* 시험 문제수 */}
                                         <TableCell align="center">
                                             {exam.questionCount}
+                                        </TableCell>
+                                        {/* 응시자 수 */}
+                                        <TableCell align="center">
+                                            {(exam.status === "COMPLETED" ||
+                                                exam.status ===
+                                                    "IN_PROGRESS") &&
+                                            typeof exam.participants ===
+                                                "number"
+                                                ? exam.participants
+                                                : "-"}
                                         </TableCell>
                                         {/* 시험 관련 작업 버튼 */}
                                         <TableCell align="center">
@@ -195,8 +266,20 @@ export default function ClassEducatorExams() {
                                                     <QuestionIcon />
                                                 </IconButton>
                                             </Tooltip>
-                                            {exam.status === "PREPARED" ? (
+                                            {exam.status === "PREPARED" && (
                                                 <>
+                                                    <Tooltip title="게시">
+                                                        <IconButton
+                                                            color="success"
+                                                            onClick={() =>
+                                                                handlePublish(
+                                                                    exam.id
+                                                                )
+                                                            }
+                                                        >
+                                                            <PublishIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
                                                     <Tooltip title="수정">
                                                         <IconButton
                                                             color="info"
@@ -227,8 +310,41 @@ export default function ClassEducatorExams() {
                                                         </IconButton>
                                                     </Tooltip>
                                                 </>
-                                            ) : (
-                                                <Tooltip title="전체 학생 성적 조회">
+                                            )}
+
+                                            {exam.status === "IN_PROGRESS" && (
+                                                <>
+                                                    {exam.participants === 0 ? (
+                                                        <Tooltip title="게시 철회">
+                                                            <IconButton
+                                                                color="warning"
+                                                                onClick={() =>
+                                                                    handleWithdraw(
+                                                                        exam.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                <UnpublishedIcon />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    ) : (
+                                                        <Tooltip title="전체 응시자 성적 조회">
+                                                            <IconButton
+                                                                onClick={() =>
+                                                                    navigate(
+                                                                        `${exam.id}/scores`
+                                                                    )
+                                                                }
+                                                            >
+                                                                <BarChartIcon />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    )}
+                                                </>
+                                            )}
+
+                                            {exam.status === "COMPLETED" && (
+                                                <Tooltip title="전체 응시자 성적 조회">
                                                     <IconButton
                                                         onClick={() =>
                                                             navigate(
