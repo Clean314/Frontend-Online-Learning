@@ -3,7 +3,6 @@ import RoleProtectedRoute from "./RoleProtectedRoute";
 import CourseList from "../pages/components/CourseList";
 import CourseDetail from "../pages/components/CourseDetail";
 import { ROLES } from "../roles";
-import CurriculumEdit from "../pages/components/educator/CurriculumEdit";
 
 export default function CourseRoutes() {
     return (
@@ -17,17 +16,6 @@ export default function CourseRoutes() {
             >
                 <Route index element={<CourseList />} />
                 <Route path=":courseId" element={<CourseDetail />} />
-
-                <Route
-                    element={
-                        <RoleProtectedRoute allowedRoles={[ROLES.EDUCATOR]} />
-                    }
-                >
-                    <Route
-                        path=":courseId/edit/curriculum"
-                        element={<CurriculumEdit />}
-                    />
-                </Route>
             </Route>
         </Routes>
     );

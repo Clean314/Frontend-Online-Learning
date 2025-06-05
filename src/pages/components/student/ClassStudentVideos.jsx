@@ -9,42 +9,38 @@ import {
     ListItemText,
     useTheme,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { getStudentLectureListAPI } from "../../../api/lecture";
 
 export default function ClassStudentVideos() {
     const theme = useTheme();
     const navigate = useNavigate();
+    const { courseId } = useParams();
 
     // 영상 목록 (메타정보 포함)
     const [videos, setVideos] = useState([]);
 
     useEffect(() => {
-        // TODO: 강의 영상 목록 조회 API 연동
-        const tempData = [
-            {
-                id: "1",
-                title: "봄 스케치, 하늘, 구름",
-                videoUrl: "https://youtu.be/44wq3kI02pM?si=Vk6IzNkhsjh9u-kx",
-                duration: "",
-                publishedAt: "",
-            },
-            {
-                id: "2",
-                title: "개나리,벚꽃,봄길,봄거리",
-                videoUrl: "https://youtu.be/Nvrj6Mjy4Do?si=1yJxiulTuJbI-RSQ",
-                duration: "",
-                publishedAt: "",
-            },
-            {
-                id: "3",
-                title: "토끼풀,클로바,바람,오월",
-                videoUrl: "https://youtu.be/gCLUmdSguYc?si=qNoIsA6tZAZlnINr",
-                duration: "",
-                publishedAt: "",
-            },
-        ];
-        setVideos(tempData);
-    }, []);
+        (async () => {
+            try {
+                // API 호출: lecture_id, title, video_url, createdAt, updatedAt, course_id 들을 리턴
+                const data = await getStudentLectureListAPI(Number(courseId));
+
+                // 필요한 필드로 매핑: { id, title, videoUrl, duration, publishedAt }
+                const mapped = data.map((lec) => ({
+                    id: lec.lecture_id,
+                    title: lec.title,
+                    videoUrl: lec.video_url,
+                    duration: "", // 이후 YouTube Data API로 가져올 예정
+                    publishedAt: lec.createdAt, // API가 주는 createdAt(ISO 문자열)을 초기 등록일로 사용
+                }));
+
+                setVideos(mapped);
+            } catch (err) {
+                console.error("강의 영상 목록 조회 실패:", err);
+            }
+        })();
+    }, [courseId]);
 
     // ISO 8601 형식의 길이를 "MM:SS" 또는 "H시간 MM:SS"로 변환
     const formatDuration = (isoDuration) => {

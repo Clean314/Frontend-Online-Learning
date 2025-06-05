@@ -18,6 +18,7 @@ import {
     getMyEnrollmentsAPI,
 } from "../../api/enrollment";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { getStudentLectureListAPI } from "../../api/lecture";
 
 export default function CourseDetail() {
     const { user } = useAuth();
@@ -39,15 +40,17 @@ export default function CourseDetail() {
         }
     }, [courseId, location.state]);
 
-    // TODO: 학생용 강의 영상 목록 조회 API 연결
+    // 강의 영상 목록 조회
     useEffect(() => {
-        const mockLectures = [
-            { id: 1, title: "강의 소개" },
-            { id: 2, title: "개발 환경 설정" },
-            { id: 3, title: "Hello World 실습" },
-        ];
-        setLectures(mockLectures);
-    }, []);
+        (async () => {
+            try {
+                const data = await getStudentLectureListAPI(Number(courseId));
+                setLectures(data);
+            } catch (err) {
+                console.error("강의 영상 목록 조회 실패:", err);
+            }
+        })();
+    }, [courseId]);
 
     // 내 수강 여부 조회
     useEffect(() => {
