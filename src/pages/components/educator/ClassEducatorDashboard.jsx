@@ -193,6 +193,13 @@ export default function ClassEducatorDashboard() {
 
     const handleOpenEditModal = () => {
         if (!courseInfo) return;
+
+        // 수강생이 한 명이라도 있으면 수정 불가
+        if (currentEnrolled > 0) {
+            alert("수강 중인 학생이 존재하는 강의는 수정할 수 없습니다.");
+            return;
+        }
+
         setFormData({
             course_name: courseInfo.title,
             category: courseInfo.category,

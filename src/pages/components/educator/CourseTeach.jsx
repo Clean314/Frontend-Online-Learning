@@ -48,10 +48,17 @@ export default function CourseTeach() {
     }, [user]);
 
     // 강의 삭제
-    const handleDelete = async (courseId) => {
+    const handleDelete = async (course) => {
+        const enrolledCount =
+            course.max_enrollment - course.available_enrollment;
+        if (enrolledCount > 0) {
+            alert("수강 중인 학생이 존재하는 강의는 삭제할 수 없습니다");
+            return;
+        }
+
         if (window.confirm("정말 이 강의를 삭제하시겠습니까?")) {
             try {
-                await deleteCourseAPI(Number(courseId));
+                await deleteCourseAPI(Number(course.course_id));
 
                 alert("삭제되었습니다.");
 
@@ -215,9 +222,7 @@ export default function CourseTeach() {
                                         size="medium"
                                         color="error"
                                         title="강의 삭제"
-                                        onClick={() =>
-                                            handleDelete(course.course_id)
-                                        }
+                                        onClick={() => handleDelete(course)}
                                     >
                                         <DeleteOutlinedIcon fontSize="small" />
                                     </IconButton>
