@@ -1,8 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import RoleProtectedRoute from "./RoleProtectedRoute";
-import CourseEnrolled from "../pages/components/student/CourseEnrolled";
 import { ROLES } from "../roles";
 import MainDashboard from "../pages/main/MainDashboard";
+import StuCourseMy from "../pages/main/StuCourseMy";
 
 export default function StudentRoutes() {
     return (
@@ -14,10 +14,7 @@ export default function StudentRoutes() {
 
                 <Route path="courses/my">
                     <Route index element={<Navigate to="total" replace />} />
-                    <Route
-                        path=":enrolledStatus"
-                        element={<CourseEnrolled />}
-                    />
+                    <Route path=":enrolledStatus" element={<StuCourseMy />} />
                 </Route>
             </Route>
         </Routes>

@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import RoleProtectedRoute from "./RoleProtectedRoute";
-import CourseList from "../pages/components/CourseList";
-import CourseDetail from "../pages/components/CourseDetail";
+import CourseDetail from "../pages/main/CourseDetail";
 import { ROLES } from "../roles";
+import TotalCourseList from "../pages/main/TotalCourseList";
 
 export default function CourseRoutes() {
     return (
@@ -14,7 +14,7 @@ export default function CourseRoutes() {
                     />
                 }
             >
-                <Route index element={<CourseList />} />
+                <Route index element={<TotalCourseList />} />
                 <Route path=":courseId" element={<CourseDetail />} />
             </Route>
         </Routes>

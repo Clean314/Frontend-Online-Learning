@@ -4,8 +4,8 @@ import { Box, Paper, Pagination, Stack, CircularProgress } from "@mui/material";
 import { getMyRegisteredCoursesAPI } from "../../api/course";
 import { deleteCourseAPI } from "../../api/admin";
 
-import PageSizeSelect from "../../components/table/PageSizeSelect";
-import CoursesTable from "../../components/table/CoursesTable";
+import PageSizeSelect from "../../components/common/PageSizeSelect";
+import CoursesTable from "../../components/edu_course_my/CoursesTable";
 
 export default function EduCourseMy() {
     const { user } = useAuth();

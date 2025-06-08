@@ -24,7 +24,7 @@ export const getMyEnrollmentsAPI = async () => {
  * @returns {Promise<void>}
  */
 export const enrollCourseAPI = async (courseId) => {
-    await api.post(`/students/enrollments/${courseId}`);
+    await api.post(`/students/enrollments/course-id/${courseId}`);
 };
 
 /**
@@ -33,5 +33,5 @@ export const enrollCourseAPI = async (courseId) => {
  * @returns {Promise<void>}
  */
 export const cancelEnrollmentAPI = async (courseId) => {
-    await api.delete(`/students/enrollments/${courseId}`);
+    await api.delete(`/students/enrollments/course-id/${courseId}`);
 };

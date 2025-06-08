@@ -10,7 +10,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/auth/useAuth";
 import { ColorModeContext } from "../ColorModeContext";
 import { useContext, useMemo } from "react";
-import SidebarFooter from "./components/SidebarFooter";
+import SidebarFooter from "./common/SidebarFooter";
 import { useTheme } from "@emotion/react";
 import { Box, IconButton } from "@mui/material";
 import LightModeIcon from "@mui/icons-material/LightMode";
