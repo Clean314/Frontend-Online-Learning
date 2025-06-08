@@ -160,7 +160,7 @@ export default function QuestionListPage() {
                         </IconButton>
                         <Typography variant="h5">문제 목록</Typography>
                     </Box>
-                    {examStatus !== "COMPLETED" && (
+                    {examStatus === "PREPARED" && (
                         <Button
                             variant="contained"
                             startIcon={<AddIcon />}

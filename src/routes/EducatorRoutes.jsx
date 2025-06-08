@@ -1,10 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 import RoleProtectedRoute from "./RoleProtectedRoute";
-import CourseTeach from "../pages/components/educator/CourseTeach";
 import { ROLES } from "../roles";
 import MainDashboard from "../pages/main/MainDashboard";
 import EduCourseRegister from "../pages/main/EduCourseRegister";
 import CurriculumForm from "../pages/common/CurriculumForm";
+import EduCourseMy from "../pages/main/EduCourseMy";
 
 export default function EducatorRoutes() {
     return (
@@ -14,7 +14,7 @@ export default function EducatorRoutes() {
             >
                 <Route path="dashboard" element={<MainDashboard />} />
 
-                <Route path="courses/my" element={<CourseTeach />} />
+                <Route path="courses/my" element={<EduCourseMy />} />
 
                 <Route path="courses/new" element={<EduCourseRegister />} />
                 <Route
