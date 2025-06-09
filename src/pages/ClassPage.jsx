@@ -55,11 +55,6 @@ const getNavigationByRole = (role) => {
                     segment: `learn/videos`,
                 },
                 {
-                    title: "출결",
-                    icon: <EventAvailableIcon />,
-                    segment: `learn/attendance`,
-                },
-                {
                     title: "시험",
                     icon: <AssignmentIcon />,
                     segment: `learn/exams`,

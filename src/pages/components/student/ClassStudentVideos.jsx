@@ -8,6 +8,7 @@ import {
     ListItemButton,
     ListItemText,
     useTheme,
+    Chip,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { getStudentLectureListAPI } from "../../../api/lecture";
@@ -17,7 +18,7 @@ export default function ClassStudentVideos() {
     const navigate = useNavigate();
     const { courseId } = useParams();
 
-    // 영상 목록 (메타정보 포함)
+    // 영상 목록 (메타정보 + 시청 여부)
     const [videos, setVideos] = useState([]);
 
     useEffect(() => {
@@ -27,13 +28,16 @@ export default function ClassStudentVideos() {
                 const data = await getStudentLectureListAPI(Number(courseId));
 
                 // 필요한 필드로 매핑: { id, title, videoUrl, duration, publishedAt }
-                const mapped = data.map((lec) => ({
+                const mapped = data.map((lec, idx) => ({
                     id: lec.lecture_id,
                     title: lec.title,
                     videoUrl: lec.video_url,
                     duration: "", // 이후 YouTube Data API로 가져올 예정
                     publishedAt: lec.createdAt, // API가 주는 createdAt(ISO 문자열)을 초기 등록일로 사용
+                    watched: idx % 2 === 0, // 짝수 인덱스 영상은 시청 완료로 표시 (임시)
                 }));
+
+                console.log(mapped);
 
                 setVideos(mapped);
             } catch (err) {
@@ -177,6 +181,20 @@ export default function ClassStudentVideos() {
                                     </Box>
                                 }
                             />
+                            {/* 오른쪽: 시청 여부 */}
+                            {video.watched && (
+                                <Chip
+                                    label="수강 완료"
+                                    variant="outlined"
+                                    color="success"
+                                    sx={{
+                                        borderWidth: 1.5,
+                                        borderColor: "success.main",
+                                        color: "success.main",
+                                        fontWeight: 600,
+                                    }}
+                                />
+                            )}
                         </ListItemButton>
                     </Paper>
                 ))}

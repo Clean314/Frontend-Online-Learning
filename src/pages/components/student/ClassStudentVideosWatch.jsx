@@ -7,6 +7,7 @@ import {
     useTheme,
     Divider,
     IconButton,
+    Button,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
@@ -46,6 +47,15 @@ export default function ClassStudentVideosWatch() {
     };
 
     const embedUrl = getEmbedUrl(video.videoUrl);
+
+    // 영상 수강 완료
+    const handleCompleteWatching = () => {
+        // TODO: 출석 API 호출 구현 필요
+
+        console.log("수강 완료 버튼 클릭:", video.id);
+        alert("수강 완료되었습니다.");
+        navigate(-1);
+    };
 
     return (
         <Box sx={{ p: 3 }}>
@@ -87,29 +97,41 @@ export default function ClassStudentVideosWatch() {
 
             {/* 유튜브 영상 임베드 */}
             {embedUrl ? (
-                <Box
-                    sx={{
-                        position: "relative",
-                        pb: "56.25%", // 16:9 비율 유지
-                        height: 0,
-                        mb: 2,
-                    }}
-                >
-                    <iframe
-                        title={video.title}
-                        src={embedUrl}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            border: 0,
+                <>
+                    <Box
+                        sx={{
+                            position: "relative",
+                            pb: "56.25%", // 16:9 비율 유지
+                            height: 0,
+                            mb: 2,
                         }}
-                    />
-                </Box>
+                    >
+                        <iframe
+                            title={video.title}
+                            src={embedUrl}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                                border: 0,
+                            }}
+                        />
+                    </Box>
+
+                    {/* 수강 완료 버튼 */}
+                    <Box textAlign="center" mt={2}>
+                        <Button
+                            variant="contained"
+                            onClick={handleCompleteWatching}
+                        >
+                            수강 완료
+                        </Button>
+                    </Box>
+                </>
             ) : (
                 <Typography variant="body1" color="text.secondary">
                     올바른 유튜브 URL이 아닙니다.
