@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Paper } from "@mui/material";
 import useAuth from "../../hooks/auth/useAuth";
 import { getAllCoursesWithStatusAPI } from "../../api/enrollment";

@@ -67,3 +67,5 @@ API 키 적용을 위해 Notion에서 .env.local 파일 다운받아서 루트 �
 - `/courses/:courseId/classroom/learn/videos`
 - `/courses/:courseId/classroom/learn/videos/:videoId`
 - `/courses/:courseId/classroom/learn/exams`
+- `/courses/:courseId/classroom/learn/exams/:examId/take`
+- `/courses/:courseId/classroom/learn/exams/:examId/result`

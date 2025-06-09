@@ -5,6 +5,8 @@ import ClassStudentVideos from "../pages/components/student/ClassStudentVideos";
 import ClassStudentVideosWatch from "../pages/components/student/ClassStudentVideosWatch";
 import { ROLES } from "../roles";
 import ClassStudentExams from "../pages/components/student/ClassStudentExams";
+import TakeExamPage from "../pages/components/student/TakeExamPage";
+import MyExamResultPage from "../pages/components/student/MyExamResultPage";
 
 export default function ClassroomRoutes() {
     return (
@@ -19,6 +21,11 @@ export default function ClassroomRoutes() {
                     element={<ClassStudentVideosWatch />}
                 />
                 <Route path="exams" element={<ClassStudentExams />} />
+                <Route path="exams/:examId/take" element={<TakeExamPage />} />
+                <Route
+                    path="exams/:examId/result"
+                    element={<MyExamResultPage />}
+                />
             </Route>
         </Routes>
     );

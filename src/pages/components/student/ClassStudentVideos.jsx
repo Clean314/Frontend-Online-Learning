@@ -37,8 +37,6 @@ export default function ClassStudentVideos() {
                     watched: idx % 2 === 0, // 짝수 인덱스 영상은 시청 완료로 표시 (임시)
                 }));
 
-                console.log(mapped);
-
                 setVideos(mapped);
             } catch (err) {
                 console.error("강의 영상 목록 조회 실패:", err);
@@ -46,21 +44,21 @@ export default function ClassStudentVideos() {
         })();
     }, [courseId]);
 
-    // ISO 8601 형식의 길이를 "MM:SS" 또는 "H시간 MM:SS"로 변환
+    // ISO 8601 형식의 길이를 "HH:MM:SS"로 변환
     const formatDuration = (isoDuration) => {
         if (!isoDuration) return "-";
+
         const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
         if (!match) return "-";
+
         const hours = parseInt(match[1] || "0", 10);
         const minutes = parseInt(match[2] || "0", 10);
         const seconds = parseInt(match[3] || "0", 10);
 
-        if (hours) {
-            const mm = minutes.toString().padStart(2, "0");
-            const ss = seconds.toString().padStart(2, "0");
-            return `${hours}시간 ${mm}:${ss}`;
-        }
-        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+        const h = hours.toString().padStart(2, "0");
+        const m = minutes.toString().padStart(2, "0");
+        const s = seconds.toString().padStart(2, "0");
+        return `${h}:${m}:${s}`;
     };
 
     // ISO 문자열을 "YYYY.MM.DD"로 변환

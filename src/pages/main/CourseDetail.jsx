@@ -1,23 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import {
-    Box,
-    Typography,
-    Paper,
-    List,
-    ListItem,
-    ListItemText,
-    Divider,
-    Button,
-    IconButton,
-} from "@mui/material";
+import { Box, Typography, Paper } from "@mui/material";
 import useAuth from "../../hooks/auth/useAuth";
 import {
     cancelEnrollmentAPI,
     enrollCourseAPI,
     getMyEnrollmentsAPI,
 } from "../../api/enrollment";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { getStudentLectureListAPI } from "../../api/lecture";
 import BackButton from "../../components/common/BackButton";
 import CourseInfoBoxes from "../../components/common/CourseInfoBoxes";
