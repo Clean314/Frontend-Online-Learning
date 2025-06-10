@@ -40,7 +40,6 @@ export default function ClassStudentExams() {
                 hasTaken: true,
                 score: 85,
                 totalScore: 100,
-                timeLimit: 3600, // 초 단위 (1시간)
             },
             {
                 id: 2,
@@ -50,7 +49,16 @@ export default function ClassStudentExams() {
                 hasTaken: false,
                 score: null,
                 totalScore: 50,
-                timeLimit: 1800, // 초 단위 (30분)
+            },
+            // 테스트용 임시 데이터: 오늘 06-10 오전 8:30 ~ 오후 11:59
+            {
+                id: 3,
+                title: "테스트 시험",
+                startTime: "2025-06-10T08:30:00",
+                endTime: "2025-06-10T23:59:00",
+                hasTaken: false,
+                score: null,
+                totalScore: 100,
             },
         ];
         setTimeout(() => {
@@ -82,16 +90,16 @@ export default function ClassStudentExams() {
     };
 
     const goToExamResult = (exam) => {
-        navigate(`${exam.id}/result`, { state: { exam } });
+        navigate(`${exam.id}/result`, {
+            state: { totalScore: exam.totalScore },
+        });
     };
     const goToTakeExam = (exam) => {
         navigate(`${exam.id}/take`, { state: { exam } });
     };
 
-    // 초 단위 → 분 단위로 변환 (올림)
-    const formatMinutes = (seconds) => {
-        return `${Math.ceil(seconds / 60)}분`;
-    };
+    // 현재 시간
+    const now = new Date();
 
     return (
         <Container maxWidth="lg" sx={{ mb: 4 }}>
@@ -116,7 +124,6 @@ export default function ClassStudentExams() {
                                 <col style={{ width: "10%" }} />
                                 <col style={{ width: "10%" }} />
                                 <col style={{ width: "10%" }} />
-                                <col style={{ width: "10%" }} />
                                 <col style={{ width: "7%" }} />
                             </colgroup>
                             <TableHead>
@@ -124,9 +131,6 @@ export default function ClassStudentExams() {
                                     <TableCell>제목</TableCell>
                                     <TableCell>시작</TableCell>
                                     <TableCell>종료</TableCell>
-                                    <TableCell align="center">
-                                        제한시간
-                                    </TableCell>
                                     <TableCell>상태</TableCell>
                                     <TableCell align="center">
                                         내 점수
@@ -136,65 +140,75 @@ export default function ClassStudentExams() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {exams.map((exam) => (
-                                    <TableRow key={exam.id}>
-                                        <TableCell>{exam.title}</TableCell>
-                                        <TableCell>
-                                            {new Date(
-                                                exam.startTime
-                                            ).toLocaleString()}
-                                        </TableCell>
-                                        <TableCell>
-                                            {new Date(
-                                                exam.endTime
-                                            ).toLocaleString()}
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            {formatMinutes(exam.timeLimit)}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                {...getStatusChipProps(
-                                                    exam.hasTaken
-                                                )}
-                                            />
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            {exam.hasTaken
-                                                ? `${exam.score}점`
-                                                : "-"}
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            {`${exam.totalScore}점`}
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            <Tooltip
-                                                title={
-                                                    exam.hasTaken
-                                                        ? "다시보기"
-                                                        : "응시하기"
-                                                }
-                                            >
-                                                <IconButton
-                                                    color="primary"
-                                                    onClick={() =>
+                                {exams.map((exam) => {
+                                    const start = new Date(exam.startTime);
+                                    const end = new Date(exam.endTime);
+                                    const isAvailable =
+                                        now >= start && now <= end;
+                                    return (
+                                        <TableRow key={exam.id}>
+                                            <TableCell>{exam.title}</TableCell>
+                                            <TableCell>
+                                                {start.toLocaleString()}
+                                            </TableCell>
+                                            <TableCell>
+                                                {end.toLocaleString()}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    {...getStatusChipProps(
                                                         exam.hasTaken
-                                                            ? goToExamResult(
-                                                                  exam
-                                                              )
-                                                            : goToTakeExam(exam)
+                                                    )}
+                                                />
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                {exam.hasTaken
+                                                    ? `${exam.score}점`
+                                                    : "-"}
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                {`${exam.totalScore}점`}
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                <Tooltip
+                                                    title={
+                                                        exam.hasTaken
+                                                            ? "다시보기"
+                                                            : isAvailable
+                                                              ? "응시하기"
+                                                              : "응시 불가"
                                                     }
                                                 >
-                                                    {exam.hasTaken ? (
-                                                        <HistoryIcon />
-                                                    ) : (
-                                                        <PlayArrowIcon />
-                                                    )}
-                                                </IconButton>
-                                            </Tooltip>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                                    {/* disabled 상태에서도 span이 이벤트를 전달해 줍니다 */}
+                                                    <span>
+                                                        <IconButton
+                                                            color="primary"
+                                                            onClick={() =>
+                                                                exam.hasTaken
+                                                                    ? goToExamResult(
+                                                                          exam
+                                                                      )
+                                                                    : goToTakeExam(
+                                                                          exam
+                                                                      )
+                                                            }
+                                                            disabled={
+                                                                !exam.hasTaken &&
+                                                                !isAvailable
+                                                            }
+                                                        >
+                                                            {exam.hasTaken ? (
+                                                                <HistoryIcon />
+                                                            ) : (
+                                                                <PlayArrowIcon />
+                                                            )}
+                                                        </IconButton>
+                                                    </span>
+                                                </Tooltip>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
                                 {exams.length === 0 && (
                                     <TableRow>
                                         <TableCell colSpan={7} align="center">

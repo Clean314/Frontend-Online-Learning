@@ -20,15 +20,24 @@ dayjs.locale("ko");
 export default function ExamFormPage() {
     const { courseId, examId } = useParams();
     const navigate = useNavigate();
-
     const location = useLocation();
-    const existingExam = location.state?.exam; // 상위에서 넘겨준 exam 데이터
+    const existingExam = location.state?.exam;
 
     const isEditMode = Boolean(examId);
+
+    // ─── 기본값을 모드에 따라 분기 설정 ─────────────────────────────────────────
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [startTime, setStartTime] = useState(dayjs());
-    const [endTime, setEndTime] = useState(dayjs().add(1, "hour"));
+    const [startTime, setStartTime] = useState(
+        !isEditMode
+            ? dayjs().add(1, "day") // 새 시험 생성 시: 내일
+            : dayjs() // 수정 모드: 초기값(로딩 중 스피너)
+    );
+    const [endTime, setEndTime] = useState(
+        !isEditMode
+            ? dayjs().add(1, "day").add(1, "hour") // 새 시험 생성 시: 내일 + 1시간
+            : dayjs().add(1, "hour") // 수정 모드: 초기값(로딩 중 스피너)
+    );
     const [loading, setLoading] = useState(isEditMode);
     const [error, setError] = useState("");
 
@@ -43,12 +52,27 @@ export default function ExamFormPage() {
     }, [isEditMode, existingExam]);
 
     const handleSubmit = async () => {
+        setError("");
+
         if (!title.trim()) {
             setError("제목을 입력해주세요.");
             return;
         }
+        // 시작 시각은 반드시 현재 시각 이후여야 함
+        if (startTime.isBefore(dayjs())) {
+            setError("시작 시각은 현재 시각보다 이후여야 합니다.");
+            return;
+        }
+        // 종료 시각은 시작 시각 이후여야 함
         if (endTime.isBefore(startTime)) {
             setError("종료 시각은 시작 시각보다 이후여야 합니다.");
+            return;
+        }
+        // 종료 시각은 시작 시각으로부터 최대 6시간 이내여야 함
+        if (endTime.isAfter(startTime.add(6, "hour"))) {
+            setError(
+                "종료 시각은 시작 시각으로부터 6시간을 초과할 수 없습니다."
+            );
             return;
         }
 
@@ -60,10 +84,10 @@ export default function ExamFormPage() {
         };
 
         if (isEditMode) {
-            // TODO: API 호출 구현 필요 (updateExamAPI)
+            // TODO: updateExamAPI 호출
             console.log("수정 데이터:", payload);
         } else {
-            // TODO: API 호출 구현 필요 (createExamAPI)
+            // TODO: createExamAPI 호출
             console.log("생성 데이터:", payload);
         }
         navigate(`/courses/${courseId}/classroom/teach/exams`);
@@ -111,7 +135,6 @@ export default function ExamFormPage() {
                                     slotProps={{
                                         textField: { fullWidth: true },
                                         dialog: {
-                                            // 포커스 트랩 기능 비활성화
                                             disableEnforceFocus: true,
                                             disableRestoreFocus: true,
                                         },
@@ -126,7 +149,6 @@ export default function ExamFormPage() {
                                     slotProps={{
                                         textField: { fullWidth: true },
                                         dialog: {
-                                            // 포커스 트랩 기능 비활성화
                                             disableEnforceFocus: true,
                                             disableRestoreFocus: true,
                                         },

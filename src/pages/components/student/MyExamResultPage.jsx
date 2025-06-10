@@ -10,36 +10,42 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import BackButton from "../../../components/common/BackButton";
 
 export default function MyExamResultPage() {
-    const { courseId, examId } = useParams();
+    const { courseId, examId, studentId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
-    const { exam } = location.state || {};
+    const { totalScore } = location.state || {};
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [results, setResults] = useState([]);
 
-    // 임시 질문 데이터: question_id → 선택지 맵핑 (모두 3개 이상)
+    // 뒤로가기 로직
+    const handleBack = () => {
+        const path = location.pathname;
+        if (path.includes("/learn/")) {
+            navigate(`/courses/${courseId}/classroom/learn/exams`);
+        } else if (path.includes("/teach/")) {
+            navigate(`/courses/${courseId}/classroom/teach/exams/${examId}`);
+        } else {
+            navigate(-1);
+        }
+    };
+
+    // 임시 질문 데이터
     const dummyQuestions = {
-        1001: {
-            1: "상태 관리",
-            2: "렌더링 최적화",
-            3: "DOM 조작",
-        },
-        1002: {
-            1: "String",
-            2: "int",
-            3: "예외 처리",
-        },
+        1001: { 1: "상태 관리", 2: "렌더링 최적화", 3: "DOM 조작" },
+        1002: { 1: "String", 2: "int", 3: "예외 처리" },
         1007: {
             1: "성공(200)",
             2: "클라이언트 오류(404)",
-            3: "서버 오류(500)", // 세 번째 선택지 추가
+            3: "서버 오류(500)",
         },
     };
 
     useEffect(() => {
-        // TODO: API 호출 구현 필요 (getExamResultsAPI)
+        // TODO: API 호출 구현 필요
+
+        // 임시 데이터 활용
         const dummyResults = [
             {
                 userId: 501,
@@ -196,7 +202,7 @@ export default function MyExamResultPage() {
             setResults(dummyResults);
             setLoading(false);
         }, 500);
-    }, [courseId, examId]);
+    }, [courseId, examId, studentId]);
 
     if (loading) {
         return (
@@ -213,15 +219,18 @@ export default function MyExamResultPage() {
         );
     }
 
-    // TODO: 실제 로그인된 사용자 ID로 교체 필요
+    // TODO: 실제 로그인된 사용자 ID로 대체
     const currentUserId = 501;
-    const myResult = results.find((r) => r.userId === currentUserId);
+    // URL에 studentId가 있으면 그걸 사용, 없으면 내 ID 사용
+    // const targetUserId = studentId ? Number(studentId) : currentUserId;
+    const targetUserId = currentUserId;
+    const myResult = results.find((r) => r.userId === targetUserId);
 
     if (!myResult) {
         return (
             <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
                 <Paper sx={{ p: 3 }}>
-                    <Typography>아직 응시 기록이 없습니다.</Typography>
+                    <Typography>응시 기록이 없습니다.</Typography>
                 </Paper>
             </Container>
         );
@@ -232,12 +241,16 @@ export default function MyExamResultPage() {
     return (
         <Container maxWidth="lg" sx={{ mb: 4 }}>
             <Paper sx={{ p: 3 }}>
-                <Box display={"flex"} gap={1} alignItems={"center"} mb={2}>
-                    <BackButton onClick={() => navigate(-1)} />
-                    <Typography variant="h5">내 시험 결과</Typography>
+                <Box display="flex" gap={1} alignItems="center" mb={2}>
+                    <BackButton onClick={handleBack} />
+                    <Typography variant="h5">
+                        {studentId
+                            ? `${myResult.username}님의 성적`
+                            : "내 시험 결과"}
+                    </Typography>
                     <Typography variant="subtitle1">
                         : {myResult.score}점 &nbsp;/&nbsp;
-                        {exam?.totalScore ?? "-"}점
+                        {totalScore ?? "-"}점
                     </Typography>
                 </Box>
 
@@ -255,7 +268,6 @@ export default function MyExamResultPage() {
                         displayResponse = tfLabel(item.response);
                         displayAnswer = tfLabel(item.answer);
                     } else if (item.type === "MULTIPLE_CHOICE") {
-                        // TODO: question_id를 이용해 getQuestionByIdAPI 호출 후 실제 선택지 데이터 사용
                         const choices = dummyQuestions[item.question_id] || {};
                         displayResponse = `${item.response}. ${choices[item.response] || ""}`;
                         displayAnswer = `${item.answer}. ${choices[item.answer] || ""}`;
@@ -269,7 +281,6 @@ export default function MyExamResultPage() {
                             <Typography variant="body2" mb={1}>
                                 {item.content}
                             </Typography>
-
                             {(item.type === "MULTIPLE_CHOICE" ||
                                 item.type === "TRUE_FALSE") && (
                                 <Typography

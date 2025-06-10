@@ -11,6 +11,7 @@ import CurriculumForm from "../pages/common/CurriculumForm";
 import QuestionFormPage from "../pages/components/educator/QuestionFormPage";
 import AllStudentScoresPage from "../pages/components/educator/AllStudentScoresPage";
 import QuestionDetailPage from "../pages/components/educator/QuestionDetailPage";
+import MyExamResultPage from "../pages/components/student/MyExamResultPage";
 
 export default function EducatorClassRoutes() {
     return (
@@ -31,6 +32,10 @@ export default function EducatorClassRoutes() {
                 <Route
                     path="exams/:examId/scores"
                     element={<AllStudentScoresPage />}
+                />
+                <Route
+                    path="exams/:examId/scores/:studentId"
+                    element={<MyExamResultPage />}
                 />
                 <Route
                     path="exams/:examId/questions"

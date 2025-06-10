@@ -15,14 +15,12 @@ import {
     CircularProgress,
     Tooltip,
     Chip,
-    useTheme, // Chip 컴포넌트 임포트
 } from "@mui/material";
 import {
     Add as AddIcon,
     Edit as EditIcon,
     Delete as DeleteIcon,
     Publish as PublishIcon,
-    Unpublished as UnpublishedIcon,
     ListAlt as QuestionIcon,
     BarChart as BarChartIcon,
 } from "@mui/icons-material";
@@ -37,8 +35,7 @@ export default function ClassEducatorExams() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // TODO: API 호출 구현 필요 (getExamListAPI)
-        // 임시 데이터로 화면 렌더링 테스트
+        // TODO: getExamListAPI 호출 구현
         const dummyExams = [
             {
                 id: 1,
@@ -48,7 +45,7 @@ export default function ClassEducatorExams() {
                 endTime: "2025-06-10T11:00:00",
                 status: "COMPLETED",
                 questionCount: 10,
-                participants: 35,
+                totalScore: 50, // 총점 (100 이하)
             },
             {
                 id: 2,
@@ -58,6 +55,7 @@ export default function ClassEducatorExams() {
                 endTime: "2025-07-15T16:00:00",
                 status: "PREPARED",
                 questionCount: 20,
+                totalScore: 100,
             },
             {
                 id: 3,
@@ -67,7 +65,7 @@ export default function ClassEducatorExams() {
                 endTime: "2025-08-01T10:00:00",
                 status: "IN_PROGRESS",
                 questionCount: 15,
-                participants: 0,
+                totalScore: 80,
             },
             {
                 id: 4,
@@ -77,7 +75,7 @@ export default function ClassEducatorExams() {
                 endTime: "2025-09-05T15:00:00",
                 status: "IN_PROGRESS",
                 questionCount: 25,
-                participants: 12,
+                totalScore: 90,
             },
         ];
         setTimeout(() => {
@@ -88,11 +86,10 @@ export default function ClassEducatorExams() {
 
     const handleDelete = async (examId) => {
         if (!window.confirm("정말 이 시험을 삭제하시겠습니까?")) return;
-        // TODO: API 호출 구현 필요 (deleteExamAPI)
+        // TODO: deleteExamAPI 호출 구현
         setExams((prev) => prev.filter((e) => e.id !== examId));
     };
 
-    // 상태에 따라 Chip 색상을 매핑하는 헬퍼 함수
     const getStatusChipProps = (status) => {
         switch (status) {
             case "PREPARED":
@@ -127,29 +124,12 @@ export default function ClassEducatorExams() {
         }
     };
 
-    // 시험 게시 : PREPARED -> IN_PROGUESSS
     const handlePublish = async (examId) => {
         if (window.confirm("시험을 게시하시겠습니까?")) {
-            // TODO: 시험 상태를 PREPARED에서 IN_PROGRESS로 변경하는 API 호출 구현 필요
-            console.log(`시험 ${examId} 상태를 IN_PROGRESS로 변경 요청`);
+            // TODO: 상태 변경 API 호출
             setExams((prev) =>
                 prev.map((e) =>
                     e.id === examId ? { ...e, status: "IN_PROGRESS" } : e
-                )
-            );
-        }
-    };
-
-    // 시험 게시 철회 : IN_PROGUESS -> PREPARED
-    const handleWithdraw = async (examId) => {
-        if (window.confirm("시험 게시를 철회하시겠습니까?")) {
-            // TODO: 시험 상태를 IN_PROGRESS에서 PREPARED로 변경하는 API 호출 구현 필요
-            console.log(`시험 ${examId} 상태를 PREPARED로 변경 요청`);
-            setExams((prev) =>
-                prev.map((e) =>
-                    e.id === examId
-                        ? { ...e, status: "PREPARED", participants: 0 }
-                        : e
                 )
             );
         }
@@ -168,7 +148,7 @@ export default function ClassEducatorExams() {
                     <Button
                         variant="contained"
                         startIcon={<AddIcon />}
-                        onClick={() => navigate(`new`)}
+                        onClick={() => navigate("new")}
                     >
                         새 시험 생성
                     </Button>
@@ -184,13 +164,13 @@ export default function ClassEducatorExams() {
                     <TableContainer>
                         <Table>
                             <colgroup>
-                                <col style={{ width: "8%" }} />
+                                <col style={{ width: "10%" }} />
                                 <col style={{ width: "13%" }} />
                                 <col style={{ width: "12%" }} />
                                 <col style={{ width: "12%" }} />
-                                <col style={{ width: "8%" }} />
                                 <col style={{ width: "7%" }} />
-                                <col style={{ width: "9%" }} />
+                                <col style={{ width: "8%" }} />
+                                <col style={{ width: "8%" }} />
                                 <col style={{ width: "12%" }} />
                             </colgroup>
                             <TableHead>
@@ -201,34 +181,27 @@ export default function ClassEducatorExams() {
                                     <TableCell>종료</TableCell>
                                     <TableCell>상태</TableCell>
                                     <TableCell align="center">문제수</TableCell>
-                                    <TableCell align="center">
-                                        응시자 수
-                                    </TableCell>
+                                    <TableCell align="center">총점</TableCell>
                                     <TableCell align="center">작업</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {exams.map((exam) => (
                                     <TableRow key={exam.id}>
-                                        {/* 시험 제목 */}
                                         <TableCell>{exam.title}</TableCell>
-                                        {/* 시험 설명 */}
                                         <TableCell>
                                             {exam.description}
                                         </TableCell>
-                                        {/* 시험 시작 시각 */}
                                         <TableCell>
                                             {new Date(
                                                 exam.startTime
                                             ).toLocaleString()}
                                         </TableCell>
-                                        {/* 시험 종료 시각 */}
                                         <TableCell>
                                             {new Date(
                                                 exam.endTime
                                             ).toLocaleString()}
                                         </TableCell>
-                                        {/* 시험 상태을 Chip으로 표시 */}
                                         <TableCell>
                                             <Chip
                                                 {...getStatusChipProps(
@@ -237,21 +210,12 @@ export default function ClassEducatorExams() {
                                                 size="medium"
                                             />
                                         </TableCell>
-                                        {/* 시험 문제수 */}
                                         <TableCell align="center">
                                             {exam.questionCount}
                                         </TableCell>
-                                        {/* 응시자 수 */}
                                         <TableCell align="center">
-                                            {(exam.status === "COMPLETED" ||
-                                                exam.status ===
-                                                    "IN_PROGRESS") &&
-                                            typeof exam.participants ===
-                                                "number"
-                                                ? exam.participants
-                                                : "-"}
+                                            {exam.totalScore}점
                                         </TableCell>
-                                        {/* 시험 관련 작업 버튼 */}
                                         <TableCell align="center">
                                             <Tooltip title="문제 관리">
                                                 <IconButton
@@ -311,44 +275,20 @@ export default function ClassEducatorExams() {
                                                     </Tooltip>
                                                 </>
                                             )}
-
-                                            {exam.status === "IN_PROGRESS" && (
-                                                <>
-                                                    {exam.participants === 0 ? (
-                                                        <Tooltip title="게시 철회">
-                                                            <IconButton
-                                                                color="warning"
-                                                                onClick={() =>
-                                                                    handleWithdraw(
-                                                                        exam.id
-                                                                    )
-                                                                }
-                                                            >
-                                                                <UnpublishedIcon />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    ) : (
-                                                        <Tooltip title="전체 응시자 성적 조회">
-                                                            <IconButton
-                                                                onClick={() =>
-                                                                    navigate(
-                                                                        `${exam.id}/scores`
-                                                                    )
-                                                                }
-                                                            >
-                                                                <BarChartIcon />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    )}
-                                                </>
-                                            )}
-
-                                            {exam.status === "COMPLETED" && (
+                                            {(exam.status === "IN_PROGRESS" ||
+                                                exam.status ===
+                                                    "COMPLETED") && (
                                                 <Tooltip title="전체 응시자 성적 조회">
                                                     <IconButton
                                                         onClick={() =>
                                                             navigate(
-                                                                `${exam.id}/scores`
+                                                                `${exam.id}/scores`,
+                                                                {
+                                                                    state: {
+                                                                        totalScore:
+                                                                            exam.totalScore,
+                                                                    },
+                                                                }
                                                             )
                                                         }
                                                     >
@@ -361,7 +301,7 @@ export default function ClassEducatorExams() {
                                 ))}
                                 {exams.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={7} align="center">
+                                        <TableCell colSpan={8} align="center">
                                             등록된 시험이 없습니다.
                                         </TableCell>
                                     </TableRow>

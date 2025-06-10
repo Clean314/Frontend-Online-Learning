@@ -12,7 +12,7 @@ import {
     CircularProgress,
     Snackbar,
 } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 
 export default function TakeExamPage() {
@@ -27,11 +27,13 @@ export default function TakeExamPage() {
     const [snackbarMsg, setSnackbarMsg] = useState("");
     const timerRef = useRef(null);
 
+    const location = useLocation();
+    const exam = location.state?.exam;
+
     useEffect(() => {
         // TODO: API 호출 구현 필요 (getQuestionListAPI)
         // 임시 데이터로 화면 렌더링 테스트
         const dummyData = {
-            endTime: "2025-06-10T11:00:00",
             questions: [
                 {
                     id: 201,
@@ -46,12 +48,6 @@ export default function TakeExamPage() {
                     ],
                 },
                 {
-                    id: 202,
-                    content: "CSS Flexbox의 주요 속성 중 하나를 설명하시오.",
-                    type: "ESSAY",
-                    score: 10,
-                },
-                {
                     id: 203,
                     content:
                         "자바의 인터페이스는 다중 구현이 가능한가? 참/거짓으로 답하세요.",
@@ -63,12 +59,14 @@ export default function TakeExamPage() {
 
         setTimeout(() => {
             setQuestions(dummyData.questions);
+
+            const endTimeStr = exam?.endTime;
             const now = dayjs();
-            const end = dayjs(dummyData.endTime);
+            const end = dayjs(endTimeStr);
             setRemainingTime(end.diff(now, "second"));
             setLoading(false);
         }, 500);
-    }, [courseId, examId]);
+    }, [courseId, examId, exam]);
 
     // 남은 시간 카운트다운
     useEffect(() => {
@@ -87,9 +85,15 @@ export default function TakeExamPage() {
     }, [remainingTime]);
 
     const formatTime = (sec) => {
-        const m = String(Math.floor(sec / 60)).padStart(2, "0");
-        const s = String(sec % 60).padStart(2, "0");
-        return `${m}:${s}`;
+        const h = Math.floor(sec / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        const s = sec % 60;
+
+        const hh = String(h).padStart(2, "0");
+        const mm = String(m).padStart(2, "0");
+        const ss = String(s).padStart(2, "0");
+
+        return `${hh}시간 ${mm}분 ${ss}초`;
     };
 
     const handleAnswerChange = (questionId, value) => {
@@ -103,16 +107,34 @@ export default function TakeExamPage() {
                 response: answers[q.id] || "",
             })),
         };
+
         if (!auto) {
+            // 자동 제출이 아닐 때, 미응답 문항이 있는지 확인
+            const unanswered = questions.filter((q) => !answers[q.id]);
+            if (unanswered.length > 0) {
+                // 첫 번째 미응답 문항 번호를 알려주고 멈춤
+                const firstIdx = questions.findIndex((q) => !answers[q.id]);
+                alert(`문제 ${firstIdx + 1}에 대한 답변을 입력해주세요.`);
+                return;
+            }
+
             // TODO: API 호출 구현 필요 (submitExamAPI)
             console.log("제출 데이터:", payload);
+
             setSnackbarMsg("응시가 정상적으로 제출되었습니다.");
             setTimeout(
-                () => navigate(`/courses/${courseId}/exams/${examId}/results`),
+                () =>
+                    navigate(
+                        `/courses/${courseId}/classroom/learn/exams/${examId}/result`,
+                        { state: { totalScore: exam.totalScore } }
+                    ),
                 1500
             );
         } else {
-            navigate(`/courses/${courseId}/exams/${examId}/results`);
+            navigate(
+                `/courses/${courseId}/classroom/learn/exams/${examId}/result`,
+                { state: { totalScore: exam.totalScore } }
+            );
         }
     };
 
@@ -133,7 +155,7 @@ export default function TakeExamPage() {
     }
 
     return (
-        <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+        <Container maxWidth="md" sx={{ mb: 4 }}>
             <Paper sx={{ p: 3 }}>
                 <Box
                     display="flex"
@@ -196,19 +218,6 @@ export default function TakeExamPage() {
                                 />
                             </RadioGroup>
                         )}
-
-                        {q.type === "ESSAY" && (
-                            <TextField
-                                multiline
-                                rows={4}
-                                placeholder="주관식 답안을 입력하세요."
-                                value={answers[q.id] || ""}
-                                onChange={(e) =>
-                                    handleAnswerChange(q.id, e.target.value)
-                                }
-                                fullWidth
-                            />
-                        )}
                     </Box>
                 ))}
 
@@ -228,6 +237,22 @@ export default function TakeExamPage() {
                 message={snackbarMsg}
                 autoHideDuration={2000}
                 onClose={() => setSnackbarMsg("")}
+                // 화면 가로 정중앙
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                // 스타일 오버라이드: Snackbar 루트(top 위치)를 50%로 올린 다음, translateY로 정확히 중앙으로
+                sx={{
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                }}
+                slotProps={{
+                    content: {
+                        sx: {
+                            bgcolor: "rgba(0, 0, 0, 0.8)",
+                            color: "#fff",
+                            px: 2,
+                        },
+                    },
+                }}
             />
         </Container>
     );
