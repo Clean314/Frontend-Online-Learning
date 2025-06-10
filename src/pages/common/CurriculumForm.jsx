@@ -1,4 +1,3 @@
-// src/components/curriculum/CurriculumForm.jsx
 import { useState, useEffect } from "react";
 import { Box, Paper, Button, CircularProgress } from "@mui/material";
 import {
@@ -158,14 +157,20 @@ export default function CurriculumForm() {
                 const msgText =
                     typeof msg === "string" ? msg : JSON.stringify(msg);
 
-                // "이미 등록된 강의 제목입니다."로 시작하면 제목 중복 오류
-                if (msgText.includes("이미 등록된 강의 제목입니다")) {
+                // "중복된 내용입니다"로 시작하면 제목, URL 둘다 중복 오류
+                if (msgText.includes("중복된 내용입니다")) {
+                    alert(
+                        "오류: 이미 등록된 강의 제목과 URL이 존재합니다.\n다른 제목과 URL을 입력해주세요."
+                    );
+                }
+                // "이미 등록된 강의 제목입니다"로 시작하면 URL 중복 오류
+                else if (msgText.includes("이미 등록된 강의 제목입니다")) {
                     alert(
                         "오류: 이미 등록된 강의 제목이 존재합니다.\n다른 제목을 입력해주세요."
                     );
                 }
-                // "이미 등록된 URL입니다."로 시작하면 URL 중복 오류
-                else if (msgText.includes("이미 등록된 URL입니다")) {
+                // "이미 등록된 강의 주소입니다"로 시작하면 URL 중복 오류
+                else if (msgText.includes("이미 등록된 강의 주소입니다")) {
                     alert(
                         "오류: 이미 등록된 영상 URL이 존재합니다.\n다른 URL을 입력해주세요."
                     );
