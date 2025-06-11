@@ -5,10 +5,12 @@ import {
     Paper,
     Card,
     LinearProgress,
+    CircularProgress,
     Divider,
     ListItemText,
     List,
     ListItem,
+    Chip,
 } from "@mui/material";
 import { alpha, styled, useTheme } from "@mui/material/styles";
 import {
@@ -37,44 +39,41 @@ export default function ClassStudentDashboard() {
             "이 강의는 React의 기초 문법부터 고급 Hooks 사용법까지 다룹니다.",
     });
 
-    // 남은 수강일 & 내 진행률 (임시 데이터)
-    const [stats] = useState({
-        remainingDays: 30, // TODO: API 연동 후 실제 남은 일수로 대체
-        myProgressRate: 45, // TODO: API 연동 후 실제 내 진행률로 대체 (%)
-    });
-
-    // 강의 일정 캘린더 상태
-    const [selectedDate, setSelectedDate] = useState(dayjs());
-    const [viewDate, setViewDate] = useState(dayjs());
-
-    // TODO: API 연동 후 courseInfo, stats, lectureEvents 업데이트
-    useEffect(() => {}, []);
-
+    // 시험 일정 (임시 데이터)
     const lectureEvents = [
         {
-            start: new Date(2025, 4, 20),
-            end: new Date(2025, 4, 20),
-            label: "개강",
-        },
-        {
-            start: new Date(2025, 4, 27),
-            end: new Date(2025, 5, 3),
+            start: new Date(2025, 4, 27, 10, 0), // 2025-05-27 10:00
+            end: new Date(2025, 4, 27, 15, 0), // 2025-05-27 15:00 (5시간 차이)
             label: "중간고사",
         },
         {
-            start: new Date(2025, 5, 10),
-            end: new Date(2025, 5, 17),
+            start: new Date(2025, 6, 10, 14, 0), // 2025-07-10 14:00
+            end: new Date(2025, 6, 10, 19, 0), // 2025-07-10 19:00 (5시간 차이)
             label: "기말고사",
         },
-        {
-            start: new Date(2025, 6, 30),
-            end: new Date(2025, 6, 30),
-            label: "종강",
-        },
     ];
-    const startEvent = lectureEvents.find((e) => e.label === "개강");
-    const endEvent = lectureEvents.find((e) => e.label === "종강");
 
+    const today = dayjs();
+
+    // 다음 시험 자동 선택
+    const upcoming = lectureEvents
+        .filter((e) => dayjs(e.end).isAfter(today, "minute"))
+        .sort((a, b) => dayjs(a.start).diff(dayjs(b.start)));
+    const nextExam = upcoming[0] || null;
+
+    // D-Day 계산
+    const daysUntilNextExam = nextExam
+        ? dayjs(nextExam.start).diff(today, "day")
+        : null;
+
+    // 진행률 (임시)
+    const [myProgressRate] = useState(45);
+
+    // 캘린더 상태
+    const [selectedDate, setSelectedDate] = useState(today);
+    const [viewDate, setViewDate] = useState(today);
+
+    // 이번 달 이벤트
     const monthStart = dayjs(viewDate).startOf("month");
     const monthEnd = dayjs(viewDate).endOf("month");
     const monthEvents = lectureEvents.filter(
@@ -142,31 +141,19 @@ export default function ClassStudentDashboard() {
 
     return (
         <Paper sx={{ p: 3 }}>
-            {/* 상단 헤더 (편집 버튼 제거) */}
+            {/* 헤더 */}
             <Box
                 display="flex"
                 alignItems="center"
                 justifyContent="space-between"
                 sx={{ borderBottom: 1, borderColor: "divider", pb: 1, mb: 3 }}
             >
-                <Box display={"flex"} gap={1} alignItems={"flex-end"}>
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                        {courseInfo.title}
-                    </Typography>
-                    {startEvent && endEvent && (
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ ml: 1, verticalAlign: "middle" }}
-                        >
-                            {dayjs(startEvent.start).format("YYYY.MM.DD")} ~
-                            {dayjs(endEvent.end).format("YYYY.MM.DD")}
-                        </Typography>
-                    )}
-                </Box>
+                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    {courseInfo.title}
+                </Typography>
             </Box>
 
-            {/* 강의 기본 정보 */}
+            {/* 기본 정보 */}
             <Box display="flex" gap={2} mb={3}>
                 {[
                     { label: "강사명", value: courseInfo.instructor },
@@ -177,10 +164,7 @@ export default function ClassStudentDashboard() {
                         key={item.label}
                         sx={{
                             flex: 1,
-                            bgcolor:
-                                theme.palette.mode === "dark"
-                                    ? theme.palette.grey[800]
-                                    : theme.palette.grey[100],
+                            bgcolor: theme.palette.grey[100],
                             p: 2,
                             borderRadius: 1,
                             textAlign: "center",
@@ -203,16 +187,16 @@ export default function ClassStudentDashboard() {
                 ))}
             </Box>
 
-            {/* 강의 소개 */}
+            {/* 소개 */}
             <Typography variant="body1" color="text.secondary" mb={4}>
                 {courseInfo.description}
             </Typography>
 
             <Divider sx={{ mb: 3 }} />
 
-            {/* 남은 수강일 & 내 진행률 */}
+            {/* 진행률 */}
             <Box display="flex" gap={10} mb={5}>
-                {/* 남은 수강일 */}
+                {/* 다음 시험 D-Day + 정보 */}
                 <Box
                     sx={{ flex: 1 }}
                     display="flex"
@@ -221,18 +205,30 @@ export default function ClassStudentDashboard() {
                 >
                     <ScheduleIcon sx={{ fontSize: 40, flex: 1 }} />
                     <Box sx={{ flex: 3 }}>
-                        <Typography variant="overline">남은 수강일</Typography>
-                        <Typography variant="h6">
-                            {stats.remainingDays}일
+                        <Typography variant="overline">
+                            다음 시험까지
                         </Typography>
-                        <LinearProgress
-                            variant="determinate"
-                            value={Math.max(0, stats.remainingDays)}
-                            sx={{ mt: 1, height: 8, borderRadius: 4 }}
-                        />
+                        <Typography variant="h6">
+                            {daysUntilNextExam == null
+                                ? "-"
+                                : `D-${daysUntilNextExam}`}
+                        </Typography>
+                        {nextExam && (
+                            <Chip
+                                label={`${nextExam.label} ${dayjs(
+                                    nextExam.start
+                                ).format("MM월 DD일 HH:mm")}`}
+                                size="small"
+                                sx={{
+                                    mt: 0.5,
+                                    bgcolor: "#B2EBF2",
+                                    color: "#004D40",
+                                    fontWeight: 500,
+                                }}
+                            />
+                        )}
                     </Box>
                 </Box>
-                {/* 내 강의 진행률 */}
                 <Box
                     sx={{ flex: 1 }}
                     display="flex"
@@ -244,12 +240,10 @@ export default function ClassStudentDashboard() {
                         <Typography variant="overline">
                             내 강의 진행률
                         </Typography>
-                        <Typography variant="h6">
-                            {stats.myProgressRate}%
-                        </Typography>
+                        <Typography variant="h6">{myProgressRate}%</Typography>
                         <LinearProgress
                             variant="determinate"
-                            value={stats.myProgressRate}
+                            value={myProgressRate}
                             sx={{ mt: 1, height: 8, borderRadius: 4 }}
                         />
                     </Box>
@@ -258,7 +252,7 @@ export default function ClassStudentDashboard() {
 
             <Divider sx={{ mb: 3 }} />
 
-            {/* 강의 일정 캘린더 (기존 코드 유지) */}
+            {/* 일정 캘린더 */}
             <Card elevation={1} sx={{ p: 2 }}>
                 <Typography variant="h6" gutterBottom>
                     강의 일정
@@ -269,17 +263,17 @@ export default function ClassStudentDashboard() {
                         adapterLocale="ko"
                     >
                         <StaticDatePicker
+                            displayStaticWrapperAs="desktop"
+                            value={selectedDate}
+                            onChange={(newDate) => setSelectedDate(newDate)}
+                            onMonthChange={(newView) => setViewDate(newView)}
+                            slots={{ day: CustomDay }}
                             slotProps={{
                                 actionBar: { actions: [] },
                                 day: {
                                     sx: { "--PickersDay-daySpacing": "0px" },
                                 },
                             }}
-                            displayStaticWrapperAs="desktop"
-                            value={selectedDate}
-                            onChange={(newDate) => setSelectedDate(newDate)}
-                            onMonthChange={(newView) => setViewDate(newView)}
-                            slots={{ day: CustomDay }}
                             sx={{ "--PickersDay-daySpacing": "0px" }}
                         />
                     </LocalizationProvider>
@@ -302,20 +296,8 @@ export default function ClassStudentDashboard() {
                                             <ListItemText
                                                 primary={
                                                     sameDay
-                                                        ? `${dayjs(
-                                                              start
-                                                          ).format(
-                                                              "MM월 DD일 (ddd)"
-                                                          )} — ${label}`
-                                                        : `${dayjs(
-                                                              start
-                                                          ).format(
-                                                              "MM월 DD일 (ddd)"
-                                                          )} ~ ${dayjs(
-                                                              end
-                                                          ).format(
-                                                              "MM월 DD일 (ddd)"
-                                                          )} — ${label}`
+                                                        ? `${dayjs(start).format("MM월 DD일 (ddd)")} — ${label}`
+                                                        : `${dayjs(start).format("MM월 DD일 (ddd)")} ~ ${dayjs(end).format("MM월 DD일 (ddd)")} — ${label}`
                                                 }
                                             />
                                         </ListItem>
@@ -323,7 +305,11 @@ export default function ClassStudentDashboard() {
                                 })}
                             </List>
                         ) : (
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                mt={2}
+                            >
                                 해당 월에 일정이 없습니다.
                             </Typography>
                         )}

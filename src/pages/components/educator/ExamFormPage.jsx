@@ -15,6 +15,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
+import { createExamAPI, updateExamAPI } from "../../../api/exam";
 dayjs.locale("ko");
 
 export default function ExamFormPage() {
@@ -25,7 +26,7 @@ export default function ExamFormPage() {
 
     const isEditMode = Boolean(examId);
 
-    // ─── 기본값을 모드에 따라 분기 설정 ─────────────────────────────────────────
+    // ─── 기본값을 모드에 따라 분기 설정 ──────
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [startTime, setStartTime] = useState(
@@ -58,39 +59,39 @@ export default function ExamFormPage() {
             setError("제목을 입력해주세요.");
             return;
         }
-        // 시작 시각은 반드시 현재 시각 이후여야 함
-        if (startTime.isBefore(dayjs())) {
-            setError("시작 시각은 현재 시각보다 이후여야 합니다.");
-            return;
-        }
         // 종료 시각은 시작 시각 이후여야 함
         if (endTime.isBefore(startTime)) {
             setError("종료 시각은 시작 시각보다 이후여야 합니다.");
-            return;
-        }
-        // 종료 시각은 시작 시각으로부터 최대 6시간 이내여야 함
-        if (endTime.isAfter(startTime.add(6, "hour"))) {
-            setError(
-                "종료 시각은 시작 시각으로부터 6시간을 초과할 수 없습니다."
-            );
             return;
         }
 
         const payload = {
             title,
             description,
-            startTime: startTime.toISOString(),
-            endTime: endTime.toISOString(),
+            start_time: startTime.toISOString(),
+            end_time: endTime.toISOString(),
+
+            // 수정 모드일 경우, status 필드 추가
+            ...(isEditMode && { status: existingExam.status }),
         };
 
-        if (isEditMode) {
-            // TODO: updateExamAPI 호출
-            console.log("수정 데이터:", payload);
-        } else {
-            // TODO: createExamAPI 호출
-            console.log("생성 데이터:", payload);
+        try {
+            if (isEditMode) {
+                await updateExamAPI(Number(courseId), Number(examId), payload);
+                console.log("수정 데이터:", payload);
+            } else {
+                await createExamAPI(Number(courseId), payload);
+                console.log("생성 데이터:", payload);
+            }
+            navigate(`/courses/${courseId}/classroom/teach/exams`);
+        } catch (err) {
+            console.error("시험 저장 실패:", err);
+
+            const serverMsg = err.response?.data;
+            setError(
+                serverMsg ?? "시험 저장 중 알 수 없는 오류가 발생했습니다."
+            );
         }
-        navigate(`/courses/${courseId}/classroom/teach/exams`);
     };
 
     return (

@@ -20,6 +20,7 @@ import {
     History as HistoryIcon,
 } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
+import { getStudentExamListAPI } from "../../../api/exam";
 
 export default function ClassStudentExams() {
     const { courseId } = useParams();
@@ -30,41 +31,19 @@ export default function ClassStudentExams() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // TODO: API 호출 구현 필요 (getStudentExamListAPI)
-        const dummyExams = [
-            {
-                id: 1,
-                title: "중간고사",
-                startTime: "2025-06-10T10:00:00",
-                endTime: "2025-06-10T11:00:00",
-                hasTaken: true,
-                score: 85,
-                totalScore: 100,
-            },
-            {
-                id: 2,
-                title: "기말고사",
-                startTime: "2025-07-15T14:00:00",
-                endTime: "2025-07-15T16:00:00",
-                hasTaken: false,
-                score: null,
-                totalScore: 50,
-            },
-            // 테스트용 임시 데이터: 오늘 06-10 오전 8:30 ~ 오후 11:59
-            {
-                id: 3,
-                title: "테스트 시험",
-                startTime: "2025-06-10T08:30:00",
-                endTime: "2025-06-10T23:59:00",
-                hasTaken: false,
-                score: null,
-                totalScore: 100,
-            },
-        ];
-        setTimeout(() => {
-            setExams(dummyExams);
-            setLoading(false);
-        }, 500);
+        async function fetchExams() {
+            try {
+                const data = await getStudentExamListAPI(Number(courseId));
+                setExams(data);
+            } catch (err) {
+                setError(
+                    err.message || "시험 목록 조회 중 오류가 발생했습니다."
+                );
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchExams();
     }, [courseId]);
 
     const getStatusChipProps = (hasTaken) => {

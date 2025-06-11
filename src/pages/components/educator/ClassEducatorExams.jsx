@@ -25,6 +25,7 @@ import {
     BarChart as BarChartIcon,
 } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
+import { getExamListAPI } from "../../../api/exam";
 
 export default function ClassEducatorExams() {
     const { courseId } = useParams();
@@ -34,62 +35,62 @@ export default function ClassEducatorExams() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // 시험 목록 조회
     useEffect(() => {
-        // TODO: getExamListAPI 호출 구현
-        const dummyExams = [
-            {
-                id: 1,
-                title: "중간고사",
-                description: "중간고사 시험.",
-                startTime: "2025-06-10T10:00:00",
-                endTime: "2025-06-10T11:00:00",
-                status: "COMPLETED",
-                questionCount: 10,
-                totalScore: 50, // 총점 (100 이하)
-            },
-            {
-                id: 2,
-                title: "기말고사",
-                description: "기말고사 시험입니다.",
-                startTime: "2025-07-15T14:00:00",
-                endTime: "2025-07-15T16:00:00",
-                status: "PREPARED",
-                questionCount: 20,
-                totalScore: 100,
-            },
-            {
-                id: 3,
-                title: "추가 시험",
-                description: "현재 진행중인 시험입니다.",
-                startTime: "2025-08-01T09:00:00",
-                endTime: "2025-08-01T10:00:00",
-                status: "IN_PROGRESS",
-                questionCount: 15,
-                totalScore: 80,
-            },
-            {
-                id: 4,
-                title: "심화 시험",
-                description: "진행중이며 이미 응시자가 있는 시험입니다.",
-                startTime: "2025-09-05T13:00:00",
-                endTime: "2025-09-05T15:00:00",
-                status: "IN_PROGRESS",
-                questionCount: 25,
-                totalScore: 90,
-            },
-        ];
-        setTimeout(() => {
-            setExams(dummyExams);
-            setLoading(false);
-        }, 500);
+        setLoading(true);
+
+        getExamListAPI(courseId)
+            .then((data) => {
+                // questions 배열을 이용해 문제 수 & 총점 계산
+                const examsWithStats = data.map((exam) => ({
+                    ...exam,
+                    questionCount: Array.isArray(exam.questions)
+                        ? exam.questions.length
+                        : 0,
+                    totalScore: Array.isArray(exam.questions)
+                        ? exam.questions.reduce(
+                              (sum, q) => sum + (q.score || 0),
+                              0
+                          )
+                        : 0,
+                }));
+                setExams(examsWithStats);
+                setLoading(false);
+            })
+            .catch((err) => {
+                if (err.response?.status !== 500) {
+                    const serverMsg = err.response?.data;
+                    setError(
+                        serverMsg ??
+                            "시험 목록을 불러오는 중 오류가 발생했습니다."
+                    );
+                } else {
+                    setError("시험 목록을 불러오는 중 오류가 발생했습니다.");
+                }
+                setLoading(false);
+            });
     }, [courseId]);
 
+    // 시험 삭제
     const handleDelete = async (examId) => {
         if (!window.confirm("정말 이 시험을 삭제하시겠습니까?")) return;
         // TODO: deleteExamAPI 호출 구현
         setExams((prev) => prev.filter((e) => e.id !== examId));
     };
 
+    // 시험 게시 : PREPARED -> IN_PROGRESS
+    const handlePublish = async (examId) => {
+        if (window.confirm("시험을 게시하시겠습니까?")) {
+            // TODO: 상태 변경 API 호출
+            setExams((prev) =>
+                prev.map((e) =>
+                    e.id === examId ? { ...e, status: "IN_PROGRESS" } : e
+                )
+            );
+        }
+    };
+
+    // Chip 스타일링
     const getStatusChipProps = (status) => {
         switch (status) {
             case "PREPARED":
@@ -121,17 +122,6 @@ export default function ClassEducatorExams() {
                 };
             default:
                 return { label: status, sx: {} };
-        }
-    };
-
-    const handlePublish = async (examId) => {
-        if (window.confirm("시험을 게시하시겠습니까?")) {
-            // TODO: 상태 변경 API 호출
-            setExams((prev) =>
-                prev.map((e) =>
-                    e.id === examId ? { ...e, status: "IN_PROGRESS" } : e
-                )
-            );
         }
     };
 

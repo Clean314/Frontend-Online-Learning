@@ -86,29 +86,17 @@ export default function ClassEducatorDashboard() {
 
     const lectureEvents = [
         {
-            start: new Date(2025, 4, 20),
-            end: new Date(2025, 4, 20),
-            label: "개강",
-        },
-        {
-            start: new Date(2025, 4, 27),
-            end: new Date(2025, 5, 3),
+            start: new Date(2025, 4, 27, 10, 0), // 2025-05-27 10:00
+            end: new Date(2025, 4, 27, 15, 0), // 2025-05-27 15:00 (5시간 차이)
             label: "중간고사",
         },
         {
-            start: new Date(2025, 5, 10),
-            end: new Date(2025, 5, 17),
+            start: new Date(2025, 5, 10, 14, 0), // 2025-06-10 14:00
+            end: new Date(2025, 5, 10, 19, 0), // 2025-06-10 19:00 (5시간 차이)
             label: "기말고사",
-        },
-        {
-            start: new Date(2025, 6, 30),
-            end: new Date(2025, 6, 30),
-            label: "종강",
         },
     ];
 
-    const startEvent = lectureEvents.find((e) => e.label === "개강");
-    const endEvent = lectureEvents.find((e) => e.label === "종강");
     const monthStart = dayjs(viewDate).startOf("month");
     const monthEnd = dayjs(viewDate).endOf("month");
     const monthEvents = lectureEvents.filter(
@@ -153,17 +141,13 @@ export default function ClassEducatorDashboard() {
                         bgcolor: theme.palette.primary.main,
                         color: theme.palette.primary.contrastText,
                         borderRadius: 0,
-                        "&:hover": {
-                            bgcolor: theme.palette.primary.dark,
-                        },
+                        "&:hover": { bgcolor: theme.palette.primary.dark },
                     }),
                     ...(isEnd && {
                         bgcolor: theme.palette.primary.main,
                         color: theme.palette.primary.contrastText,
                         borderRadius: 0,
-                        "&:hover": {
-                            bgcolor: theme.palette.primary.dark,
-                        },
+                        "&:hover": { bgcolor: theme.palette.primary.dark },
                     }),
                     ...(isBetween && {
                         bgcolor: alpha(theme.palette.primary.main, 0.3),
@@ -193,13 +177,10 @@ export default function ClassEducatorDashboard() {
 
     const handleOpenEditModal = () => {
         if (!courseInfo) return;
-
-        // 수강생이 한 명이라도 있으면 수정 불가
         if (currentEnrolled > 0) {
             alert("수강 중인 학생이 존재하는 강의는 수정할 수 없습니다.");
             return;
         }
-
         setFormData({
             course_name: courseInfo.title,
             category: courseInfo.category,
@@ -226,10 +207,7 @@ export default function ClassEducatorDashboard() {
     const handleChange = (e) => {
         const { name, value, type } = e.target;
         const parsed = type === "number" ? Number(value) : value;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: parsed,
-        }));
+        setFormData((prev) => ({ ...prev, [name]: parsed }));
     };
 
     const handleSaveCourseInfo = async (e) => {
@@ -244,7 +222,6 @@ export default function ClassEducatorDashboard() {
                 description: formData.description,
                 max_enrollment: formData.max_enrollment,
             });
-
             setCourseInfo((prev) => ({
                 ...prev,
                 title: formData.course_name,
@@ -254,7 +231,6 @@ export default function ClassEducatorDashboard() {
                 description: formData.description,
                 max_enrollment: formData.max_enrollment,
             }));
-
             setOpenEditModal(false);
             alert("강의 정보가 성공적으로 수정되었습니다.");
         } catch (error) {
@@ -276,21 +252,9 @@ export default function ClassEducatorDashboard() {
                 justifyContent="space-between"
                 sx={{ borderBottom: 1, borderColor: "divider", pb: 1, mb: 3 }}
             >
-                <Box display={"flex"} gap={1} alignItems={"flex-end"}>
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                        {courseInfo.title}
-                    </Typography>
-                    {startEvent && endEvent && (
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ ml: 1, verticalAlign: "middle" }}
-                        >
-                            {dayjs(startEvent.start).format("YYYY.MM.DD")} ~
-                            {dayjs(endEvent.end).format("YYYY.MM.DD")}
-                        </Typography>
-                    )}
-                </Box>
+                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    {courseInfo.title}
+                </Typography>
                 <Button
                     ref={editButtonRef}
                     variant="outlined"
@@ -350,14 +314,14 @@ export default function ClassEducatorDashboard() {
                 {/* 수강자 수 */}
                 <Box
                     sx={{ flex: 1 }}
-                    display={"flex"}
+                    display="flex"
                     gap={4}
-                    alignItems={"center"}
+                    alignItems="center"
                 >
                     <PeopleIcon sx={{ fontSize: 40, flex: 1 }} />
                     <Box sx={{ flex: 3 }}>
                         <Typography variant="overline">수강자 수</Typography>
-                        <Box display={"flex"} alignItems={"flex-end"} gap={2}>
+                        <Box display="flex" alignItems="flex-end" gap={2}>
                             <Typography variant="h6">
                                 {currentEnrolled}명
                             </Typography>
@@ -387,9 +351,9 @@ export default function ClassEducatorDashboard() {
                 {/* 완료율 평균 */}
                 <Box
                     sx={{ flex: 1 }}
-                    display={"flex"}
+                    display="flex"
                     gap={4}
-                    alignItems={"center"}
+                    alignItems="center"
                 >
                     <ShowChartIcon sx={{ fontSize: 40, flex: 1 }} />
                     <Box sx={{ flex: 3 }}>
@@ -429,9 +393,7 @@ export default function ClassEducatorDashboard() {
                             value={selectedDate}
                             onChange={(newDate) => setSelectedDate(newDate)}
                             onMonthChange={(newView) => setViewDate(newView)}
-                            slots={{
-                                day: CustomDay,
-                            }}
+                            slots={{ day: CustomDay }}
                             sx={{ "--PickersDay-daySpacing": "0px" }}
                         />
                     </LocalizationProvider>
