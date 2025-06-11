@@ -50,13 +50,6 @@ export default function QuestionListPage() {
                 answerIndex: 2, // 1-based로 저장하면 2=> 사용자에게는 2로 보임
             },
             {
-                id: 102,
-                content: "Spring Boot의 장점에 대해 서술하세요.",
-                type: "ESSAY",
-                score: 10,
-                answerText: "자동 설정(Auto-Configuration), 내장 톰캣 지원 등",
-            },
-            {
                 id: 103,
                 content: "JPA는 ORM인가요?",
                 type: "TRUE_FALSE",
@@ -76,20 +69,6 @@ export default function QuestionListPage() {
         setQuestions((prev) => prev.filter((q) => q.id !== questionId));
     };
 
-    // 문제 유형을 한국어로 변환
-    const getTypeLabel = (type) => {
-        switch (type) {
-            case "MULTIPLE_CHOICE":
-                return "선다형";
-            case "ESSAY":
-                return "서술형";
-            case "TRUE_FALSE":
-                return "진위형";
-            default:
-                return type;
-        }
-    };
-
     // 문제 유형별 Chip 속성 반환
     const getTypeChipProps = (type) => {
         switch (type) {
@@ -99,15 +78,6 @@ export default function QuestionListPage() {
                     sx: {
                         bgcolor: "#BFECFF",
                         color: "#005F8A",
-                        fontWeight: 500,
-                    },
-                };
-            case "ESSAY":
-                return {
-                    label: "서술형",
-                    sx: {
-                        bgcolor: "#D6EFD8",
-                        color: "#155724",
                         fontWeight: 500,
                     },
                 };
@@ -137,9 +107,6 @@ export default function QuestionListPage() {
             if (question.answerIndex === 0) return "거짓";
             if (question.answerIndex === 1) return "참";
             return "-";
-        }
-        if (question.type === "ESSAY") {
-            return question.answerText || "-";
         }
         return "-";
     };

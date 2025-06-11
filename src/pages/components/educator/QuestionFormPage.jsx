@@ -28,12 +28,12 @@ export default function QuestionFormPage() {
     const [content, setContent] = useState("");
     const [type, setType] = useState("MULTIPLE_CHOICE");
     const [score, setScore] = useState("");
-    const [multipleChoices, setMultipleChoices] = useState(["", ""]);
+    const [multipleChoices, setMultipleChoices] = useState(["", "", ""]);
     // answerIndex:
     // for MULTIPLE_CHOICE, 1-based index;
     // for TRUE_FALSE, 0 for "참", 1 for "거짓"
     const [answerIndex, setAnswerIndex] = useState(null);
-    const [explanation, setExplanation] = useState("");
+
     const [loading, setLoading] = useState(isEditMode);
     const [error, setError] = useState("");
 
@@ -49,12 +49,6 @@ export default function QuestionFormPage() {
                 setMultipleChoices(["", ""]);
             }
             setAnswerIndex(existingQuestion.answerIndex ?? null); // 정답
-            // 서술형 모범 답안
-            if (existingQuestion.type === "ESSAY") {
-                setExplanation(existingQuestion.answerText || "");
-            } else {
-                setExplanation("");
-            }
             setLoading(false);
         }
     }, [isEditMode, existingQuestion]);
@@ -116,7 +110,6 @@ export default function QuestionFormPage() {
             score,
             choices: type === "MULTIPLE_CHOICE" ? multipleChoices : [],
             answerIndex: answerIndex,
-            explanation: type === "ESSAY" ? explanation : "",
         };
 
         if (isEditMode) {
@@ -161,15 +154,13 @@ export default function QuestionFormPage() {
                                     // 초기화
                                     setMultipleChoices(["", ""]);
                                     setAnswerIndex(null);
-                                    setExplanation("");
                                 }}
                                 slotProps={{
                                     select: { native: true },
                                 }}
                                 fullWidth
                             >
-                                <option value="MULTIPLE_CHOICE">선지형</option>
-                                <option value="ESSAY">서술형</option>
+                                <option value="MULTIPLE_CHOICE">선다형</option>
                                 <option value="TRUE_FALSE">진위형</option>
                             </TextField>
 
@@ -263,17 +254,6 @@ export default function QuestionFormPage() {
                                     />
                                 </RadioGroup>
                             </Box>
-                        )}
-
-                        {type === "ESSAY" && (
-                            <TextField
-                                label="모범 답안 (선택사항)"
-                                value={explanation}
-                                onChange={(e) => setExplanation(e.target.value)}
-                                multiline
-                                rows={3}
-                                fullWidth
-                            />
                         )}
 
                         {error && (

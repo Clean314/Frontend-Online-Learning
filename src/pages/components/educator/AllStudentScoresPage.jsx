@@ -71,11 +71,15 @@ export default function AllStudentScoresPage() {
         }, 500);
     }, [courseId, examId]);
 
+    const handleBack = () => {
+        navigate(`/courses/${courseId}/classroom/teach/exams`);
+    };
+
     return (
         <Container maxWidth="lg" sx={{ mb: 4 }}>
             <Paper sx={{ p: 3 }}>
                 <Box display="flex" alignItems="center" mb={2}>
-                    <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
+                    <IconButton onClick={handleBack} sx={{ mr: 1 }}>
                         <ArrowBackIcon />
                     </IconButton>
                     <Typography variant="h5">전체 학생 성적 조회</Typography>

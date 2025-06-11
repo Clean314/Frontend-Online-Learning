@@ -57,8 +57,6 @@ export default function QuestionDetailPage() {
         switch (type) {
             case "MULTIPLE_CHOICE":
                 return "선다형";
-            case "ESSAY":
-                return "서술형";
             case "TRUE_FALSE":
                 return "진위형";
             default:
@@ -75,9 +73,6 @@ export default function QuestionDetailPage() {
             if (answerIndex === 0) return "거짓";
             if (answerIndex === 1) return "참";
             return "-";
-        }
-        if (type === "ESSAY") {
-            return answerText || "-";
         }
         return "-";
     };
@@ -190,20 +185,6 @@ export default function QuestionDetailPage() {
                                     />
                                 </RadioGroup>
                             </Box>
-                        )}
-
-                        {/* 서술형: 모범 답안(읽기 전용) */}
-                        {type === "ESSAY" && (
-                            <TextField
-                                label="모범 답안"
-                                value={answerText}
-                                multiline
-                                rows={3}
-                                fullWidth
-                                slotProps={{
-                                    input: { readOnly: true },
-                                }}
-                            />
                         )}
                     </Stack>
                 )}

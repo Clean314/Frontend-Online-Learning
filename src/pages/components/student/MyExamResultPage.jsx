@@ -25,7 +25,9 @@ export default function MyExamResultPage() {
         if (path.includes("/learn/")) {
             navigate(`/courses/${courseId}/classroom/learn/exams`);
         } else if (path.includes("/teach/")) {
-            navigate(`/courses/${courseId}/classroom/teach/exams/${examId}`);
+            navigate(
+                `/courses/${courseId}/classroom/teach/exams/${examId}/scores`
+            );
         } else {
             navigate(-1);
         }
