@@ -1,4 +1,3 @@
-import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
     Box,
@@ -7,9 +6,10 @@ import {
     useTheme,
     Divider,
     IconButton,
-    Button,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useEffect, useRef, useState } from "react";
+import ReactPlayer from "react-player";
 
 export default function ClassStudentVideosWatch() {
     const theme = useTheme();
@@ -17,7 +17,6 @@ export default function ClassStudentVideosWatch() {
 
     const location = useLocation();
     const video = location.state?.video;
-
     const { videoId } = useParams();
 
     // video 정보가 없으면 오류 메시지 출력
@@ -30,6 +29,66 @@ export default function ClassStudentVideosWatch() {
             </Paper>
         );
     }
+
+    // 재생 시작 시각 저장
+    const [startTime, setStartTime] = useState(null);
+    const playerRef = useRef(null);
+
+    // 재생 시작 핸들러
+    const handlePlay = () => {
+        setStartTime(Date.now());
+    };
+
+    // 일시정지·종료 핸들러
+    const handleStop = async () => {
+        if (!startTime) return;
+
+        const endTime = Date.now();
+        const watchedSec = (endTime - startTime) / 1000; // 재생 지속 시간(초)
+        const durationSec = playerRef.current.getDuration(); // 전체 영상 길이(초)
+
+        // 이전에 DB에 저장된 시청 시간 조회
+        let previousWatched = 0;
+        try {
+            // TODO: 출석 정보 조회 API 호출 (GET /students/lectures/attendance/:lectureId)
+
+            console.log("출석 정보 조회 API 응답 성공");
+        } catch (err) {
+            console.error("출석 정보 조회 API 에러:", err);
+        }
+
+        // 누적 시청 시간 계산
+        const totalWatched = previousWatched + Math.round(watchedSec);
+        // 누적 비율이 50% 이상일 때 출석 처리 (2배속 시청 고려)
+        const attendance = totalWatched / durationSec >= 0.5;
+
+        const payload = {
+            lectureId: video.id,
+            watchedTime: Math.round(watchedSec),
+            attendance,
+        };
+
+        try {
+            // TODO: 출석 처리 API 호출 (POST /students/lectures/attendance)
+
+            console.log("출석 처리 API 응답 성공");
+            console.log(payload);
+        } catch (err) {
+            console.error("출석 처리 API 에러:", err);
+        }
+
+        // 다음 재생 구간을 위해 초기화
+        setStartTime(null);
+    };
+
+    // 페이지 언마운트(뒤로가기 등) 시에도 handleStop 호출
+    useEffect(() => {
+        return () => {
+            if (startTime !== null) {
+                handleStop();
+            }
+        };
+    }, []);
 
     // 전달받은 video.videoUrl에서 유튜브 embed URL 생성 함수
     const getEmbedUrl = (url) => {
@@ -44,17 +103,6 @@ export default function ClassStudentVideosWatch() {
         } catch {
             return null;
         }
-    };
-
-    const embedUrl = getEmbedUrl(video.videoUrl);
-
-    // 영상 수강 완료
-    const handleCompleteWatching = () => {
-        // TODO: 출석 API 호출 구현 필요
-
-        console.log("수강 완료 버튼 클릭:", video.id);
-        alert("수강 완료되었습니다.");
-        navigate(-1);
     };
 
     return (
@@ -95,48 +143,31 @@ export default function ClassStudentVideosWatch() {
             {/* 제목 아래 구분선 */}
             <Divider sx={{ mb: 2 }} />
 
-            {/* 유튜브 영상 임베드 */}
-            {embedUrl ? (
-                <>
-                    <Box
-                        sx={{
-                            position: "relative",
-                            pb: "56.25%", // 16:9 비율 유지
-                            height: 0,
-                            mb: 2,
-                        }}
-                    >
-                        <iframe
-                            title={video.title}
-                            src={embedUrl}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            style={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                width: "100%",
-                                height: "100%",
-                                border: 0,
-                            }}
-                        />
-                    </Box>
-
-                    {/* 수강 완료 버튼 */}
-                    <Box textAlign="center" mt={2}>
-                        <Button
-                            variant="contained"
-                            onClick={handleCompleteWatching}
-                        >
-                            수강 완료
-                        </Button>
-                    </Box>
-                </>
-            ) : (
-                <Typography variant="body1" color="text.secondary">
-                    올바른 유튜브 URL이 아닙니다.
-                </Typography>
-            )}
+            {/* 유튜브 영상 임베드 (16:9 비율 유지) */}
+            <Box
+                sx={{
+                    position: "relative",
+                    pb: "56.25%", // 9/16 = 0.5625
+                    height: 0,
+                    mb: 2,
+                }}
+            >
+                <ReactPlayer
+                    ref={playerRef}
+                    url={getEmbedUrl(video.videoUrl)}
+                    controls
+                    width="100%"
+                    height="100%"
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                    }}
+                    onPlay={handlePlay}
+                    onPause={handleStop}
+                    onEnded={handleStop}
+                />
+            </Box>
         </Box>
     );
 }
