@@ -230,6 +230,7 @@ export default function ClassEducatorDashboard() {
                 point: formData.point,
                 description: formData.description,
                 max_enrollment: formData.max_enrollment,
+                available_enrollment: formData.max_enrollment,
             }));
             setOpenEditModal(false);
             alert("강의 정보가 성공적으로 수정되었습니다.");
