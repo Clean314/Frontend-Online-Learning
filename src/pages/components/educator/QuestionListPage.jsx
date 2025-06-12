@@ -29,7 +29,7 @@ export default function QuestionListPage() {
     const navigate = useNavigate();
 
     const location = useLocation();
-    // 상위에서 넘겨준 exam 정보 꺼내기
+    // ClassEducatorExams에서 전달된 exam 데이터
     const exam = location.state?.exam;
     const examStatus = exam?.status;
 
@@ -38,30 +38,14 @@ export default function QuestionListPage() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // TODO: API 호출 구현 필요 (getQuestionListAPI)
-        // 임시 데이터로 화면 렌더링 테스트
-        const dummyQuestions = [
-            {
-                id: 101,
-                content: "자바스크립트의 원시 타입은 무엇인가요?",
-                type: "MULTIPLE_CHOICE",
-                score: 5,
-                multipleChoices: ["String", "Number", "Boolean", "Symbol"],
-                answerIndex: 2, // 1-based로 저장하면 2=> 사용자에게는 2로 보임
-            },
-            {
-                id: 103,
-                content: "JPA는 ORM인가요?",
-                type: "TRUE_FALSE",
-                score: 5,
-                answerIndex: 0, // 0 => "거짓"
-            },
-        ];
-        setTimeout(() => {
-            setQuestions(dummyQuestions);
+        if (exam && Array.isArray(exam.questions)) {
+            setQuestions(exam.questions);
             setLoading(false);
-        }, 500);
-    }, [courseId, examId]);
+        } else {
+            setError("시험 데이터가 유효하지 않습니다.");
+            setLoading(false);
+        }
+    }, [exam]);
 
     const handleDelete = async (questionId) => {
         if (!window.confirm("정말 이 문제를 삭제하시겠습니까?")) return;
@@ -127,7 +111,7 @@ export default function QuestionListPage() {
                         </IconButton>
                         <Typography variant="h5">문제 목록</Typography>
                     </Box>
-                    {examStatus === "PREPARED" && (
+                    {examStatus === "PREPARING" && (
                         <Button
                             variant="contained"
                             startIcon={<AddIcon />}
@@ -204,8 +188,8 @@ export default function QuestionListPage() {
                                         </TableCell>
                                         {/* 작업 버튼 */}
                                         <TableCell align="center">
-                                            {examStatus !== "PREPARED" ? (
-                                                // "PREPARED" 가 아닌 상태일 때는 수정/삭제 대신 "자세히" 버튼
+                                            {examStatus !== "PREPARING" ? (
+                                                // "PREPARING" 가 아닌 상태일 때는 수정/삭제 대신 "자세히" 버튼
                                                 <Button
                                                     variant="outlined"
                                                     size="small"

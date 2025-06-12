@@ -15,7 +15,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
-import { createExamAPI, updateExamAPI } from "../../../api/exam";
+import { createExamAPI, modifyExamAPI } from "../../../api/exam";
 dayjs.locale("ko");
 
 export default function ExamFormPage() {
@@ -77,7 +77,7 @@ export default function ExamFormPage() {
 
         try {
             if (isEditMode) {
-                await updateExamAPI(Number(courseId), Number(examId), payload);
+                await modifyExamAPI(Number(courseId), Number(examId), payload);
                 console.log("수정 데이터:", payload);
             } else {
                 await createExamAPI(Number(courseId), payload);

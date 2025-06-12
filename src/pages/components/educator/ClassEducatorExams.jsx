@@ -25,7 +25,11 @@ import {
     BarChart as BarChartIcon,
 } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
-import { getExamListAPI } from "../../../api/exam";
+import {
+    deleteExamAPI,
+    getExamListAPI,
+    modifyExamAPI,
+} from "../../../api/exam";
 
 export default function ClassEducatorExams() {
     const { courseId } = useParams();
@@ -74,26 +78,39 @@ export default function ClassEducatorExams() {
     // 시험 삭제
     const handleDelete = async (examId) => {
         if (!window.confirm("정말 이 시험을 삭제하시겠습니까?")) return;
-        // TODO: deleteExamAPI 호출 구현
-        setExams((prev) => prev.filter((e) => e.id !== examId));
+
+        try {
+            await deleteExamAPI(Number(courseId), examId);
+            setExams((prev) => prev.filter((e) => e.id !== examId));
+        } catch (err) {
+            console.error("시험 삭제 오류:" + err);
+            alert("시험 삭제 중 오류가 발생했습니다.");
+        }
     };
 
-    // 시험 게시 : PREPARED -> IN_PROGRESS
+    // 시험 게시 : PREPARING -> IN_PROGRESS
     const handlePublish = async (examId) => {
-        if (window.confirm("시험을 게시하시겠습니까?")) {
-            // TODO: 상태 변경 API 호출
+        if (!window.confirm("시험을 게시하시겠습니까?")) return;
+
+        try {
+            const modifiedId = await modifyExamAPI(Number(courseId), examId, {
+                status: "IN_PROGRESS",
+            });
             setExams((prev) =>
                 prev.map((e) =>
-                    e.id === examId ? { ...e, status: "IN_PROGRESS" } : e
+                    e.id === modifiedId ? { ...e, status: "IN_PROGRESS" } : e
                 )
             );
+        } catch (err) {
+            console.error("시험 게시 오류: " + err);
+            alert("시험 게시 중 오류가 발생했습니다.");
         }
     };
 
     // Chip 스타일링
     const getStatusChipProps = (status) => {
         switch (status) {
-            case "PREPARED":
+            case "PREPARING":
                 return {
                     label: "준비중",
                     sx: {
@@ -184,12 +201,12 @@ export default function ClassEducatorExams() {
                                         </TableCell>
                                         <TableCell>
                                             {new Date(
-                                                exam.startTime
+                                                exam.start_time
                                             ).toLocaleString()}
                                         </TableCell>
                                         <TableCell>
                                             {new Date(
-                                                exam.endTime
+                                                exam.end_time
                                             ).toLocaleString()}
                                         </TableCell>
                                         <TableCell>
@@ -220,7 +237,7 @@ export default function ClassEducatorExams() {
                                                     <QuestionIcon />
                                                 </IconButton>
                                             </Tooltip>
-                                            {exam.status === "PREPARED" && (
+                                            {exam.status === "PREPARING" && (
                                                 <>
                                                     <Tooltip title="게시">
                                                         <IconButton
