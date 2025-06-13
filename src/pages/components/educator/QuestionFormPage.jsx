@@ -28,7 +28,7 @@ export default function QuestionFormPage() {
     const [content, setContent] = useState("");
     const [type, setType] = useState("MULTIPLE_CHOICE");
     const [score, setScore] = useState("");
-    const [multipleChoices, setMultipleChoices] = useState(["", "", ""]);
+    const [multipleChoices, setMultipleChoices] = useState(["", ""]);
     // answerIndex:
     // for MULTIPLE_CHOICE, 1-based index;
     // for TRUE_FALSE, 0 for "참", 1 for "거짓"
@@ -60,10 +60,14 @@ export default function QuestionFormPage() {
     };
 
     const addChoice = () => {
+        if (multipleChoices.length >= 10) return;
+
         setMultipleChoices((prev) => [...prev, ""]);
     };
 
     const removeChoice = (index) => {
+        if (multipleChoices.length <= 2) return;
+
         setMultipleChoices((prev) => prev.filter((_, i) => i !== index));
         if (answerIndex === index) {
             setAnswerIndex(null);
@@ -85,7 +89,11 @@ export default function QuestionFormPage() {
         }
         if (type === "MULTIPLE_CHOICE") {
             if (multipleChoices.length < 2) {
-                setError("선지형 문제는 최소 2개 이상의 선택지가 필요합니다.");
+                setError("선다형 문제는 최소 2개 이상의 선택지가 필요합니다.");
+                return;
+            }
+            if (multipleChoices.length > 10) {
+                setError("선다형 문제의 선택지는 최대 10개까지 허용됩니다.");
                 return;
             }
             for (let i = 0; i < multipleChoices.length; i++) {

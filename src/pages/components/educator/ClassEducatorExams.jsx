@@ -20,16 +20,11 @@ import {
     Add as AddIcon,
     Edit as EditIcon,
     Delete as DeleteIcon,
-    Publish as PublishIcon,
     ListAlt as QuestionIcon,
     BarChart as BarChartIcon,
 } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-    deleteExamAPI,
-    getExamListAPI,
-    modifyExamAPI,
-} from "../../../api/exam";
+import { deleteExamAPI, getExamListAPI } from "../../../api/exam";
 
 export default function ClassEducatorExams() {
     const { courseId } = useParams();
@@ -85,25 +80,6 @@ export default function ClassEducatorExams() {
         } catch (err) {
             console.error("시험 삭제 오류:" + err);
             alert("시험 삭제 중 오류가 발생했습니다.");
-        }
-    };
-
-    // 시험 게시 : PREPARING -> IN_PROGRESS
-    const handlePublish = async (examId) => {
-        if (!window.confirm("시험을 게시하시겠습니까?")) return;
-
-        try {
-            const modifiedId = await modifyExamAPI(Number(courseId), examId, {
-                status: "IN_PROGRESS",
-            });
-            setExams((prev) =>
-                prev.map((e) =>
-                    e.id === modifiedId ? { ...e, status: "IN_PROGRESS" } : e
-                )
-            );
-        } catch (err) {
-            console.error("시험 게시 오류: " + err);
-            alert("시험 게시 중 오류가 발생했습니다.");
         }
     };
 
@@ -171,14 +147,14 @@ export default function ClassEducatorExams() {
                     <TableContainer>
                         <Table>
                             <colgroup>
-                                <col style={{ width: "10%" }} />
+                                <col style={{ width: "14%" }} />
+                                <col style={{ width: "14%" }} />
                                 <col style={{ width: "13%" }} />
-                                <col style={{ width: "12%" }} />
-                                <col style={{ width: "12%" }} />
+                                <col style={{ width: "13%" }} />
                                 <col style={{ width: "7%" }} />
+                                <col style={{ width: "9%" }} />
                                 <col style={{ width: "8%" }} />
-                                <col style={{ width: "8%" }} />
-                                <col style={{ width: "12%" }} />
+                                <col style={{ width: "14%" }} />
                             </colgroup>
                             <TableHead>
                                 <TableRow>
@@ -187,7 +163,9 @@ export default function ClassEducatorExams() {
                                     <TableCell>시작</TableCell>
                                     <TableCell>종료</TableCell>
                                     <TableCell>상태</TableCell>
-                                    <TableCell align="center">문제수</TableCell>
+                                    <TableCell align="center">
+                                        문제 수
+                                    </TableCell>
                                     <TableCell align="center">총점</TableCell>
                                     <TableCell align="center">작업</TableCell>
                                 </TableRow>
@@ -239,18 +217,6 @@ export default function ClassEducatorExams() {
                                             </Tooltip>
                                             {exam.status === "PREPARING" && (
                                                 <>
-                                                    <Tooltip title="게시">
-                                                        <IconButton
-                                                            color="success"
-                                                            onClick={() =>
-                                                                handlePublish(
-                                                                    exam.id
-                                                                )
-                                                            }
-                                                        >
-                                                            <PublishIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
                                                     <Tooltip title="수정">
                                                         <IconButton
                                                             color="info"

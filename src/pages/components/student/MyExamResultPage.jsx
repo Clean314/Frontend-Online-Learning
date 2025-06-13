@@ -153,7 +153,7 @@ export default function MyExamResultPage() {
                     return (
                         <Paper
                             key={idx}
-                            sx={(theme) => ({
+                            sx={() => ({
                                 p: 2,
                                 mb: 2,
                                 bgcolor: item.isCorrect ? "#E8F9FF" : "#FFEDF3",

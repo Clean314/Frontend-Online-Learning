@@ -46,8 +46,8 @@ export default function ExamFormPage() {
         if (isEditMode && existingExam) {
             setTitle(existingExam.title);
             setDescription(existingExam.description);
-            setStartTime(dayjs(existingExam.startTime));
-            setEndTime(dayjs(existingExam.endTime));
+            setStartTime(dayjs(existingExam.start_time));
+            setEndTime(dayjs(existingExam.end_time));
             setLoading(false);
         }
     }, [isEditMode, existingExam]);
@@ -55,13 +55,27 @@ export default function ExamFormPage() {
     const handleSubmit = async () => {
         setError("");
 
+        const now = dayjs();
+
         if (!title.trim()) {
             setError("제목을 입력해주세요.");
             return;
         }
-        // 종료 시각은 시작 시각 이후여야 함
+
+        if (startTime.isBefore(now.add(24, "hour"))) {
+            setError("시험 시작 시각은 지금부터 24시간 이후여야 합니다.");
+            return;
+        }
+
         if (endTime.isBefore(startTime)) {
             setError("종료 시각은 시작 시각보다 이후여야 합니다.");
+            return;
+        }
+
+        if (endTime.diff(startTime, "hour") > 6) {
+            setError(
+                "시험 시간은 시작 시각으로부터 최대 6시간 이내여야 합니다."
+            );
             return;
         }
 
@@ -70,6 +84,10 @@ export default function ExamFormPage() {
             description,
             start_time: startTime.toISOString(),
             end_time: endTime.toISOString(),
+
+            // 새 시험 생성일 경우, questions에 빈 값 전달
+            // 시험 수정일 경우, 기존 questions 데이터 그대로 전달
+            questions: isEditMode ? existingExam.questions : [],
 
             // 수정 모드일 경우, status 필드 추가
             ...(isEditMode && { status: existingExam.status }),
@@ -130,7 +148,19 @@ export default function ExamFormPage() {
                                 <DateTimePicker
                                     label="시작 시각"
                                     value={startTime}
-                                    onChange={(newVal) => setStartTime(newVal)}
+                                    // 최소 현재 시간으로부터 24시간 후
+                                    minDateTime={dayjs().add(24, "hour")}
+                                    views={[
+                                        "year",
+                                        "month",
+                                        "day",
+                                        "hours",
+                                        "minutes",
+                                    ]}
+                                    minutesStep={5}
+                                    onChange={(newVal) =>
+                                        setStartTime(newVal.second(0))
+                                    }
                                     inputFormat="YYYY.MM.DD A hh:mm"
                                     mask="____.__.__ _ __:__"
                                     slotProps={{
@@ -144,7 +174,19 @@ export default function ExamFormPage() {
                                 <DateTimePicker
                                     label="종료 시각"
                                     value={endTime}
-                                    onChange={(newVal) => setEndTime(newVal)}
+                                    // 시작 시간보다 항상 뒤
+                                    minDateTime={startTime.add(5, "minute")}
+                                    views={[
+                                        "year",
+                                        "month",
+                                        "day",
+                                        "hours",
+                                        "minutes",
+                                    ]}
+                                    minutesStep={5}
+                                    onChange={(newVal) =>
+                                        setEndTime(newVal.second(0))
+                                    }
                                     inputFormat="YYYY.MM.DD A hh:mm"
                                     mask="____.__.__ _ __:__"
                                     slotProps={{
