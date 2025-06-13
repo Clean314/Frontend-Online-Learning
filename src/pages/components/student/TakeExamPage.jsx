@@ -5,7 +5,6 @@ import {
     Typography,
     Box,
     Button,
-    TextField,
     Radio,
     FormControlLabel,
     RadioGroup,
@@ -18,6 +17,8 @@ import dayjs from "dayjs";
 export default function TakeExamPage() {
     const { courseId, examId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    const exam = location.state?.exam;
 
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -26,56 +27,77 @@ export default function TakeExamPage() {
     const [remainingTime, setRemainingTime] = useState(0);
     const [snackbarMsg, setSnackbarMsg] = useState("");
     const timerRef = useRef(null);
+    const draftTimerRef = useRef(null);
 
-    const location = useLocation();
-    const exam = location.state?.exam;
-
+    // 1) 초기 데이터 로드 (더미 데이터 + TODO 주석)
     useEffect(() => {
-        // TODO: API 호출 구현 필요 (getQuestionListAPI)
-        // 임시 데이터로 화면 렌더링 테스트
-        const dummyData = {
-            questions: [
-                {
-                    id: 201,
-                    content: "React의 useState 훅은 무엇을 하는가?",
-                    type: "MULTIPLE_CHOICE",
-                    score: 5,
-                    multipleChoices: [
-                        "상태 관리",
-                        "라우팅",
-                        "스타일링",
-                        "이벤트 처리",
+        const load = async () => {
+            try {
+                // --- 임시 더미 데이터 시작 ---
+                const dummyData = {
+                    questions: [
+                        {
+                            id: 201,
+                            content: "React의 useState 훅은 무엇을 하는가?",
+                            type: "MULTIPLE_CHOICE",
+                            score: 5,
+                            multipleChoices: [
+                                "상태 관리",
+                                "라우팅",
+                                "스타일링",
+                                "이벤트 처리",
+                            ],
+                        },
+                        {
+                            id: 203,
+                            content:
+                                "자바의 인터페이스는 다중 구현이 가능한가? 참/거짓으로 답하세요.",
+                            type: "TRUE_FALSE",
+                            score: 5,
+                        },
                     ],
-                },
-                {
-                    id: 203,
-                    content:
-                        "자바의 인터페이스는 다중 구현이 가능한가? 참/거짓으로 답하세요.",
-                    type: "TRUE_FALSE",
-                    score: 5,
-                },
-            ],
+                };
+                setQuestions(dummyData.questions);
+                // --- 임시 더미 데이터 끝 ---
+
+                // TODO: getSavedExamDraftAPI 호출해서 기존 draft answers 불러오기
+
+                // 남은 시간 계산
+                const now = dayjs();
+                const end = dayjs(exam.endTime);
+                setRemainingTime(end.diff(now, "second"));
+
+                // 5분마다 자동 임시 저장 예약
+                draftTimerRef.current = setInterval(
+                    () => {
+                        // TODO: saveExamDraftAPI 호출
+                        // await saveExamDraftAPI(Number(courseId), Number(examId), { answers: ... });
+                        setSnackbarMsg("임시 저장 (테스트용 알림)");
+                    },
+                    5 * 60 * 1000
+                );
+            } catch (err) {
+                setError("시험 정보를 불러오는 중 오류가 발생했습니다.");
+            } finally {
+                setLoading(false);
+            }
         };
 
-        setTimeout(() => {
-            setQuestions(dummyData.questions);
-
-            const endTimeStr = exam?.endTime;
-            const now = dayjs();
-            const end = dayjs(endTimeStr);
-            setRemainingTime(end.diff(now, "second"));
-            setLoading(false);
-        }, 500);
+        load();
+        return () => {
+            clearInterval(timerRef.current);
+            clearInterval(draftTimerRef.current);
+        };
     }, [courseId, examId, exam]);
 
-    // 남은 시간 카운트다운
+    // 2) 남은 시간 카운트다운
     useEffect(() => {
         if (remainingTime <= 0) return;
         timerRef.current = setInterval(() => {
             setRemainingTime((prev) => {
                 if (prev <= 1) {
                     clearInterval(timerRef.current);
-                    handleSubmit(true); // 시간이 다되면 자동 제출
+                    handleSubmit(true); // 자동 제출
                     return 0;
                 }
                 return prev - 1;
@@ -88,48 +110,39 @@ export default function TakeExamPage() {
         const h = Math.floor(sec / 3600);
         const m = Math.floor((sec % 3600) / 60);
         const s = sec % 60;
-
-        const hh = String(h).padStart(2, "0");
-        const mm = String(m).padStart(2, "0");
-        const ss = String(s).padStart(2, "0");
-
-        return `${hh}시간 ${mm}분 ${ss}초`;
+        return `${String(h).padStart(2, "0")}시간 ${String(m).padStart(2, "0")}분 ${String(s).padStart(2, "0")}초`;
     };
 
     const handleAnswerChange = (questionId, value) => {
         setAnswers((prev) => ({ ...prev, [questionId]: value }));
     };
 
+    // 3) 임시 저장 (버튼 클릭)
+    const handleAutoSave = async () => {
+        // TODO: saveExamDraftAPI 호출
+        setSnackbarMsg("임시 저장되었습니다.");
+    };
+
+    // 4) 최종 제출
     const handleSubmit = async (auto = false) => {
-        const payload = {
-            answers: questions.map((q) => ({
-                questionId: q.id,
-                response: answers[q.id] || "",
-            })),
-        };
+        clearInterval(draftTimerRef.current);
+        // TODO: submitStudentExamAPI 호출
 
         if (!auto) {
-            // 자동 제출이 아닐 때, 미응답 문항이 있는지 확인
+            // 빈 응답 체크
             const unanswered = questions.filter((q) => !answers[q.id]);
             if (unanswered.length > 0) {
-                // 첫 번째 미응답 문항 번호를 알려주고 멈춤
-                const firstIdx = questions.findIndex((q) => !answers[q.id]);
-                alert(`문제 ${firstIdx + 1}에 대한 답변을 입력해주세요.`);
+                const idx = questions.findIndex((q) => !answers[q.id]);
+                alert(`문제 ${idx + 1}에 대한 답변을 입력해주세요.`);
                 return;
             }
-
-            // TODO: API 호출 구현 필요 (submitExamAPI)
-            console.log("제출 데이터:", payload);
-
             setSnackbarMsg("응시가 정상적으로 제출되었습니다.");
-            setTimeout(
-                () =>
-                    navigate(
-                        `/courses/${courseId}/classroom/learn/exams/${examId}/result`,
-                        { state: { totalScore: exam.totalScore } }
-                    ),
-                1500
-            );
+            setTimeout(() => {
+                navigate(
+                    `/courses/${courseId}/classroom/learn/exams/${examId}/result`,
+                    { state: { totalScore: exam.totalScore } }
+                );
+            }, 1500);
         } else {
             navigate(
                 `/courses/${courseId}/classroom/learn/exams/${examId}/result`,
@@ -145,7 +158,6 @@ export default function TakeExamPage() {
             </Box>
         );
     }
-
     if (error) {
         return (
             <Box textAlign="center" py={10}>
@@ -181,7 +193,7 @@ export default function TakeExamPage() {
                             {q.content}
                         </Typography>
 
-                        {q.type === "MULTIPLE_CHOICE" && (
+                        {q.type === "MULTIPLE_CHOICE" ? (
                             <RadioGroup
                                 value={answers[q.id] || ""}
                                 onChange={(e) =>
@@ -197,9 +209,7 @@ export default function TakeExamPage() {
                                     />
                                 ))}
                             </RadioGroup>
-                        )}
-
-                        {q.type === "TRUE_FALSE" && (
+                        ) : (
                             <RadioGroup
                                 value={answers[q.id] || ""}
                                 onChange={(e) =>
@@ -223,8 +233,16 @@ export default function TakeExamPage() {
 
                 <Box display="flex" justifyContent="center" mt={3}>
                     <Button
+                        variant="outlined"
+                        size="large"
+                        onClick={handleAutoSave}
+                    >
+                        임시 저장
+                    </Button>
+                    <Button
                         variant="contained"
                         size="large"
+                        sx={{ ml: 2 }}
                         onClick={() => handleSubmit(false)}
                     >
                         응시 완료
@@ -237,13 +255,8 @@ export default function TakeExamPage() {
                 message={snackbarMsg}
                 autoHideDuration={2000}
                 onClose={() => setSnackbarMsg("")}
-                // 화면 가로 정중앙
                 anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                // 스타일 오버라이드: Snackbar 루트(top 위치)를 50%로 올린 다음, translateY로 정확히 중앙으로
-                sx={{
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                }}
+                sx={{ top: "50%", transform: "translateY(-50%)" }}
                 slotProps={{
                     content: {
                         sx: {
