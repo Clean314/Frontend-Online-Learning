@@ -1,8 +1,41 @@
 import api from "./axios";
 
 /**
+ * @typedef {Object} AdminCourseDTO
+ * @property {number} course_id
+ * @property {string} course_name
+ * @property {string} category
+ */
+
+/**
+ * @typedef {Object} AdminCourseDetailDTO
+ * @property {number} course_id
+ * @property {string} course_name
+ * @property {string} educator_name
+ * @property {string} category
+ * @property {string} difficulty
+ * @property {number} point
+ * @property {number} max_enrollment
+ */
+
+/**
+ * @typedef {Object} AdminMemberDTO
+ * @property {number} id
+ * @property {string} name
+ * @property {string} email
+ * @property {string} role
+ * @property {string} createdAt
+ * @property {string} updateAt
+ */
+
+/**
  * 대시보드 통계 (최근 가입·등록 10개, 총 회원·강의 수)
- * @returns {Promise<{ members: Array<AdminMemberDTO>, courses: Array<AdminCourseDTO>, totalMember: number, totalCourses: number }>}
+ *  @returns {Promise<{
+ *      members: Array<AdminMemberDTO>,
+ *      courses: Array<AdminCourseDTO>,
+ *      totalMember: number,
+ *      totalCourses: number
+ * }>}
  */
 export const getAdminDashboardAPI = async () => {
     const res = await api.get("/admin/list");
@@ -50,15 +83,7 @@ export const getCourseUpdateListAPI = async () => {
 /**
  * 특정 강의 정보 수정 (관리자용)
  * @param {number} id                - 수정할 강의 ID
- * @param {{
- *   courseName: string,
- *   category: string,
- *   difficulty: 'EASY' | 'MEDIUM' | 'HARD',
- *   point: number,
- *   maxEnrollment: number,
- *   availableEnrollment?: number,
- *   description?: string
- * }} courseData - 수정할 강의 정보 객체
+ * @param {AdminCourseDetailDTO} courseData - 수정할 강의 정보 객체
  * @returns {Promise<void>}
  */
 export const updateCourseAPI = async (id, courseData) => {

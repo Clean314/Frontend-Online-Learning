@@ -1,5 +1,5 @@
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import { difficulties } from "../../constants/courseOptions";
+import { DIFFICULTY_OPTIONS } from "../../constants/courseOptions";
 
 /**
  * 난이도 필드
@@ -16,7 +16,7 @@ export default function DifficultySelect({ value, onChange }) {
                 value={value}
                 onChange={onChange}
             >
-                {difficulties.map((level) => (
+                {DIFFICULTY_OPTIONS.map((level) => (
                     <MenuItem key={level} value={level}>
                         {level}
                     </MenuItem>

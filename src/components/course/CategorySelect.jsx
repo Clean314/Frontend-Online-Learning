@@ -1,5 +1,5 @@
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import { categories } from "../../constants/courseOptions";
+import { CATEGORY_OPTIONS } from "../../constants/courseOptions";
 
 /**
  * 강의 카테고리 선택 필드
@@ -16,7 +16,7 @@ export default function CategorySelect({ value, onChange }) {
                 value={value}
                 onChange={onChange}
             >
-                {categories.map((cat) => (
+                {CATEGORY_OPTIONS.map((cat) => (
                     <MenuItem key={cat} value={cat}>
                         {cat}
                     </MenuItem>

@@ -1,5 +1,5 @@
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import { credits } from "../../constants/courseOptions";
+import { POINT_OPTIONS } from "../../constants/courseOptions";
 
 /**
  * 학점 필드
@@ -11,7 +11,7 @@ export default function CreditSelect({ value, onChange }) {
         <FormControl fullWidth required>
             <InputLabel>학점</InputLabel>
             <Select label="학점" name="point" value={value} onChange={onChange}>
-                {credits.map((c) => (
+                {POINT_OPTIONS.map((c) => (
                     <MenuItem key={c} value={c}>
                         {c}학점
                     </MenuItem>

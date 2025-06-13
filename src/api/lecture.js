@@ -1,15 +1,13 @@
 import api from "./axios";
 
 /**
- * LectureDTO 구조 (백엔드와 동일)
- * {
- *   lecture_id: number,    // 동영상 ID
- *   title: string,         // 동영상 제목
- *   video_url: string,      // 동영상 URL
- *   createdAt: string,     // 생성 일시 (ISO 문자열)
- *   updatedAt: string,     // 수정 일시 (ISO 문자열)
- *   course_id: number,     // 소속 강의 ID
- * }
+ * @typedef {Object} LectureDTO
+ * @property {number} lecture_id      // 동영상 ID
+ * @property {string} title           // 동영상 제목
+ * @property {string} video_url       // 동영상 URL
+ * @property {string} createdAt       // 생성 일시 (ISO 문자열)
+ * @property {string} updatedAt       // 수정 일시 (ISO 문자열)
+ * @property {number} course_id       // 소속 강의 ID
  */
 
 /**
