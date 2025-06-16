@@ -67,7 +67,7 @@ export default function ExamFormPage() {
             return;
         }
 
-        if (endTime.isBefore(startTime)) {
+        if (endTime.isBefore(startTime) || endTime.isSame(startTime)) {
             setError("종료 시각은 시작 시각보다 이후여야 합니다.");
             return;
         }
@@ -84,13 +84,6 @@ export default function ExamFormPage() {
             description,
             start_time: startTime.toISOString(),
             end_time: endTime.toISOString(),
-
-            // 새 시험 생성일 경우, questions에 빈 값 전달
-            // 시험 수정일 경우, 기존 questions 데이터 그대로 전달
-            questions: isEditMode ? existingExam.questions : [],
-
-            // 수정 모드일 경우, status 필드 추가
-            ...(isEditMode && { status: existingExam.status }),
         };
 
         try {
@@ -107,7 +100,10 @@ export default function ExamFormPage() {
 
             const serverMsg = err.response?.data;
             setError(
-                serverMsg ?? "시험 저장 중 알 수 없는 오류가 발생했습니다."
+                typeof serverMsg === "string"
+                    ? serverMsg
+                    : (serverMsg?.detail ??
+                          "시험 저장 중 알 수 없는 오류가 발생했습니다.")
             );
         }
     };

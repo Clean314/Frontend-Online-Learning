@@ -55,17 +55,15 @@ export default function ClassEducatorExams() {
                 }));
                 setExams(examsWithStats);
                 setLoading(false);
+
+                console.log(exams);
             })
             .catch((err) => {
-                if (err.response?.status !== 500) {
-                    const serverMsg = err.response?.data;
-                    setError(
-                        serverMsg ??
-                            "시험 목록을 불러오는 중 오류가 발생했습니다."
-                    );
-                } else {
-                    setError("시험 목록을 불러오는 중 오류가 발생했습니다.");
+                let message = "시험 목록을 불러오는 중 오류가 발생했습니다.";
+                if (err.response?.data?.detail) {
+                    message = err.response.data.detail;
                 }
+                setError(message);
                 setLoading(false);
             });
     }, [courseId]);

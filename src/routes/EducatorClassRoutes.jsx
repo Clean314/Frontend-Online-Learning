@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router-dom";
 import RoleProtectedRoute from "./RoleProtectedRoute";
 import ClassEducatorDashboard from "../pages/components/educator/ClassEducatorDashboard";
 import ClassEducatorVideos from "../pages/components/educator/ClassEducatorVideos";
-import ClassEducatorExams from "../pages/components/educator/ClassEducatorExams";
 import ExamFormPage from "../pages/components/educator/ExamFormPage";
 import QuestionListPage from "../pages/components/educator/QuestionListPage";
 import { ROLES } from "../roles";
@@ -12,6 +11,7 @@ import AllStudentScoresPage from "../pages/components/educator/AllStudentScoresP
 import QuestionDetailPage from "../pages/components/educator/QuestionDetailPage";
 import MyExamResultPage from "../pages/components/student/MyExamResultPage";
 import ClassAttendancePage from "../pages/components/educator/ClassAttendancePage";
+import ClassEducatorExams from "../pages/components/educator/ClassEducatorExams";
 
 export default function EducatorClassRoutes() {
     return (

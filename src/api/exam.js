@@ -5,22 +5,10 @@ import api from "./axios";
  */
 
 /**
- * @typedef {'SUBJECTIVE'|'OBJECTIVE'} QuestionType
- * - 확장 가능성을 고려해 주관식, 객관식 분리 BUT 개발 일정 상 객관식만 구현
- */
-
-/**
  * @typedef {Object} EducatorQuestionDTO
  * @property {number} number
  * @property {string} content
  * @property {string} answer
- * @property {number} score
- */
-
-/**
- * @typedef {Object} StudentQuestionDTO
- * @property {number} number
- * @property {string} content
  * @property {number} score
  */
 
@@ -33,19 +21,7 @@ import api from "./axios";
  * @property {string} end_time
  * @property {ExamStatus} status
  * @property {number} course_id
- * @property {EducatorQuestionDTO[]} questions
- */
-
-/**
- * @typedef {Object} StudentExamDTO
- * @property {number} id
- * @property {string} title
- * @property {string} description
- * @property {string} start_time
- * @property {string} end_time
- * @property {ExamStatus} status
- * @property {number} course_id
- * @property {StudentQuestionDTO[]} questions
+ * @property {EducatorQuestionDTO[] | null} questions
  */
 
 /**
@@ -58,57 +34,76 @@ import api from "./axios";
  */
 
 /**
- * 강사용 시험 목록 조회
+ * @typedef {Object} ExamUpdateDTO
+ * @property {string} title
+ * @property {string} description
+ * @property {string} start_time
+ * @property {string} end_time
+ * @property {ExamStatus} status
+ */
+
+/**
+ * 강사의 시험 목록 조회
  * @param {number} courseId
  * @returns {Promise<EducatorExamDTO[]>}
  */
 export const getExamListAPI = async (courseId) => {
-    const res = await api.get(`/educator/exam/${courseId}`);
+    const res = await api.get(`/educator/exam`, {
+        params: { courseId },
+    });
     return res.data;
 };
 
 /**
- * 강사용 특정 시험 조회
+ * 강사의 특정 시험 상세 조회
  * @param {number} courseId
  * @param {number} examId
  * @returns {Promise<EducatorExamDTO>}
  */
 export const getExamDetailAPI = async (courseId, examId) => {
-    const res = await api.get(`/educator/exam/${courseId}/${examId}`);
+    const res = await api.get(`/educator/exam/${examId}`, {
+        params: { courseId },
+    });
     return res.data;
 };
 
 /**
- * 시험 생성 (강사용)
+ * 시험 생성
  * @param {number} courseId
  * @param {ExamCreateDTO} examData
- * @returns {Promise<number>} 생성된 시험 ID
+ * @returns {Promise<EducatorExamDTO>}
  */
 export const createExamAPI = async (courseId, examData) => {
-    const res = await api.post(`/educator/exam/${courseId}`, examData);
+    const res = await api.post(`/educator/exam`, examData, {
+        params: { courseId },
+    });
     return res.data;
 };
 
 /**
- * 시험 수정 (강사용)
+ * 시험 수정
  * @param {number} courseId
  * @param {number} examId
- * @param {Partial<ExamCreateDTO>} examData
- * @returns {Promise<number>} 수정된 시험 ID
+ * @param {ExamUpdateDTO} examData
+ * @returns {Promise<EducatorExamDTO>}
  */
 export const modifyExamAPI = async (courseId, examId, examData) => {
-    const res = await api.put(`/educator/exam/${courseId}/${examId}`, examData);
+    const res = await api.put(`/educator/exam/${examId}`, examData, {
+        params: { courseId },
+    });
     return res.data;
 };
 
 /**
- * 시험 삭제 (강사용)
+ * 시험 삭제
  * @param {number} courseId
  * @param {number} examId
  * @returns {Promise<void>}
  */
 export const deleteExamAPI = async (courseId, examId) => {
-    await api.delete(`/educator/exam/${courseId}/${examId}`);
+    await api.delete(`/educator/exam/${examId}`, {
+        params: { courseId },
+    });
 };
 
 /**
