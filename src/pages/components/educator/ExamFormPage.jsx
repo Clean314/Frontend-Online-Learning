@@ -84,6 +84,7 @@ export default function ExamFormPage() {
             description,
             start_time: startTime.toISOString(),
             end_time: endTime.toISOString(),
+            ...(isEditMode && { status: existingExam?.status ?? "PREPARING" }), // 조건부 전송
         };
 
         try {

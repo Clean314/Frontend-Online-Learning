@@ -23,6 +23,7 @@ import {
     ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { deleteQuestionAPI, getQuestionListAPI } from "../../../api/question";
 
 export default function QuestionListPage() {
     const { courseId, examId } = useParams();
@@ -38,19 +39,31 @@ export default function QuestionListPage() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (exam && Array.isArray(exam.questions)) {
-            setQuestions(exam.questions);
-            setLoading(false);
-        } else {
-            setError("시험 데이터가 유효하지 않습니다.");
-            setLoading(false);
-        }
-    }, [exam]);
+        const fetchQuestions = async () => {
+            try {
+                const data = await getQuestionListAPI(courseId, examId);
+                setQuestions(data);
+                console.log(data);
+            } catch (err) {
+                console.log("시험 문제 조회 실패: " + err);
+                setError("문제 목록을 불러오는 데 실패했습니다.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchQuestions();
+    }, [examId, courseId]);
 
     const handleDelete = async (questionId) => {
         if (!window.confirm("정말 이 문제를 삭제하시겠습니까?")) return;
-        // TODO: API 호출 구현 필요 (deleteQuestionAPI)
-        setQuestions((prev) => prev.filter((q) => q.id !== questionId));
+        try {
+            await deleteQuestionAPI(courseId, examId, questionId);
+            setQuestions((prev) => prev.filter((q) => q.id !== questionId));
+        } catch (err) {
+            console.log("시험 문제 삭제 실패: " + err);
+            alert("삭제에 실패했습니다.");
+        }
     };
 
     // 문제 유형별 Chip 속성 반환
@@ -106,7 +119,14 @@ export default function QuestionListPage() {
                 >
                     <Box display="flex" gap={1} alignItems="center">
                         {/* 뒤로 가기 버튼 */}
-                        <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
+                        <IconButton
+                            onClick={() =>
+                                navigate(
+                                    `/courses/${courseId}/classroom/teach/exams`
+                                )
+                            }
+                            sx={{ mr: 1 }}
+                        >
                             <ArrowBackIcon />
                         </IconButton>
                         <Typography variant="h5">문제 목록</Typography>
@@ -115,7 +135,7 @@ export default function QuestionListPage() {
                         <Button
                             variant="contained"
                             startIcon={<AddIcon />}
-                            onClick={() => navigate(`new`)}
+                            onClick={() => navigate(`new`, { state: { exam } })}
                         >
                             새 문제 추가
                         </Button>
@@ -142,7 +162,7 @@ export default function QuestionListPage() {
                             </colgroup>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>ID</TableCell>
+                                    <TableCell></TableCell>
                                     <TableCell>문제 내용</TableCell>
                                     <TableCell align="center">유형</TableCell>
                                     <TableCell align="center">배점</TableCell>
@@ -154,10 +174,10 @@ export default function QuestionListPage() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {questions.map((question) => (
+                                {questions.map((question, idx) => (
                                     <TableRow key={question.id}>
-                                        {/* 문제 ID */}
-                                        <TableCell>{question.id}</TableCell>
+                                        {/* 문제 인덱싱 */}
+                                        <TableCell>{idx + 1}</TableCell>
                                         {/* 문제 내용 */}
                                         <TableCell>
                                             {question.content}
@@ -218,6 +238,7 @@ export default function QuestionListPage() {
                                                                     {
                                                                         state: {
                                                                             question,
+                                                                            exam,
                                                                         },
                                                                     }
                                                                 )

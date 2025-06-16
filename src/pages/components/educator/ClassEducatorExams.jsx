@@ -40,7 +40,7 @@ export default function ClassEducatorExams() {
 
         getExamListAPI(courseId)
             .then((data) => {
-                // questions 배열을 이용해 문제 수 & 총점 계산
+                // questions 배열을 이용해 문제 수 & 총점 계산 => API로 백앤드에서 계산해서 받아오도록 수정
                 const examsWithStats = data.map((exam) => ({
                     ...exam,
                     questionCount: Array.isArray(exam.questions)

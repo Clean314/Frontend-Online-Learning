@@ -7,10 +7,11 @@ import api from "./axios";
 
 /**
  * @typedef {Object} QuestionForm
- * @property {number} number
- * @property {string} content
- * @property {string} answer
- * @property {number} score
+ * @property {number} id        -문제 ID
+ * @property {number} number    - 문제 번호
+ * @property {string} content   - 문제 내용
+ * @property {string} answer    - 정답
+ * @property {number} score     - 배점
  */
 
 /**

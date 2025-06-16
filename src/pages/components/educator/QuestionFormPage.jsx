@@ -12,9 +12,12 @@ import {
     FormControlLabel,
     RadioGroup,
     CircularProgress,
+    Snackbar,
+    Alert,
 } from "@mui/material";
 import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { createQuestionAPI, updateQuestionAPI } from "../../../api/question";
 
 export default function QuestionFormPage() {
     const { courseId, examId, questionId } = useParams();
@@ -22,6 +25,8 @@ export default function QuestionFormPage() {
     const navigate = useNavigate();
 
     const isEditMode = Boolean(questionId);
+
+    const exam = location.state?.exam;
     // 편집 모드일 경우, location에서 데이터 꺼재기
     const existingQuestion = isEditMode ? location.state?.question : null;
 
@@ -35,8 +40,10 @@ export default function QuestionFormPage() {
     const [answerIndex, setAnswerIndex] = useState(null);
 
     const [loading, setLoading] = useState(isEditMode);
+    const [successOpen, setSuccessOpen] = useState(false); // 스낵바
     const [error, setError] = useState("");
 
+    // 편집 모드일 경우 기존 내용 렌더링
     useEffect(() => {
         if (isEditMode && existingQuestion) {
             setContent(existingQuestion.content); // 문제 내용
@@ -53,18 +60,21 @@ export default function QuestionFormPage() {
         }
     }, [isEditMode, existingQuestion]);
 
+    // 선택지 배열 관리
     const handleChoiceChange = (index, value) => {
         setMultipleChoices((prev) =>
             prev.map((c, i) => (i === index ? value : c))
         );
     };
 
+    // 선택지 추가
     const addChoice = () => {
         if (multipleChoices.length >= 10) return;
 
         setMultipleChoices((prev) => [...prev, ""]);
     };
 
+    // 선택지 제거
     const removeChoice = (index) => {
         if (multipleChoices.length <= 2) return;
 
@@ -77,16 +87,29 @@ export default function QuestionFormPage() {
         }
     };
 
+    // 폼 제출 (수정 or 생성)
     const handleSubmit = async () => {
         // 문제 유형별 유효성 검사
         if (!content.trim()) {
             setError("문제 내용을 입력해주세요.");
             return;
         }
-        if (!Number.isInteger(score) || score < 0 || score > 100) {
+        if (!score.trim()) {
+            setError("배점을 입력해주세요.");
+            return;
+        }
+
+        const parsedScore = Number(score);
+        if (
+            score.trim() === "" ||
+            !Number.isInteger(parsedScore) ||
+            parsedScore < 0 ||
+            parsedScore > 100
+        ) {
             setError("배점은 0에서 100 사이의 자연수여야 합니다.");
             return;
         }
+
         if (type === "MULTIPLE_CHOICE") {
             if (multipleChoices.length < 2) {
                 setError("선다형 문제는 최소 2개 이상의 선택지가 필요합니다.");
@@ -113,21 +136,32 @@ export default function QuestionFormPage() {
         }
 
         const payload = {
+            number: Number(existingQuestion?.number ?? 0), // 새로 만들 경우는 백엔드에서 자동 생성
             content,
             type,
-            score,
+            score: parsedScore,
             choices: type === "MULTIPLE_CHOICE" ? multipleChoices : [],
             answerIndex: answerIndex,
         };
 
-        if (isEditMode) {
-            // TODO: API 호출 구현 필요 (updateQuestionAPI)
-            console.log("수정 데이터:", payload);
-        } else {
-            // TODO: API 호출 구현 필요 (createQuestionAPI)
-            console.log("생성 데이터:", payload);
+        try {
+            if (isEditMode) {
+                await updateQuestionAPI(courseId, examId, questionId, payload);
+            } else {
+                await createQuestionAPI(courseId, examId, payload);
+            }
+
+            setSuccessOpen(true);
+            setTimeout(() => {
+                navigate(
+                    `/courses/${courseId}/classroom/teach/exams/${examId}/questions`,
+                    { state: { exam } }
+                );
+            }, 1000);
+        } catch (err) {
+            console.error(err);
+            setError("저장 중 오류가 발생했습니다.");
         }
-        navigate(`/courses/${courseId}/exams/${examId}/questions`);
     };
 
     return (
@@ -179,9 +213,7 @@ export default function QuestionFormPage() {
                                     htmlInput: { min: 0, max: 100, step: 1 },
                                 }}
                                 value={score}
-                                onChange={(e) =>
-                                    setScore(Number(e.target.value))
-                                }
+                                onChange={(e) => setScore(e.target.value)}
                                 fullWidth
                             />
                         </Box>
@@ -213,6 +245,7 @@ export default function QuestionFormPage() {
                                                 )
                                             }
                                             fullWidth
+                                            error={!choice.trim()} // 빈 칸이면 빨간 테두리
                                         />
                                         <IconButton
                                             color="error"
@@ -278,13 +311,35 @@ export default function QuestionFormPage() {
                             >
                                 취소
                             </Button>
-                            <Button variant="contained" onClick={handleSubmit}>
-                                저장
+                            <Button
+                                variant="contained"
+                                onClick={handleSubmit}
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <CircularProgress
+                                        size={24}
+                                        color="inherit"
+                                    />
+                                ) : (
+                                    "저장"
+                                )}
                             </Button>
                         </Box>
                     </Stack>
                 )}
             </Paper>
+
+            <Snackbar
+                open={successOpen}
+                autoHideDuration={2000}
+                onClose={() => setSuccessOpen(false)}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert severity="success" sx={{ width: "100%" }}>
+                    문제가 저장되었습니다!
+                </Alert>
+            </Snackbar>
         </Container>
     );
 }
