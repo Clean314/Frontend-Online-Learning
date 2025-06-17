@@ -46,6 +46,7 @@ export default function CourseListRow({ course, difficultyMap }) {
             <TableCell>{course.category}</TableCell>
             <TableCell align="center">
                 <Rating
+                    max={3}
                     value={difficultyMap[course.difficulty]}
                     readOnly
                     size="small"

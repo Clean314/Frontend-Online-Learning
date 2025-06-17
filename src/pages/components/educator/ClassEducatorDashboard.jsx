@@ -34,9 +34,10 @@ import PeopleIcon from "@mui/icons-material/People";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import { getCourseInfoAPI, modifyCourseInfoAPI } from "../../../api/course";
 import { useParams } from "react-router-dom";
+import { CATEGORY_OPTIONS } from "../../../constants/courseOptions";
 dayjs.locale("ko");
 
-const categories = ["프로그래밍", "데이터베이스", "네트워크", "보안", "AI"];
+const categories = CATEGORY_OPTIONS;
 const difficulties = ["EASY", "MEDIUM", "HARD"];
 const credits = [1, 2, 3];
 

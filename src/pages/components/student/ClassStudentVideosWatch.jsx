@@ -10,6 +10,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
+import { createLectureHistoryAPI } from "../../../api/lectureHistory";
 
 export default function ClassStudentVideosWatch() {
     const theme = useTheme();
@@ -63,16 +64,13 @@ export default function ClassStudentVideosWatch() {
         const attendance = totalWatched / durationSec >= 0.5;
 
         const payload = {
-            lectureId: video.id,
-            watchedTime: Math.round(watchedSec),
-            attendance,
+            startTime: new Date(startTime).toISOString(),
+            endTime: new Date(endTime).toISOString(),
         };
 
         try {
-            // TODO: 출석 처리 API 호출 (POST /students/lectures/attendance)
-
-            console.log("출석 처리 API 응답 성공");
-            console.log(payload);
+            await createLectureHistoryAPI(video.id, payload);
+            console.log("시청 기록 저장 성공");
         } catch (err) {
             console.error("출석 처리 API 에러:", err);
         }

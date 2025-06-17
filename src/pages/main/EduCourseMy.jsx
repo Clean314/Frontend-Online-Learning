@@ -19,7 +19,8 @@ export default function EduCourseMy() {
     const fetchCourses = async () => {
         try {
             const data = await getMyRegisteredCoursesAPI();
-            setCourses(data);
+            const sorted = data.sort((a, b) => b.course_id - a.course_id); // 정렬 추가
+            setCourses(sorted);
         } catch (err) {
             console.error("내 강의 목록 조회 실패:", err);
         } finally {

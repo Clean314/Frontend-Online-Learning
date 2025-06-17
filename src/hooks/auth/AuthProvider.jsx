@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
 
     // 자식 컴포넌트들에게 Context 제공
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, setUser }}>
             {children}
         </AuthContext.Provider>
     );

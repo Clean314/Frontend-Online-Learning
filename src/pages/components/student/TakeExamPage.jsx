@@ -13,6 +13,10 @@ import {
 } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
+import {
+    getStudentExamDetailAPI,
+    submitStudentExamAPI,
+} from "../../../api/exam";
 
 export default function TakeExamPage() {
     const { courseId, examId } = useParams();
@@ -29,38 +33,15 @@ export default function TakeExamPage() {
     const timerRef = useRef(null);
     const draftTimerRef = useRef(null);
 
-    // 1) 초기 데이터 로드 (더미 데이터 + TODO 주석)
+    // 초기 데이터 로드 : 문제 목록 & 타이머 & 5분마다 임시 저장
     useEffect(() => {
         const load = async () => {
             try {
-                // --- 임시 더미 데이터 시작 ---
-                const dummyData = {
-                    questions: [
-                        {
-                            id: 201,
-                            content: "React의 useState 훅은 무엇을 하는가?",
-                            type: "MULTIPLE_CHOICE",
-                            score: 5,
-                            multipleChoices: [
-                                "상태 관리",
-                                "라우팅",
-                                "스타일링",
-                                "이벤트 처리",
-                            ],
-                        },
-                        {
-                            id: 203,
-                            content:
-                                "자바의 인터페이스는 다중 구현이 가능한가? 참/거짓으로 답하세요.",
-                            type: "TRUE_FALSE",
-                            score: 5,
-                        },
-                    ],
-                };
-                setQuestions(dummyData.questions);
-                // --- 임시 더미 데이터 끝 ---
-
-                // TODO: getSavedExamDraftAPI 호출해서 기존 draft answers 불러오기
+                const res = await getStudentExamDetailAPI(
+                    Number(courseId),
+                    Number(examId)
+                );
+                setQuestions(res.questions);
 
                 // 남은 시간 계산
                 const now = dayjs();
@@ -90,7 +71,7 @@ export default function TakeExamPage() {
         };
     }, [courseId, examId, exam]);
 
-    // 2) 남은 시간 카운트다운
+    // 남은 시간 카운트다운
     useEffect(() => {
         if (remainingTime <= 0) return;
         timerRef.current = setInterval(() => {
@@ -117,16 +98,15 @@ export default function TakeExamPage() {
         setAnswers((prev) => ({ ...prev, [questionId]: value }));
     };
 
-    // 3) 임시 저장 (버튼 클릭)
+    // 임시 저장 (버튼 클릭)
     const handleAutoSave = async () => {
         // TODO: saveExamDraftAPI 호출
         setSnackbarMsg("임시 저장되었습니다.");
     };
 
-    // 4) 최종 제출
+    // 최종 제출
     const handleSubmit = async (auto = false) => {
         clearInterval(draftTimerRef.current);
-        // TODO: submitStudentExamAPI 호출
 
         if (!auto) {
             // 빈 응답 체크
@@ -136,7 +116,18 @@ export default function TakeExamPage() {
                 alert(`문제 ${idx + 1}에 대한 답변을 입력해주세요.`);
                 return;
             }
-            setSnackbarMsg("응시가 정상적으로 제출되었습니다.");
+
+            try {
+                await submitStudentExamAPI(
+                    Number(courseId),
+                    Number(examId),
+                    answers
+                );
+                setSnackbarMsg("응시가 정상적으로 제출되었습니다.");
+            } catch (err) {
+                alert("시험 제출 중 오류가 발생했습니다.");
+            }
+
             setTimeout(() => {
                 navigate(
                     `/courses/${courseId}/classroom/learn/exams/${examId}/result`,

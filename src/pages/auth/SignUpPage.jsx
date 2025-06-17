@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
     Box,
     Button,
@@ -29,7 +29,6 @@ export default function SignUpPage() {
     const navigate = useNavigate();
     const { role } = useParams();
 
-    // TODO: 이메일 중복 오류 메시지 추가
     const handleSubmit = async (e) => {
         e.preventDefault();
         setEmailError("");
@@ -41,6 +40,7 @@ export default function SignUpPage() {
                 password,
                 name,
                 role: role.toUpperCase(),
+                description: "",
             });
 
             alert("회원가입이 완료되었습니다!");

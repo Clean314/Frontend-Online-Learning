@@ -39,3 +39,20 @@ export const checkAuthAPI = async () => {
     const res = await api.get("/member/profile");
     return res.data;
 };
+
+/**
+ * 사용자 정보 수정 DTO
+ * @typedef {Object} MemberUpdateDTO
+ * @property {string} name - 사용자 이름
+ * @property {string} description - 사용자 소개
+ */
+
+/**
+ * 사용자 정보 수정
+ * @param {number} memberId - 수정할 사용자 ID
+ * @param {MemberUpdateDTO} memberData - 사용자 정보
+ * @returns {Promise<void>}
+ */
+export const updateMemberInfoAPI = async (memberId, memberData) => {
+    await api.put(`/member/${memberId}`, memberData);
+};

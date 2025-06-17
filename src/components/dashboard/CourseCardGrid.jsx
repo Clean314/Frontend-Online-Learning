@@ -1,11 +1,18 @@
 import { Box, Card, CardActionArea, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../../hooks/auth/useAuth";
 
 /**
- * 대시보드 강의 카드 그리드 (해당 강의실로 이동)
+ * 대시보드 강의 카드 그리드
+ * @param {{
+ *   courses: Array,
+ *   title: string,
+ *   moreLink: string
+ * }} props
  */
 export default function CourseCardGrid({ courses, title, moreLink }) {
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     return (
         <Box sx={{ mb: 4 }}>
@@ -18,7 +25,7 @@ export default function CourseCardGrid({ courses, title, moreLink }) {
                     gap: 2,
                     gridTemplateColumns: {
                         xs: "1fr",
-                        md: `repeat(${courses.length}, 1fr) 0.5fr`,
+                        md: "repeat(4, 1fr) 0.5fr", // 고정 비율
                     },
                 }}
             >
@@ -64,12 +71,23 @@ export default function CourseCardGrid({ courses, title, moreLink }) {
                             >
                                 {course.name}
                             </Typography>
+
+                            {user?.role === "STUDENT" && (
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ textAlign: "right" }}
+                                >
+                                    {course.educator_name}
+                                </Typography>
+                            )}
+
                             <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ textAlign: "right" }}
+                                variant="caption"
+                                color="primary"
+                                sx={{ textAlign: "right", fontWeight: 500 }}
                             >
-                                {course.educatorName} →
+                                강의실로 이동 →
                             </Typography>
                         </CardActionArea>
                     </Card>

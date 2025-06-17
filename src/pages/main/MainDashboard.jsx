@@ -4,25 +4,14 @@ import Profile from "../../components/dashboard/Profile";
 import ProfileEditModal from "../../components/dashboard/ProfileEditModal";
 import useAuth from "../../hooks/auth/useAuth";
 import { Box, CircularProgress } from "@mui/material";
-
-// 임시 데이터
-const mockRecentCourses = [
-    { id: 1, name: "React 기초", educatorName: "이강사" },
-    {
-        id: 2,
-        name: "TypeScript 완전 정복 TypeScript 완전 정복 TypeScript 완전 정복",
-        educatorName: "박강사",
-    },
-    { id: 3, name: "MUI 활용하기", educatorName: "최강사" },
-    { id: 4, name: "JavaScript 고급", educatorName: "김강사" },
-];
-
-const mockCompletedCourses = [
-    { id: 5, name: "HTML/CSS 기본", educatorName: "강강사" },
-    { id: 6, name: "Node.js 입문", educatorName: "이강사" },
-    { id: 7, name: "Git 실전", educatorName: "박강사" },
-    { id: 8, name: "Docker 시작하기", educatorName: "김강사" },
-];
+import {
+    getRecentCompletedCoursesAPI,
+    getRecentCreatedCoursesAPI,
+    getRecentEnrolledCoursesAPI,
+    getRecentUpdatedCoursesAPI,
+} from "../../api/dashboard";
+import { checkAuthAPI, updateMemberInfoAPI } from "../../api/auth";
+import { useNavigate } from "react-router-dom";
 
 // 역할에 따라 텍스트 및 경로 설정
 const DASHBOARD_TEXT = {
@@ -41,10 +30,13 @@ const DASHBOARD_TEXT = {
 };
 
 export default function MainDashboard() {
-    const { user } = useAuth();
+    const { user, setUser } = useAuth();
+    const navigate = useNavigate();
 
     const [recentCourses, setRecentCourses] = useState([]);
     const [completedCourses, setCompletedCourses] = useState([]);
+
+    const [loading, setLoading] = useState(true);
 
     // 프로필 폼 상태
     const initForm = useCallback(
@@ -57,17 +49,50 @@ export default function MainDashboard() {
     );
 
     const [form, setForm] = useState(initForm);
-
-    // 모달 상태
-    const [modalState, setModalState] = useState({ edit: false });
+    const [modalState, setModalState] = useState({ edit: false }); // 모달 상태
 
     const editButtonRef = useRef(null);
     const firstFieldRef = useRef(null);
 
     useEffect(() => {
-        setRecentCourses(mockRecentCourses);
-        setCompletedCourses(mockCompletedCourses);
-    }, []);
+        const fetchCourses = async () => {
+            try {
+                setLoading(true);
+                if (user.role === "STUDENT") {
+                    const [recent, completed] = await Promise.all([
+                        getRecentEnrolledCoursesAPI(),
+                        getRecentCompletedCoursesAPI(),
+                    ]);
+                    setRecentCourses(recent);
+                    setCompletedCourses(completed);
+                } else if (user.role === "EDUCATOR") {
+                    const [recent, completed] = await Promise.all([
+                        getRecentCreatedCoursesAPI(),
+                        getRecentUpdatedCoursesAPI(),
+                    ]);
+                    setRecentCourses(recent);
+                    setCompletedCourses(completed);
+                }
+            } catch (err) {
+                if (err.response?.status === 401) {
+                    alert("로그인이 필요합니다. 다시 로그인해주세요.");
+                    navigate("/login");
+                } else if (err.response?.status === 403) {
+                    alert("접근 권한이 없습니다.");
+                    navigate("/");
+                } else {
+                    console.error("대시보드 데이터 조회 실패:", err);
+                    alert("데이터를 불러오는 중 오류가 발생했습니다.");
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (user) {
+            fetchCourses();
+        }
+    }, [user]);
 
     useEffect(() => {
         setForm(initForm());
@@ -91,7 +116,14 @@ export default function MainDashboard() {
 
     const handleSaveEdit = useCallback(async () => {
         try {
-            // TODO: 사용자 정보 수정 API 호출
+            await updateMemberInfoAPI(user.id, {
+                name: form.name,
+                description: form.description,
+            });
+
+            const updatedUser = await checkAuthAPI();
+            setUser(updatedUser);
+
             setModalState({ edit: false });
             alert("프로필이 성공적으로 수정되었습니다.");
             editButtonRef.current?.focus();
@@ -99,9 +131,9 @@ export default function MainDashboard() {
             console.error("사용자 정보 수정 실패:", err);
             alert("수정 중 오류가 발생했습니다.");
         }
-    }, [form]);
+    }, [form, user.id]);
 
-    if (!user || recentCourses.length === 0) {
+    if (!user || loading) {
         return (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
                 <CircularProgress />

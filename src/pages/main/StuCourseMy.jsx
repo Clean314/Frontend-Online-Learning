@@ -26,10 +26,15 @@ export default function StuCourseMy() {
         getMyEnrollmentsAPI()
             .then((data) => {
                 let filtered = data;
+
                 if (enrolledStatus === "enrolled")
                     filtered = data.filter((i) => i.status === "ENROLLED");
                 if (enrolledStatus === "completed")
                     filtered = data.filter((i) => i.status === "COMPLETED");
+
+                // 정렬 추가
+                filtered.sort((a, b) => b.course_id - a.course_id);
+
                 setItems(filtered);
             })
             .catch((e) => console.error("내 수강목록 조회 실패", e))

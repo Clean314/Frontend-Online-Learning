@@ -30,6 +30,9 @@ export default function TotalCourseList() {
                     data = data.filter((c) => c.status === "AVAILABLE");
                 }
 
+                // 정렬 추가
+                data.sort((a, b) => b.course_id - a.course_id);
+
                 setCourses(data);
             } catch (err) {
                 console.error("강의 목록 조회 실패:", err);
