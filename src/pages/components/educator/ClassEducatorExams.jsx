@@ -25,6 +25,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import { deleteExamAPI, getExamListAPI } from "../../../api/exam";
+import { getQuestionListAPI } from "../../../api/question";
 
 export default function ClassEducatorExams() {
     const { courseId } = useParams();
@@ -36,36 +37,57 @@ export default function ClassEducatorExams() {
 
     // 시험 목록 조회
     useEffect(() => {
-        setLoading(true);
+        const fetchExams = async () => {
+            setLoading(true);
 
-        getExamListAPI(courseId)
-            .then((data) => {
-                // questions 배열을 이용해 문제 수 & 총점 계산 => API로 백앤드에서 계산해서 받아오도록 수정
-                const examsWithStats = data.map((exam) => ({
-                    ...exam,
-                    questionCount: Array.isArray(exam.questions)
-                        ? exam.questions.length
-                        : 0,
-                    totalScore: Array.isArray(exam.questions)
-                        ? exam.questions.reduce(
-                              (sum, q) => sum + (q.score || 0),
-                              0
-                          )
-                        : 0,
-                }));
+            try {
+                const data = await getExamListAPI(courseId);
+                const sortedData = data.sort(
+                    (a, b) => new Date(a.start_time) - new Date(b.start_time)
+                );
+
+                const examsWithStats = await Promise.all(
+                    sortedData.map(async (exam) => {
+                        try {
+                            const questions = await getQuestionListAPI(
+                                Number(courseId),
+                                exam.id
+                            );
+                            return {
+                                ...exam,
+                                questionCount: questions.length,
+                                totalScore: questions.reduce(
+                                    (sum, q) => sum + (q.score || 0),
+                                    0
+                                ),
+                            };
+                        } catch (err) {
+                            console.error(
+                                `시험 ID ${exam.id}의 문제 목록 조회 실패`,
+                                err
+                            );
+                            return {
+                                ...exam,
+                                questionCount: 0,
+                                totalScore: 0,
+                            };
+                        }
+                    })
+                );
+
                 setExams(examsWithStats);
-                setLoading(false);
-
-                console.log(exams);
-            })
-            .catch((err) => {
+            } catch (err) {
                 let message = "시험 목록을 불러오는 중 오류가 발생했습니다.";
                 if (err.response?.data?.detail) {
                     message = err.response.data.detail;
                 }
                 setError(message);
+            } finally {
                 setLoading(false);
-            });
+            }
+        };
+
+        fetchExams();
     }, [courseId]);
 
     // 시험 삭제

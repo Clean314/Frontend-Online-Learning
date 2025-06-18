@@ -39,20 +39,25 @@ export default function ClassStudentExams() {
             const data = await getStudentExamListAPI(Number(courseId));
             const now = new Date();
 
-            const mapped = data.map((e) => ({
-                id: e.id,
-                title: e.title,
-                startTime: new Date(e.start_time),
-                endTime: new Date(e.end_time),
-                status: e.status, // PREPARING, IN_PROGRESS, COMPLETED
-                hasTaken: e.questions.every((q) => q.response != null),
-                totalScore: e.questions.reduce((s, q) => s + (q.score || 0), 0),
-                score: e.questions.reduce(
-                    (s, q) => s + (q.isCorrect ? q.score : 0),
-                    0
-                ),
-                questionCount: e.questions.length, // 문제 수
-            }));
+            const mapped = data
+                .map((e) => ({
+                    id: e.id,
+                    title: e.title,
+                    startTime: new Date(e.start_time),
+                    endTime: new Date(e.end_time),
+                    status: e.status, // PREPARING, IN_PROGRESS, COMPLETED
+                    hasTaken: e.questions.every((q) => q.response != null),
+                    totalScore: e.questions.reduce(
+                        (s, q) => s + (q.score || 0),
+                        0
+                    ),
+                    score: e.questions.reduce(
+                        (s, q) => s + (q.isCorrect ? q.score : 0),
+                        0
+                    ),
+                    questionCount: e.questions.length, // 문제 수
+                }))
+                .sort((a, b) => b.startTime - a.startTime); // 시험 시작 시각 기준 내림차순 정렬
 
             setExams(mapped);
             setError(null);

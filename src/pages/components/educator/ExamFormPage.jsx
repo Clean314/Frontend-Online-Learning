@@ -82,8 +82,8 @@ export default function ExamFormPage() {
         const payload = {
             title,
             description,
-            start_time: startTime.toISOString(),
-            end_time: endTime.toISOString(),
+            start_time: startTime.format("YYYY-MM-DDTHH:mm:ss"),
+            end_time: endTime.format("YYYY-MM-DDTHH:mm:ss"),
             ...(isEditMode && { status: existingExam?.status ?? "PREPARING" }), // 조건부 전송
         };
 
