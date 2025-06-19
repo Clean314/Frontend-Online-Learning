@@ -40,6 +40,7 @@ import {
     POINT_OPTIONS,
 } from "../../../constants/courseOptions";
 import { getExamListAPI } from "../../../api/exam";
+import { getStudentAttendanceAPI } from "../../../api/lectureHistory";
 dayjs.locale("ko");
 
 const categories = CATEGORY_OPTIONS;
@@ -51,6 +52,7 @@ export default function ClassEducatorDashboard() {
     const { courseId } = useParams();
 
     const [courseInfo, setCourseInfo] = useState(null); // 강의 기본 정보
+    const [avgAttendanceRate, setAvgAttendanceRate] = useState(null); // 평균 수강률
     const [lectureEvents, setLectureEvents] = useState([]); // 시험 일정
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -77,6 +79,35 @@ export default function ClassEducatorDashboard() {
                 console.error("강의 정보 조회 실패:", err);
             }
         })();
+    }, [courseId]);
+
+    // 전체 출석 정보 조회
+    useEffect(() => {
+        const fetchAttendance = async () => {
+            try {
+                const attendanceList = await getStudentAttendanceAPI(
+                    Number(courseId)
+                );
+                if (attendanceList.length === 0) {
+                    setAvgAttendanceRate(0);
+                    return;
+                }
+
+                const totalRate = attendanceList.reduce((sum, item) => {
+                    const rate =
+                        item.total > 0 ? item.attended / item.total : 0;
+                    return sum + rate;
+                }, 0);
+
+                const average = totalRate / attendanceList.length;
+                setAvgAttendanceRate(Math.round(average * 100)); // %로 변환
+            } catch (err) {
+                console.error("출석 정보 조회 실패:", err);
+                setAvgAttendanceRate(null);
+            }
+        };
+
+        fetchAttendance();
     }, [courseId]);
 
     // 시험 일정 조회
@@ -368,7 +399,7 @@ export default function ClassEducatorDashboard() {
                         />
                     </Box>
                 </Box>
-                {/* 완료율 평균 */}
+                {/* 수강률 평균 */}
                 <Box
                     sx={{ flex: 1 }}
                     display="flex"
@@ -377,13 +408,15 @@ export default function ClassEducatorDashboard() {
                 >
                     <ShowChartIcon sx={{ fontSize: 40, flex: 1 }} />
                     <Box sx={{ flex: 3 }}>
-                        <Typography variant="overline">완료율 평균</Typography>
+                        <Typography variant="overline">수강률 평균</Typography>
                         <Typography variant="h6">
-                            {stats.avgCompletionRate}%
+                            {avgAttendanceRate != null
+                                ? `${avgAttendanceRate}%`
+                                : "N/A"}
                         </Typography>
                         <LinearProgress
                             variant="determinate"
-                            value={stats.avgCompletionRate}
+                            value={avgAttendanceRate || 0}
                             sx={{ mt: 1, height: 8, borderRadius: 4 }}
                         />
                     </Box>

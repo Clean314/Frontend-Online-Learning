@@ -29,14 +29,18 @@ export default function ExamFormPage() {
     // ─── 기본값을 모드에 따라 분기 설정 ──────
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+
+    // 현재 시각 기준 5분 단위로 올림
+    const roundToFiveMinutes = (d) =>
+        d.minute(Math.ceil(d.minute() / 5) * 5).second(0);
     const [startTime, setStartTime] = useState(
         !isEditMode
-            ? dayjs().add(1, "day") // 새 시험 생성 시: 내일
+            ? roundToFiveMinutes(dayjs().add(1, "day")) // 새 시험 생성 시: 내일
             : dayjs() // 수정 모드: 초기값(로딩 중 스피너)
     );
     const [endTime, setEndTime] = useState(
         !isEditMode
-            ? dayjs().add(1, "day").add(1, "hour") // 새 시험 생성 시: 내일 + 1시간
+            ? roundToFiveMinutes(dayjs().add(1, "day").add(1, "hour")) // 새 시험 생성 시: 내일 + 1시간
             : dayjs().add(1, "hour") // 수정 모드: 초기값(로딩 중 스피너)
     );
     const [loading, setLoading] = useState(isEditMode);

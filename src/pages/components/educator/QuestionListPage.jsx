@@ -94,15 +94,14 @@ export default function QuestionListPage() {
 
     // 답 표시 로직
     const getAnswerDisplay = (question) => {
-        if (question.type === "CHOICE") {
-            // answerIndex가 1부터 시작하는 자연수로 저장되어 있다고 가정
-            return question.answerIndex != null
-                ? String(question.answerIndex)
-                : "-";
+        if (question.questionType === "CHOICE") {
+            const index = question.choices?.indexOf(question.answer);
+            return index !== -1 ? `${index + 1}번` : "-";
         }
-        if (question.type === "TRUE_FALSE") {
-            if (question.answerIndex === 0) return "거짓";
-            if (question.answerIndex === 1) return "참";
+        if (question.questionType === "TRUE_FALSE") {
+            const ans = String(question.answer);
+            if (ans === "0") return "참";
+            if (ans === "1") return "거짓";
             return "-";
         }
         return "-";
@@ -186,7 +185,7 @@ export default function QuestionListPage() {
                                         <TableCell align="center">
                                             <Chip
                                                 {...getTypeChipProps(
-                                                    question.type
+                                                    question.questionType
                                                 )}
                                                 size="medium"
                                             />
@@ -197,9 +196,8 @@ export default function QuestionListPage() {
                                         </TableCell>
                                         {/* 선택지 수 (선다형만 해당) */}
                                         <TableCell align="center">
-                                            {question.type === "CHOICE"
-                                                ? question.multipleChoices
-                                                      .length
+                                            {question.questionType === "CHOICE"
+                                                ? question.choices.length
                                                 : "-"}
                                         </TableCell>
                                         {/* 답 표시 */}
@@ -218,8 +216,19 @@ export default function QuestionListPage() {
                                                             `${question.id}/detail`,
                                                             {
                                                                 state: {
-                                                                    question,
                                                                     exam,
+                                                                    question: {
+                                                                        id: question.id,
+                                                                        number: question.number,
+                                                                        content:
+                                                                            question.content,
+                                                                        score: question.score,
+                                                                        questionType:
+                                                                            question.questionType,
+                                                                        choices:
+                                                                            question.choices,
+                                                                        answer: question.answer, // answerIndex 대신 실제 답안 문자열
+                                                                    },
                                                                 },
                                                             }
                                                         )
@@ -237,8 +246,20 @@ export default function QuestionListPage() {
                                                                     `${question.id}/edit`,
                                                                     {
                                                                         state: {
-                                                                            question,
                                                                             exam,
+                                                                            question:
+                                                                                {
+                                                                                    id: question.id,
+                                                                                    number: question.number,
+                                                                                    content:
+                                                                                        question.content,
+                                                                                    score: question.score,
+                                                                                    questionType:
+                                                                                        question.questionType,
+                                                                                    choices:
+                                                                                        question.choices,
+                                                                                    answer: question.answer, // answerIndex 대신 실제 답안 문자열
+                                                                                },
                                                                         },
                                                                     }
                                                                 )

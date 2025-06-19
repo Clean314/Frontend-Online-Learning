@@ -87,7 +87,7 @@ export default function ClassStudentDashboard() {
             try {
                 const result = await fetchAverageAttendanceAPI(courseId);
 
-                setMyProgressRate(72);
+                setMyProgressRate(Number(result.toFixed(1)));
             } catch (err) {
                 console.error("출석률 조회 실패:", err);
             }
@@ -177,7 +177,7 @@ export default function ClassStudentDashboard() {
         );
     }
 
-    if (loading) {
+    if (loading || !course) {
         return (
             <Paper sx={{ p: 3 }}>
                 <Box textAlign="center" py={5}>

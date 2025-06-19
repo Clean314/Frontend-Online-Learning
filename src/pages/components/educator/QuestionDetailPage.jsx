@@ -1,4 +1,3 @@
-// QuestionDetailPage.jsx
 import React, { useState, useEffect } from "react";
 import {
     Container,
@@ -21,34 +20,31 @@ export default function QuestionDetailPage() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // 상위에서 넘겨받은 question 객체
     const question = location.state?.question;
-    const [loading, setLoading] = useState(true);
 
-    // 필드 상태 (읽기 전용)
+    const [loading, setLoading] = useState(true);
     const [content, setContent] = useState("");
     const [type, setType] = useState("");
     const [score, setScore] = useState("");
-    const [multipleChoices, setMultipleChoices] = useState([]);
+    const [choices, setChoices] = useState([]);
     const [answerIndex, setAnswerIndex] = useState(null);
-    const [answerText, setAnswerText] = useState("");
-    const [explanation, setExplanation] = useState("");
 
     useEffect(() => {
         if (question) {
             setContent(question.content);
-            setType(question.type);
+            setType(question.questionType); // key 변경 주의
             setScore(String(question.score));
 
-            if (question.type === "CHOICE") {
-                setMultipleChoices([...question.multipleChoices]);
-                setAnswerIndex(question.answerIndex);
-            } else if (question.type === "TRUE_FALSE") {
-                setAnswerIndex(question.answerIndex);
-            } else {
-                setAnswerText(question.answerText || "");
+            if (question.questionType === "CHOICE") {
+                setChoices([...question.choices]);
+
+                const index = question.choices.indexOf(question.answer);
+                setAnswerIndex(index !== -1 ? index : null);
+            } else if (question.questionType === "TRUE_FALSE") {
+                setChoices(["참", "거짓"]);
+                setAnswerIndex(Number(question.answer));
             }
-            setExplanation(question.answerText || "");
+
             setLoading(false);
         }
     }, [question]);
@@ -64,15 +60,12 @@ export default function QuestionDetailPage() {
         }
     };
 
-    // 읽기 전용 화면에서 "정답 번호" 표시 (1-based)
     const getAnswerDisplay = () => {
         if (type === "CHOICE") {
-            return answerIndex != null ? String(answerIndex + 1) : "-";
+            return answerIndex != null ? `${answerIndex + 1}번` : "-";
         }
         if (type === "TRUE_FALSE") {
-            if (answerIndex === 0) return "거짓";
-            if (answerIndex === 1) return "참";
-            return "-";
+            return answerIndex === 0 ? "참" : answerIndex === 1 ? "거짓" : "-";
         }
         return "-";
     };
@@ -93,45 +86,36 @@ export default function QuestionDetailPage() {
                     </Box>
                 ) : (
                     <Stack spacing={2}>
-                        {/* 문제 내용 (읽기 전용) */}
                         <TextField
                             label="문제 내용"
                             value={content}
                             multiline
                             rows={4}
                             fullWidth
-                            slotProps={{
-                                input: { readOnly: true },
-                            }}
+                            InputProps={{ readOnly: true }}
                         />
 
-                        {/* 유형 + 배점 */}
                         <Box display="flex" gap={2}>
                             <TextField
                                 label="문제 유형"
                                 value={getTypeLabel(type)}
                                 fullWidth
-                                slotProps={{
-                                    input: { readOnly: true },
-                                }}
+                                InputProps={{ readOnly: true }}
                             />
                             <TextField
                                 label="배점"
                                 value={score}
                                 fullWidth
-                                slotProps={{
-                                    input: { readOnly: true },
-                                }}
+                                InputProps={{ readOnly: true }}
                             />
                         </Box>
 
-                        {/* 선다형: 선택지 목록 + 정답 표시 */}
                         {type === "CHOICE" && (
                             <Box>
                                 <Typography variant="subtitle1" mb={1}>
                                     선택지
                                 </Typography>
-                                {multipleChoices.map((choice, idx) => (
+                                {choices.map((choice, idx) => (
                                     <Box
                                         key={idx}
                                         display="flex"
@@ -145,9 +129,7 @@ export default function QuestionDetailPage() {
                                         <TextField
                                             value={choice}
                                             fullWidth
-                                            slotProps={{
-                                                input: { readOnly: true },
-                                            }}
+                                            InputProps={{ readOnly: true }}
                                         />
                                     </Box>
                                 ))}
@@ -158,7 +140,6 @@ export default function QuestionDetailPage() {
                             </Box>
                         )}
 
-                        {/* 진위형: "참"/"거짓" 라디오에 checked 표시 */}
                         {type === "TRUE_FALSE" && (
                             <Box>
                                 <Typography variant="subtitle1" mb={1}>

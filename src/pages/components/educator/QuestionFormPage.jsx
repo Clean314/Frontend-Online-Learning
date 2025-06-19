@@ -34,9 +34,6 @@ export default function QuestionFormPage() {
     const [type, setType] = useState("CHOICE");
     const [score, setScore] = useState("");
     const [multipleChoices, setMultipleChoices] = useState(["", ""]);
-    // answerIndex:
-    // for MULTIPLE_CHOICE, 1-based index;
-    // for TRUE_FALSE, 0 for "참", 1 for "거짓"
     const [answerIndex, setAnswerIndex] = useState(null);
 
     const [loading, setLoading] = useState(isEditMode);
@@ -46,16 +43,24 @@ export default function QuestionFormPage() {
     // 편집 모드일 경우 기존 내용 렌더링
     useEffect(() => {
         if (isEditMode && existingQuestion) {
-            setContent(existingQuestion.content); // 문제 내용
-            setType(existingQuestion.type); // 문제 유형
-            setScore(String(existingQuestion.score)); // 배점 (숫자 -> 문자열 변환)
-            // 선택지
-            if (existingQuestion.type === "CHOICE") {
-                setMultipleChoices([...existingQuestion.multipleChoices]);
+            setContent(existingQuestion.content);
+            setType(existingQuestion.questionType); // ← 수정: 기존에는 .type 사용했을 수 있음
+            setScore(String(existingQuestion.score));
+
+            if (existingQuestion.questionType === "CHOICE") {
+                setMultipleChoices([...existingQuestion.choices]);
+
+                // 정답 문자열의 index를 찾아서 answerIndex 설정
+                const index = existingQuestion.choices.indexOf(
+                    existingQuestion.answer
+                );
+                setAnswerIndex(index !== -1 ? index : null);
             } else {
-                setMultipleChoices(["", ""]);
+                // TRUE_FALSE 타입은 0 또는 1 그대로 사용
+                setMultipleChoices(["참", "거짓"]);
+                setAnswerIndex(Number(existingQuestion.answer));
             }
-            setAnswerIndex(existingQuestion.answerIndex ?? null); // 정답
+
             setLoading(false);
         }
     }, [isEditMode, existingQuestion]);
@@ -138,10 +143,10 @@ export default function QuestionFormPage() {
         const payload = {
             number: Number(existingQuestion?.number ?? 0), // 새로 만들 경우는 백엔드에서 자동 생성
             content,
-            type,
+            questionType: type,
             score: parsedScore,
             choices: type === "CHOICE" ? multipleChoices : [],
-            answerIndex: answerIndex,
+            answer: answerIndex,
         };
 
         try {

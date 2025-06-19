@@ -4,7 +4,6 @@ import {
     Paper,
     Typography,
     Box,
-    IconButton,
     Button,
     TableContainer,
     Table,
@@ -12,16 +11,18 @@ import {
     TableRow,
     TableCell,
     TableBody,
+    IconButton,
     CircularProgress,
 } from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { getStudentExamSubmissionsAPI } from "../../../api/exam";
+import { getCourseInfoAPI } from "../../../api/course";
 
 export default function AllStudentScoresPage() {
     const { courseId, examId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
-    // 상위에서 받아온 totalScore
     const { totalScore } = location.state || {};
 
     const [scores, setScores] = useState([]);
@@ -29,46 +30,43 @@ export default function AllStudentScoresPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // 평균 점수 계산
+    const submittedScores = scores.filter((s) => s.submitted);
     const averageScore =
-        scores.length > 0
+        submittedScores.length > 0
             ? (
-                  scores.reduce((sum, item) => sum + item.score, 0) /
-                  scores.length
+                  submittedScores.reduce(
+                      (sum, item) => sum + item.totalScore,
+                      0
+                  ) / submittedScores.length
               ).toFixed(1)
             : 0;
 
     useEffect(() => {
-        // TODO: API 호출 구현 필요
-        // getAllStudentScoresAPI(courseId, examId) → setScores(...)
-        // getCourseEnrollmentCountAPI(courseId) → setTotalStudents(...)
-        const dummyScores = [
-            {
-                studentId: "2023001",
-                studentName: "김철수",
-                score: 85,
-                submittedAt: "2025-06-10T11:05:00",
-            },
-            {
-                studentId: "2023002",
-                studentName: "이영희",
-                score: 92,
-                submittedAt: "2025-06-10T11:02:00",
-            },
-            {
-                studentId: "2023003",
-                studentName: "박민수",
-                score: 78,
-                submittedAt: "2025-06-10T11:10:00",
-            },
-        ];
-        const dummyTotalStudents = 10; // 전체 수강자 수
+        const loadScoresAndStudents = async () => {
+            try {
+                const [submissions, courseInfo] = await Promise.all([
+                    getStudentExamSubmissionsAPI(
+                        Number(courseId),
+                        Number(examId)
+                    ),
+                    getCourseInfoAPI(Number(courseId)),
+                ]);
 
-        setTimeout(() => {
-            setScores(dummyScores);
-            setTotalStudents(dummyTotalStudents);
-            setLoading(false);
-        }, 500);
+                setScores(submissions);
+                const total =
+                    courseInfo.max_enrollment - courseInfo.available_enrollment;
+                setTotalStudents(total);
+            } catch (err) {
+                console.error("성적 또는 수강자 수 조회 실패:", err);
+                setError("성적 정보를 불러오는 중 오류가 발생했습니다.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (courseId && examId) {
+            loadScoresAndStudents();
+        }
     }, [courseId, examId]);
 
     const handleBack = () => {
@@ -93,7 +91,6 @@ export default function AllStudentScoresPage() {
                     <Typography color="error">{error}</Typography>
                 ) : (
                     <>
-                        {/* 응시자 수 / 전체 수강자 수, 평균 점수 */}
                         <Box display="flex" gap={4} mb={2}>
                             <Typography>
                                 <Box
@@ -102,7 +99,7 @@ export default function AllStudentScoresPage() {
                                 >
                                     응시자 수:
                                 </Box>{" "}
-                                {scores.length} / {totalStudents}
+                                {submittedScores.length} / {totalStudents}
                             </Typography>
                             <Typography>
                                 <Box
@@ -111,7 +108,7 @@ export default function AllStudentScoresPage() {
                                 >
                                     평균 점수:
                                 </Box>{" "}
-                                {averageScore}점
+                                {averageScore} / {totalScore}점
                             </Typography>
                         </Box>
 
@@ -145,25 +142,33 @@ export default function AllStudentScoresPage() {
                                                 {item.studentName}
                                             </TableCell>
                                             <TableCell align="center">
-                                                {item.score}점
+                                                {item.submitted
+                                                    ? `${item.totalScore}점`
+                                                    : "미응시"}
                                             </TableCell>
                                             <TableCell align="center">
-                                                <Button
-                                                    variant="outlined"
-                                                    size="small"
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `${item.studentId}`,
-                                                            {
-                                                                state: {
-                                                                    totalScore,
-                                                                },
-                                                            }
-                                                        )
-                                                    }
-                                                >
-                                                    상세보기
-                                                </Button>
+                                                {item.submitted ? (
+                                                    <Button
+                                                        variant="outlined"
+                                                        size="small"
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `${item.studentId}`,
+                                                                {
+                                                                    state: {
+                                                                        totalScore,
+                                                                        student:
+                                                                            item, // 학생 정보 전체 전달
+                                                                    },
+                                                                }
+                                                            )
+                                                        }
+                                                    >
+                                                        상세보기
+                                                    </Button>
+                                                ) : (
+                                                    "-"
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}

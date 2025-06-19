@@ -43,7 +43,7 @@ import api from "./axios";
  */
 
 /**
- * 강사의 시험 목록 조회
+ * 시험 목록 조회 (강사용)
  * @param {number} courseId
  * @returns {Promise<EducatorExamDTO[]>}
  */
@@ -55,7 +55,7 @@ export const getExamListAPI = async (courseId) => {
 };
 
 /**
- * 강사의 특정 시험 상세 조회
+ * 특정 시험 상세 조회 (강사용)
  * @param {number} courseId
  * @param {number} examId
  * @returns {Promise<EducatorExamDTO>}
@@ -68,7 +68,7 @@ export const getExamDetailAPI = async (courseId, examId) => {
 };
 
 /**
- * 시험 생성
+ * 시험 생성 (강사용)
  * @param {number} courseId
  * @param {ExamCreateDTO} examData
  * @returns {Promise<EducatorExamDTO>}
@@ -81,7 +81,7 @@ export const createExamAPI = async (courseId, examData) => {
 };
 
 /**
- * 시험 수정
+ * 시험 수정 (강사용)
  * @param {number} courseId
  * @param {number} examId
  * @param {ExamUpdateDTO} examData
@@ -95,7 +95,7 @@ export const modifyExamAPI = async (courseId, examId, examData) => {
 };
 
 /**
- * 시험 삭제
+ * 시험 삭제 (강사용)
  * @param {number} courseId
  * @param {number} examId
  * @returns {Promise<void>}
@@ -104,6 +104,42 @@ export const deleteExamAPI = async (courseId, examId) => {
     await api.delete(`/educator/exam/${examId}`, {
         params: { courseId },
     });
+};
+
+/**
+ * 특정 시험의 학생 제출 목록 조회 (강사용)
+ * @param {number} courseId
+ * @param {number} examId
+ * @returns {Promise<StudentExamSubmissionDTO[]>}
+ */
+export const getStudentExamSubmissionsAPI = async (courseId, examId) => {
+    const res = await api.get(`/educator/exam/${examId}/student-submits`, {
+        params: { courseId },
+    });
+    return res.data;
+};
+
+/**
+ * 서술형 답안 평가 점수 수정 (강사용)
+ * @param {number} courseId
+ * @param {number} examId
+ * @param {number} studentId
+ * @param {number} questionId
+ * @param {{ score: number, comment?: string }} evaluationData
+ * @returns {Promise<void>}
+ */
+export const updateAnswerEvaluationAPI = async (
+    courseId,
+    examId,
+    studentId,
+    questionId,
+    evaluationData
+) => {
+    await api.patch(
+        `/educator/exam/${examId}/student-submits/${studentId}/answers/${questionId}`,
+        evaluationData,
+        { params: { courseId } }
+    );
 };
 
 /**

@@ -15,7 +15,7 @@ import api from "./axios";
  */
 
 /**
- * 시험 문제 목록 조회
+ * 시험 문제 목록 조회 (강사용)
  * @param {number} courseId
  * @param {number} examId
  * @returns {Promise<QuestionForm[]>}
