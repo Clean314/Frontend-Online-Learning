@@ -17,8 +17,18 @@ import api from "./axios";
  */
 
 /**
- * 강의 영상 시청 기록 저장 (타임라인)
- * @param {{ videoId: number, startTime: string, endTime: string }} payload
+ * 특정 강의의 누적 시청 시간 조회
+ * @param {number} lectureId - 강의 ID
+ * @returns {Promise<number>} - 누적 시청 시간 (초 단위)
+ */
+export const getWatchedTimeAPI = async (lectureId) => {
+    const res = await api.get(`/history/watched-time/${lectureId}`);
+    return res.data; // 예: 123.4
+};
+
+/**
+ * 강의 시청 이력 저장 (타임라인)
+ * @param {{ lectureId: number, watchedTime: number, attendance: boolean }} payload
  * @returns {Promise<string>} - 성공 메시지
  */
 export const saveLectureTimelineAPI = async (payload) => {
@@ -37,11 +47,31 @@ export const fetchAverageAttendanceAPI = async (courseId) => {
 };
 
 /**
- * 강의별 전체 학생 출석 정보 조회 (강사용)
+ * @typedef {Object} CourseAttendanceDTO
+ * @property {string} studentName        - 학생 이름
+ * @property {number} totalCourse        - 전체 수강한 강의 수
+ * @property {number} attendanceTrue     - 출석한 강의 수
+ * @property {number} attendanceFalse    - 결석한 강의 수
+ * @property {number} attendanceAvg      - 출석률 (0.0 ~ 100.0)
+ * @property {number} memberId           - 학생 회원 ID
+ */
+
+/**
+ * 특정 강의(courseId)에 대한 전체 학생 출석 리스트 조회
  * @param {number} courseId
  * @returns {Promise<CourseAttendanceDTO[]>}
  */
-export const getStudentAttendanceAPI = async (courseId) => {
+export const getCourseAttendanceListAPI = async (courseId) => {
+    const res = await api.get(`/history/attendance/${courseId}/list`);
+    return res.data;
+};
+
+/**
+ * 특정 강의(courseId)에 대한 전체 평균 출석률 조회
+ * @param {number} courseId
+ * @returns {Promise<number>} 0.0 ~ 100.0 범위의 평균 출석률
+ */
+export const getCourseAvgAttendanceAPI = async (courseId) => {
     const res = await api.get(`/history/attendance/${courseId}`);
     return res.data;
 };

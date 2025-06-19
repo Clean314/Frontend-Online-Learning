@@ -34,7 +34,7 @@ export default function ClassStudentVideos() {
                     videoUrl: lec.video_url,
                     duration: "", // 이후 YouTube Data API로 가져올 예정
                     publishedAt: lec.createdAt, // API가 주는 createdAt(ISO 문자열)을 초기 등록일로 사용
-                    watched: idx % 2 === 0, // 짝수 인덱스 영상은 시청 완료로 표시 (임시)
+                    watched: lec.attendance,
                 }));
 
                 setVideos(mapped);

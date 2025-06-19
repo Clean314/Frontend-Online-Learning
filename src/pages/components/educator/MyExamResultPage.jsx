@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { getQuestionListAPI } from "../../../api/question";
 
 export default function MyExamResultPage() {
-    const { courseId, examId, studentId } = useParams();
+    const { courseId, examId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -82,19 +82,27 @@ export default function MyExamResultPage() {
                     const question = questionMap[item.questionId];
                     if (!question) return null;
 
-                    const isMultiple = question.questionType === "CHOICE";
-                    const choices = isMultiple
-                        ? question.choices?.reduce((obj, choice, index) => {
-                              obj[index] = choice;
-                              return obj;
-                          }, {})
-                        : { 0: "참", 1: "거짓" };
+                    const isChoice =
+                        question.question_type === "CHOICE" ||
+                        question.question_type === "TRUE_FALSE";
 
-                    const correctIndex = isMultiple
-                        ? question.choices.indexOf(question.answer)
-                        : Number(question.answer);
+                    // 보기 설정
+                    const choices =
+                        question.question_type === "TRUE_FALSE"
+                            ? { 0: "참", 1: "거짓" }
+                            : question.choices?.reduce((obj, choice, index) => {
+                                  obj[String(index)] = choice;
+                                  return obj;
+                              }, {}) || {};
 
-                    const selected = item.answer; // number로 비교
+                    // 정답 인덱스
+                    const correctIndex =
+                        question.question_type === "TRUE_FALSE"
+                            ? question.answer
+                            : String(question.choices.indexOf(question.answer));
+
+                    // 응시자가 제출한 답 (문자열로 통일)
+                    const selected = String(item.answer);
 
                     return (
                         <Paper
@@ -106,21 +114,19 @@ export default function MyExamResultPage() {
                             }}
                         >
                             <Typography variant="subtitle2" gutterBottom>
-                                {`문제 ${idx + 1} (${isMultiple ? "선다형" : "진위형"} / 배점 ${question.score}점)`}
+                                {`문제 ${idx + 1} (${question.question_type === "CHOICE" ? "선다형" : "진위형"} / 배점 ${question.score}점)`}
                             </Typography>
                             <Typography variant="body2" mb={1}>
                                 {question.content}
                             </Typography>
-                            <RadioGroup value={String(selected)}>
+                            <RadioGroup value={selected}>
                                 {Object.entries(choices).map(([key, label]) => {
-                                    const keyNum = Number(key);
-                                    const isUserChoice = keyNum === selected;
                                     const isCorrectChoice =
-                                        keyNum === correctIndex;
+                                        key === correctIndex;
                                     return (
                                         <FormControlLabel
                                             key={key}
-                                            value={key}
+                                            value={String(key)}
                                             control={
                                                 <Radio
                                                     slotProps={{

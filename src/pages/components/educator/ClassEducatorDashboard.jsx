@@ -40,7 +40,7 @@ import {
     POINT_OPTIONS,
 } from "../../../constants/courseOptions";
 import { getExamListAPI } from "../../../api/exam";
-import { getStudentAttendanceAPI } from "../../../api/lectureHistory";
+import { getCourseAvgAttendanceAPI } from "../../../api/lectureHistory";
 dayjs.locale("ko");
 
 const categories = CATEGORY_OPTIONS;
@@ -81,26 +81,13 @@ export default function ClassEducatorDashboard() {
         })();
     }, [courseId]);
 
-    // 전체 출석 정보 조회
+    // 평균 출석률 조회
     useEffect(() => {
         const fetchAttendance = async () => {
             try {
-                const attendanceList = await getStudentAttendanceAPI(
-                    Number(courseId)
-                );
-                if (attendanceList.length === 0) {
-                    setAvgAttendanceRate(0);
-                    return;
-                }
+                const res = await getCourseAvgAttendanceAPI(Number(courseId));
 
-                const totalRate = attendanceList.reduce((sum, item) => {
-                    const rate =
-                        item.total > 0 ? item.attended / item.total : 0;
-                    return sum + rate;
-                }, 0);
-
-                const average = totalRate / attendanceList.length;
-                setAvgAttendanceRate(Math.round(average * 100)); // %로 변환
+                setAvgAttendanceRate(Number(res.toFixed(1))); // 정수 %로 표시
             } catch (err) {
                 console.error("출석 정보 조회 실패:", err);
                 setAvgAttendanceRate(null);

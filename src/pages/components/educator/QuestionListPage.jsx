@@ -94,17 +94,27 @@ export default function QuestionListPage() {
 
     // 답 표시 로직
     const getAnswerDisplay = (question) => {
-        if (question.questionType === "CHOICE") {
+        if (question.question_type === "CHOICE") {
             const index = question.choices?.indexOf(question.answer);
             return index !== -1 ? `${index + 1}번` : "-";
         }
-        if (question.questionType === "TRUE_FALSE") {
+        if (question.question_type === "TRUE_FALSE") {
             const ans = String(question.answer);
             if (ans === "0") return "참";
             if (ans === "1") return "거짓";
             return "-";
         }
         return "-";
+    };
+
+    // 문제 목록 중 비어있는 번호 찾기 (1부터 시작하는 자연수 중 비어 있는 가장 작은 수)
+    const findNextAvailableNumber = (numbers) => {
+        const numSet = new Set(numbers);
+        let i = 1;
+        while (numSet.has(i)) {
+            i++;
+        }
+        return i;
     };
 
     return (
@@ -134,7 +144,17 @@ export default function QuestionListPage() {
                         <Button
                             variant="contained"
                             startIcon={<AddIcon />}
-                            onClick={() => navigate(`new`, { state: { exam } })}
+                            onClick={() => {
+                                const existingNumbers = questions.map(
+                                    (q) => q.number
+                                );
+                                const suggestedNumber =
+                                    findNextAvailableNumber(existingNumbers);
+
+                                navigate(`new`, {
+                                    state: { exam, suggestedNumber },
+                                });
+                            }}
                         >
                             새 문제 추가
                         </Button>
@@ -185,7 +205,7 @@ export default function QuestionListPage() {
                                         <TableCell align="center">
                                             <Chip
                                                 {...getTypeChipProps(
-                                                    question.questionType
+                                                    question.question_type
                                                 )}
                                                 size="medium"
                                             />
@@ -196,7 +216,7 @@ export default function QuestionListPage() {
                                         </TableCell>
                                         {/* 선택지 수 (선다형만 해당) */}
                                         <TableCell align="center">
-                                            {question.questionType === "CHOICE"
+                                            {question.question_type === "CHOICE"
                                                 ? question.choices.length
                                                 : "-"}
                                         </TableCell>
@@ -223,8 +243,8 @@ export default function QuestionListPage() {
                                                                         content:
                                                                             question.content,
                                                                         score: question.score,
-                                                                        questionType:
-                                                                            question.questionType,
+                                                                        question_type:
+                                                                            question.question_type,
                                                                         choices:
                                                                             question.choices,
                                                                         answer: question.answer, // answerIndex 대신 실제 답안 문자열
@@ -254,8 +274,8 @@ export default function QuestionListPage() {
                                                                                     content:
                                                                                         question.content,
                                                                                     score: question.score,
-                                                                                    questionType:
-                                                                                        question.questionType,
+                                                                                    question_type:
+                                                                                        question.question_type,
                                                                                     choices:
                                                                                         question.choices,
                                                                                     answer: question.answer, // answerIndex 대신 실제 답안 문자열

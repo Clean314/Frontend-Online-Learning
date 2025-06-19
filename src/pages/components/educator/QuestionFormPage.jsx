@@ -27,6 +27,7 @@ export default function QuestionFormPage() {
     const isEditMode = Boolean(questionId);
 
     const exam = location.state?.exam;
+    const suggestedNumber = location.state?.suggestedNumber;
     // 편집 모드일 경우, location에서 데이터 꺼재기
     const existingQuestion = isEditMode ? location.state?.question : null;
 
@@ -44,10 +45,10 @@ export default function QuestionFormPage() {
     useEffect(() => {
         if (isEditMode && existingQuestion) {
             setContent(existingQuestion.content);
-            setType(existingQuestion.questionType); // ← 수정: 기존에는 .type 사용했을 수 있음
+            setType(existingQuestion.question_type); // ← 수정: 기존에는 .type 사용했을 수 있음
             setScore(String(existingQuestion.score));
 
-            if (existingQuestion.questionType === "CHOICE") {
+            if (existingQuestion.question_type === "CHOICE") {
                 setMultipleChoices([...existingQuestion.choices]);
 
                 // 정답 문자열의 index를 찾아서 answerIndex 설정
@@ -141,12 +142,15 @@ export default function QuestionFormPage() {
         }
 
         const payload = {
-            number: Number(existingQuestion?.number ?? 0), // 새로 만들 경우는 백엔드에서 자동 생성
+            number: Number(existingQuestion?.number ?? suggestedNumber ?? 0),
             content,
-            questionType: type,
+            question_type: type,
             score: parsedScore,
             choices: type === "CHOICE" ? multipleChoices : [],
-            answer: answerIndex,
+            answer:
+                type === "CHOICE"
+                    ? multipleChoices[answerIndex]
+                    : String(answerIndex), // 진위형은 그대로 "0" 또는 "1" 문자열
         };
 
         try {

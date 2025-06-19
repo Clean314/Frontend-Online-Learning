@@ -13,55 +13,28 @@ import {
     CircularProgress,
     Chip,
 } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
-import BackButton from "../../../components/common/BackButton";
-
+import { useParams } from "react-router-dom";
+import { getCourseAttendanceListAPI } from "../../../api/lectureHistory";
 export default function ClassAttendancePage() {
     const { courseId } = useParams();
-    const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [attendance, setAttendance] = useState([]);
 
     useEffect(() => {
-        // TODO: API 호출 구현 필요 (getCourseAttendanceAPI)
-        const dummy = [
-            {
-                studentId: 1,
-                studentName: "김철수",
-                totalLectures: 5,
-                attended: 5,
-            },
-            {
-                studentId: 2,
-                studentName: "이영희",
-                totalLectures: 5,
-                attended: 3,
-            },
-            {
-                studentId: 3,
-                studentName: "박민수",
-                totalLectures: 5,
-                attended: 4,
-            },
-            {
-                studentId: 4,
-                studentName: "최지은",
-                totalLectures: 5,
-                attended: 2,
-            },
-            {
-                studentId: 5,
-                studentName: "오민준",
-                totalLectures: 5,
-                attended: 5,
-            },
-        ];
-        setTimeout(() => {
-            setAttendance(dummy);
-            setLoading(false);
-        }, 500);
+        const fetchAttendance = async () => {
+            try {
+                const data = await getCourseAttendanceListAPI(Number(courseId));
+                setAttendance(data);
+            } catch (err) {
+                console.error("출석 정보 조회 실패:", err);
+                setError("출석 정보를 불러오는 데 실패했습니다.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAttendance();
     }, [courseId]);
 
     if (loading) {
@@ -71,6 +44,7 @@ export default function ClassAttendancePage() {
             </Box>
         );
     }
+
     if (error) {
         return (
             <Box textAlign="center" py={10}>
@@ -79,16 +53,11 @@ export default function ClassAttendancePage() {
         );
     }
 
-    const formatRate = (attended, total) =>
-        `${Math.round((attended / total) * 100)}%`;
-
-    // 파스텔 톤 Chip 스타일
     const getRateChipProps = (rate) => {
-        const pct = parseInt(rate, 10);
+        const pct = Math.round(rate);
         if (pct >= 80) {
-            // 파스텔 민트
             return {
-                label: rate,
+                label: `${pct}%`,
                 sx: {
                     bgcolor: "#D0F0C0",
                     color: "#2E7D32",
@@ -97,9 +66,8 @@ export default function ClassAttendancePage() {
             };
         }
         if (pct >= 50) {
-            // 파스텔 옐로우
             return {
-                label: rate,
+                label: `${pct}%`,
                 sx: {
                     bgcolor: "#FFF9C4",
                     color: "#F9A825",
@@ -107,9 +75,8 @@ export default function ClassAttendancePage() {
                 },
             };
         }
-        // 파스텔 핑크
         return {
-            label: rate,
+            label: `${pct}%`,
             sx: {
                 bgcolor: "#FFEBEE",
                 color: "#C62828",
@@ -118,15 +85,10 @@ export default function ClassAttendancePage() {
         };
     };
 
-    // 평균 출석률 계산
     const averageRate = attendance.length
         ? `${Math.round(
-              (attendance.reduce(
-                  (sum, row) => sum + row.attended / row.totalLectures,
-                  0
-              ) /
-                  attendance.length) *
-                  100
+              attendance.reduce((sum, row) => sum + row.attendanceAvg, 0) /
+                  attendance.length
           )}%`
         : "-";
 
@@ -152,33 +114,28 @@ export default function ClassAttendancePage() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {attendance.map((row) => {
-                                const absent = row.totalLectures - row.attended;
-                                const rate = formatRate(
-                                    row.attended,
-                                    row.totalLectures
-                                );
-                                return (
-                                    <TableRow key={row.studentId}>
-                                        <TableCell>{row.studentName}</TableCell>
-                                        <TableCell align="center">
-                                            {row.totalLectures}
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            {row.attended}
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            {absent}
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            <Chip
-                                                {...getRateChipProps(rate)}
-                                                size="medium"
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
+                            {attendance.map((row, idx) => (
+                                <TableRow key={`${row.studentName}-${idx}`}>
+                                    <TableCell>{row.studentName}</TableCell>
+                                    <TableCell align="center">
+                                        {row.totalCourse}
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        {row.attendanceTrue}
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        {row.attendanceFalse}
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <Chip
+                                            {...getRateChipProps(
+                                                row.attendanceAvg
+                                            )}
+                                            size="medium"
+                                        />
+                                    </TableCell>
+                                </TableRow>
+                            ))}
                             {attendance.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={5} align="center">

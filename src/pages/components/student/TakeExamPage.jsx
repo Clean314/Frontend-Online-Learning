@@ -10,7 +10,9 @@ import {
     RadioGroup,
     CircularProgress,
     Snackbar,
+    IconButton,
 } from "@mui/material";
+import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import {
@@ -83,6 +85,7 @@ export default function TakeExamPage() {
                 );
             } catch (err) {
                 setError("시험 정보를 불러오는 중 오류가 발생했습니다.");
+                console.log(err);
             } finally {
                 setLoading(false);
             }
@@ -161,6 +164,7 @@ export default function TakeExamPage() {
                 setSnackbarMsg("응시가 정상적으로 제출되었습니다.");
             } catch (err) {
                 alert("시험 제출 중 오류가 발생했습니다.");
+                console.log(err);
             }
 
             setTimeout(() => {
@@ -187,7 +191,7 @@ export default function TakeExamPage() {
     }
 
     return (
-        <Container maxWidth="md" sx={{ mb: 4 }}>
+        <Container sx={{ mb: 4 }}>
             <Paper sx={{ p: 3 }}>
                 <Box
                     display="flex"
@@ -195,7 +199,20 @@ export default function TakeExamPage() {
                     alignItems="center"
                     mb={3}
                 >
-                    <Typography variant="h5">시험 응시</Typography>
+                    <Box display={"flex"} gap={1} alignItems={"center"}>
+                        {/* 뒤로 가기 버튼 */}
+                        <IconButton
+                            onClick={() =>
+                                navigate(
+                                    `/courses/${courseId}/classroom/teach/exams`
+                                )
+                            }
+                            sx={{ mr: 1 }}
+                        >
+                            <ArrowBackIcon />
+                        </IconButton>
+                        <Typography variant="h5">시험 응시</Typography>
+                    </Box>
                     <Typography
                         variant="h6"
                         color={remainingTime <= 60 ? "error" : "text.primary"}

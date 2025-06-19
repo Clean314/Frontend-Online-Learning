@@ -27,11 +27,13 @@ import { getStudentExamListAPI } from "../../../api/exam";
 import { fetchAverageAttendanceAPI } from "../../../api/lectureHistory";
 import { useParams } from "react-router-dom";
 import { getMyEnrolledCourseByIdAPI } from "../../../api/enrollment";
+import useAuth from "../../../hooks/auth/useAuth";
 dayjs.locale("ko");
 
 export default function ClassStudentDashboard() {
     const theme = useTheme();
     const { courseId } = useParams();
+    const { user } = useAuth();
 
     const [course, setCourse] = useState(null); // 강의 기본 정보
     const [lectureEvents, setLectureEvents] = useState([]); // 시험 일정
@@ -87,7 +89,15 @@ export default function ClassStudentDashboard() {
             try {
                 const result = await fetchAverageAttendanceAPI(courseId);
 
-                setMyProgressRate(Number(result.toFixed(1)));
+                // 현재 로그인된 사용자 id로 필터링
+                const myRecord = result.find((r) => r.memberId === user.id);
+
+                if (!myRecord || typeof myRecord.attendanceAvg !== "number") {
+                    setMyProgressRate(0);
+                    return;
+                }
+
+                setMyProgressRate(Number(myRecord.attendanceAvg.toFixed(1)));
             } catch (err) {
                 console.error("출석률 조회 실패:", err);
             }

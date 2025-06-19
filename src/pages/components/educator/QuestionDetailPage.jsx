@@ -13,10 +13,9 @@ import {
     IconButton,
 } from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function QuestionDetailPage() {
-    const { courseId, examId, questionId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -32,15 +31,15 @@ export default function QuestionDetailPage() {
     useEffect(() => {
         if (question) {
             setContent(question.content);
-            setType(question.questionType); // key 변경 주의
+            setType(question.question_type); // key 변경 주의
             setScore(String(question.score));
 
-            if (question.questionType === "CHOICE") {
+            if (question.question_type === "CHOICE") {
                 setChoices([...question.choices]);
 
                 const index = question.choices.indexOf(question.answer);
                 setAnswerIndex(index !== -1 ? index : null);
-            } else if (question.questionType === "TRUE_FALSE") {
+            } else if (question.question_type === "TRUE_FALSE") {
                 setChoices(["참", "거짓"]);
                 setAnswerIndex(Number(question.answer));
             }
