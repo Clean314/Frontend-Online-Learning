@@ -31,7 +31,7 @@ export default function QuestionFormPage() {
     const existingQuestion = isEditMode ? location.state?.question : null;
 
     const [content, setContent] = useState("");
-    const [type, setType] = useState("MULTIPLE_CHOICE");
+    const [type, setType] = useState("CHOICE");
     const [score, setScore] = useState("");
     const [multipleChoices, setMultipleChoices] = useState(["", ""]);
     // answerIndex:
@@ -50,7 +50,7 @@ export default function QuestionFormPage() {
             setType(existingQuestion.type); // 문제 유형
             setScore(String(existingQuestion.score)); // 배점 (숫자 -> 문자열 변환)
             // 선택지
-            if (existingQuestion.type === "MULTIPLE_CHOICE") {
+            if (existingQuestion.type === "CHOICE") {
                 setMultipleChoices([...existingQuestion.multipleChoices]);
             } else {
                 setMultipleChoices(["", ""]);
@@ -110,7 +110,7 @@ export default function QuestionFormPage() {
             return;
         }
 
-        if (type === "MULTIPLE_CHOICE") {
+        if (type === "CHOICE") {
             if (multipleChoices.length < 2) {
                 setError("선다형 문제는 최소 2개 이상의 선택지가 필요합니다.");
                 return;
@@ -140,7 +140,7 @@ export default function QuestionFormPage() {
             content,
             type,
             score: parsedScore,
-            choices: type === "MULTIPLE_CHOICE" ? multipleChoices : [],
+            choices: type === "CHOICE" ? multipleChoices : [],
             answerIndex: answerIndex,
         };
 
@@ -202,7 +202,7 @@ export default function QuestionFormPage() {
                                 }}
                                 fullWidth
                             >
-                                <option value="MULTIPLE_CHOICE">선다형</option>
+                                <option value="CHOICE">선다형</option>
                                 <option value="TRUE_FALSE">진위형</option>
                             </TextField>
 
@@ -218,7 +218,7 @@ export default function QuestionFormPage() {
                             />
                         </Box>
 
-                        {type === "MULTIPLE_CHOICE" && (
+                        {type === "CHOICE" && (
                             <Box>
                                 <Typography variant="subtitle1" mb={1}>
                                     선택지

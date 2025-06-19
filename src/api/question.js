@@ -1,8 +1,8 @@
 import api from "./axios";
 
 /**
- * @typedef {'SUBJECTIVE'|'OBJECTIVE'} QuestionType
- * - 확장 가능성을 고려해 주관식, 객관식 분리 BUT 개발 일정 상 객관식만 구현
+ * @typedef {'CHOICE'|'TRUE_FALSE'} QuestionType
+ * -- 추후 'SUBJECTIVE' 추가 예정
  */
 
 /**
@@ -72,4 +72,26 @@ export const deleteQuestionAPI = async (courseId, examId, questionId) => {
     await api.delete("/educator/question", {
         params: { courseId, examId, questionId },
     });
+};
+
+/**
+ * @typedef {Object} StudentQuestionDTO
+ * @property {number} id
+ * @property {string} content
+ * @property {number} score
+ * @property {QuestionType} type
+ * @property {string[] | null} multipleChoices
+ */
+
+/**
+ * 학생용 시험 문제 목록 조회
+ * @param {number} courseId
+ * @param {number} examId
+ * @returns {Promise<StudentQuestionDTO[]>}
+ */
+export const getStudentQuestionListAPI = async (courseId, examId) => {
+    const res = await api.get("/student/question", {
+        params: { courseId, examId },
+    });
+    return res.data;
 };

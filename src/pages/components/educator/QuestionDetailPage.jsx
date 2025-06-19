@@ -40,7 +40,7 @@ export default function QuestionDetailPage() {
             setType(question.type);
             setScore(String(question.score));
 
-            if (question.type === "MULTIPLE_CHOICE") {
+            if (question.type === "CHOICE") {
                 setMultipleChoices([...question.multipleChoices]);
                 setAnswerIndex(question.answerIndex);
             } else if (question.type === "TRUE_FALSE") {
@@ -55,7 +55,7 @@ export default function QuestionDetailPage() {
 
     const getTypeLabel = (type) => {
         switch (type) {
-            case "MULTIPLE_CHOICE":
+            case "CHOICE":
                 return "선다형";
             case "TRUE_FALSE":
                 return "진위형";
@@ -66,7 +66,7 @@ export default function QuestionDetailPage() {
 
     // 읽기 전용 화면에서 "정답 번호" 표시 (1-based)
     const getAnswerDisplay = () => {
-        if (type === "MULTIPLE_CHOICE") {
+        if (type === "CHOICE") {
             return answerIndex != null ? String(answerIndex + 1) : "-";
         }
         if (type === "TRUE_FALSE") {
@@ -126,7 +126,7 @@ export default function QuestionDetailPage() {
                         </Box>
 
                         {/* 선다형: 선택지 목록 + 정답 표시 */}
-                        {type === "MULTIPLE_CHOICE" && (
+                        {type === "CHOICE" && (
                             <Box>
                                 <Typography variant="subtitle1" mb={1}>
                                     선택지

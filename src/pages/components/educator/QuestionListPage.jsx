@@ -69,7 +69,7 @@ export default function QuestionListPage() {
     // 문제 유형별 Chip 속성 반환
     const getTypeChipProps = (type) => {
         switch (type) {
-            case "MULTIPLE_CHOICE":
+            case "CHOICE":
                 return {
                     label: "선다형",
                     sx: {
@@ -94,7 +94,7 @@ export default function QuestionListPage() {
 
     // 답 표시 로직
     const getAnswerDisplay = (question) => {
-        if (question.type === "MULTIPLE_CHOICE") {
+        if (question.type === "CHOICE") {
             // answerIndex가 1부터 시작하는 자연수로 저장되어 있다고 가정
             return question.answerIndex != null
                 ? String(question.answerIndex)
@@ -197,7 +197,7 @@ export default function QuestionListPage() {
                                         </TableCell>
                                         {/* 선택지 수 (선다형만 해당) */}
                                         <TableCell align="center">
-                                            {question.type === "MULTIPLE_CHOICE"
+                                            {question.type === "CHOICE"
                                                 ? question.multipleChoices
                                                       .length
                                                 : "-"}

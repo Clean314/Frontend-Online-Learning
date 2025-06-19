@@ -9,9 +9,9 @@ import CurriculumForm from "../pages/common/CurriculumForm";
 import QuestionFormPage from "../pages/components/educator/QuestionFormPage";
 import AllStudentScoresPage from "../pages/components/educator/AllStudentScoresPage";
 import QuestionDetailPage from "../pages/components/educator/QuestionDetailPage";
-import MyExamResultPage from "../pages/components/student/MyExamResultPage";
 import ClassAttendancePage from "../pages/components/educator/ClassAttendancePage";
 import ClassEducatorExams from "../pages/components/educator/ClassEducatorExams";
+import MyExamResultPage from "../pages/components/educator/MyExamResultPage";
 
 export default function EducatorClassRoutes() {
     return (

@@ -23,6 +23,7 @@ import "dayjs/locale/ko";
 import dayjs from "dayjs";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
+import { getStudentExamListAPI } from "../../../api/exam";
 dayjs.locale("ko");
 
 export default function ClassStudentDashboard() {
@@ -39,21 +40,33 @@ export default function ClassStudentDashboard() {
             "이 강의는 React의 기초 문법부터 고급 Hooks 사용법까지 다룹니다.",
     });
 
-    // 시험 일정 (임시 데이터)
-    const lectureEvents = [
-        {
-            start: new Date(2025, 4, 27, 10, 0), // 2025-05-27 10:00
-            end: new Date(2025, 4, 27, 15, 0), // 2025-05-27 15:00 (5시간 차이)
-            label: "중간고사",
-        },
-        {
-            start: new Date(2025, 6, 10, 14, 0), // 2025-07-10 14:00
-            end: new Date(2025, 6, 10, 19, 0), // 2025-07-10 19:00 (5시간 차이)
-            label: "기말고사",
-        },
-    ];
+    const [lectureEvents, setLectureEvents] = useState([]); // 시험 일정
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
     const today = dayjs();
+
+    // 시험 일정 데이터 불러오기
+    useEffect(() => {
+        const loadExams = async () => {
+            try {
+                const data = await getStudentExamListAPI(courseInfo.course_id);
+                const transformed = data.map((exam) => ({
+                    start: new Date(exam.start_time),
+                    end: new Date(exam.end_time),
+                    label: exam.title,
+                }));
+                setLectureEvents(transformed);
+            } catch (err) {
+                console.error("시험 일정 불러오기 실패:", err);
+                setError("시험 일정을 불러오는 중 오류가 발생했습니다.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadExams();
+    }, [courseInfo.course_id]);
 
     // 다음 시험 자동 선택
     const upcoming = lectureEvents
@@ -139,6 +152,25 @@ export default function ClassStudentDashboard() {
         );
     }
 
+    if (loading) {
+        return (
+            <Paper sx={{ p: 3 }}>
+                <Box textAlign="center" py={5}>
+                    <CircularProgress />
+                </Box>
+            </Paper>
+        );
+    }
+    if (error) {
+        return (
+            <Paper sx={{ p: 3 }}>
+                <Box textAlign="center" py={5}>
+                    <Typography color="error">{error}</Typography>
+                </Box>
+            </Paper>
+        );
+    }
+
     return (
         <Paper sx={{ p: 3 }}>
             {/* 헤더 */}
@@ -211,7 +243,9 @@ export default function ClassStudentDashboard() {
                         <Typography variant="h6">
                             {daysUntilNextExam == null
                                 ? "-"
-                                : `D-${daysUntilNextExam}`}
+                                : daysUntilNextExam === 0
+                                  ? "D-day"
+                                  : `D-${daysUntilNextExam}`}
                         </Typography>
                         {nextExam && (
                             <Chip

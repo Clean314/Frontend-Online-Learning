@@ -34,20 +34,30 @@ import PeopleIcon from "@mui/icons-material/People";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import { getCourseInfoAPI, modifyCourseInfoAPI } from "../../../api/course";
 import { useParams } from "react-router-dom";
-import { CATEGORY_OPTIONS } from "../../../constants/courseOptions";
+import {
+    CATEGORY_OPTIONS,
+    DIFFICULTY_OPTIONS,
+    POINT_OPTIONS,
+} from "../../../constants/courseOptions";
+import { getExamListAPI } from "../../../api/exam";
 dayjs.locale("ko");
 
 const categories = CATEGORY_OPTIONS;
-const difficulties = ["EASY", "MEDIUM", "HARD"];
-const credits = [1, 2, 3];
+const difficulties = DIFFICULTY_OPTIONS;
+const credits = POINT_OPTIONS;
 
 export default function ClassEducatorDashboard() {
     const theme = useTheme();
     const { courseId } = useParams();
 
-    const [courseInfo, setCourseInfo] = useState(null);
+    const [courseInfo, setCourseInfo] = useState(null); // 강의 기본 정보
+    const [lectureEvents, setLectureEvents] = useState([]); // 시험 일정
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const today = dayjs();
     const [currentEnrolled, setCurrentEnrolled] = useState(0);
 
+    // 강의 기본 정보 조회
     useEffect(() => {
         (async () => {
             try {
@@ -69,6 +79,27 @@ export default function ClassEducatorDashboard() {
         })();
     }, [courseId]);
 
+    // 시험 일정 조회
+    useEffect(() => {
+        const loadExams = async () => {
+            try {
+                const data = await getExamListAPI(Number(courseId));
+                const transformed = data.map((exam) => ({
+                    start: new Date(exam.start_time),
+                    end: new Date(exam.end_time),
+                    label: exam.title,
+                }));
+                setLectureEvents(transformed);
+            } catch (err) {
+                console.error("시험 일정 불러오기 실패:", err);
+                setError("시험 일정을 불러오는 중 오류가 발생했습니다.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadExams();
+    }, [courseId]);
+
     // courseInfo가 설정된 후 currentEnrolled 계산
     useEffect(() => {
         if (courseInfo) {
@@ -84,19 +115,6 @@ export default function ClassEducatorDashboard() {
 
     const [selectedDate, setSelectedDate] = useState(dayjs());
     const [viewDate, setViewDate] = useState(dayjs());
-
-    const lectureEvents = [
-        {
-            start: new Date(2025, 4, 27, 10, 0), // 2025-05-27 10:00
-            end: new Date(2025, 4, 27, 15, 0), // 2025-05-27 15:00 (5시간 차이)
-            label: "중간고사",
-        },
-        {
-            start: new Date(2025, 5, 10, 14, 0), // 2025-06-10 14:00
-            end: new Date(2025, 5, 10, 19, 0), // 2025-06-10 19:00 (5시간 차이)
-            label: "기말고사",
-        },
-    ];
 
     const monthStart = dayjs(viewDate).startOf("month");
     const monthEnd = dayjs(viewDate).endOf("month");

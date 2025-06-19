@@ -14,9 +14,11 @@ import {
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import {
-    getStudentExamDetailAPI,
+    getSavedExamAnswersAPI,
+    saveExamDraftAPI,
     submitStudentExamAPI,
 } from "../../../api/exam";
+import { getStudentQuestionListAPI } from "../../../api/question";
 
 export default function TakeExamPage() {
     const { courseId, examId } = useParams();
@@ -37,11 +39,25 @@ export default function TakeExamPage() {
     useEffect(() => {
         const load = async () => {
             try {
-                const res = await getStudentExamDetailAPI(
+                // 문제 목록 조회
+                const res = await getStudentQuestionListAPI(
                     Number(courseId),
                     Number(examId)
                 );
-                setQuestions(res.questions);
+                setQuestions(res);
+
+                // 임시 저장 답안 불러오기
+                try {
+                    const saved = await getSavedExamAnswersAPI(
+                        Number(courseId),
+                        Number(examId)
+                    );
+                    if (saved && Object.keys(saved).length > 0) {
+                        setAnswers(saved);
+                    }
+                } catch (err) {
+                    console.warn("임시 저장 답안 불러오기 실패:", err);
+                }
 
                 // 남은 시간 계산
                 const now = dayjs();
@@ -50,10 +66,18 @@ export default function TakeExamPage() {
 
                 // 5분마다 자동 임시 저장 예약
                 draftTimerRef.current = setInterval(
-                    () => {
-                        // TODO: saveExamDraftAPI 호출
-                        // await saveExamDraftAPI(Number(courseId), Number(examId), { answers: ... });
-                        setSnackbarMsg("임시 저장 (테스트용 알림)");
+                    async () => {
+                        try {
+                            await saveExamDraftAPI(
+                                Number(courseId),
+                                Number(examId),
+                                answers
+                            );
+                            setSnackbarMsg("자동 임시 저장 완료");
+                        } catch (err) {
+                            console.error("자동 임시 저장 실패:", err);
+                            setSnackbarMsg("자동 임시 저장 실패");
+                        }
                     },
                     5 * 60 * 1000
                 );
@@ -94,14 +118,19 @@ export default function TakeExamPage() {
         return `${String(h).padStart(2, "0")}시간 ${String(m).padStart(2, "0")}분 ${String(s).padStart(2, "0")}초`;
     };
 
-    const handleAnswerChange = (questionId, value) => {
-        setAnswers((prev) => ({ ...prev, [questionId]: value }));
+    const handleAnswerChange = (questionId, selectedIndex) => {
+        setAnswers((prev) => ({ ...prev, [questionId]: selectedIndex }));
     };
 
     // 임시 저장 (버튼 클릭)
     const handleAutoSave = async () => {
-        // TODO: saveExamDraftAPI 호출
-        setSnackbarMsg("임시 저장되었습니다.");
+        try {
+            await saveExamDraftAPI(Number(courseId), Number(examId), answers);
+            setSnackbarMsg("임시 저장되었습니다.");
+        } catch (err) {
+            console.error("임시 저장 실패:", err);
+            setSnackbarMsg("임시 저장 실패");
+        }
     };
 
     // 최종 제출
@@ -117,6 +146,12 @@ export default function TakeExamPage() {
                 return;
             }
 
+            // 제출 전 확인
+            const confirmed = window.confirm(
+                "시험을 제출하시겠습니까? 시험을 제출한 후에는 재응시 할 수 없습니다."
+            );
+            if (!confirmed) return;
+
             try {
                 await submitStudentExamAPI(
                     Number(courseId),
@@ -129,16 +164,10 @@ export default function TakeExamPage() {
             }
 
             setTimeout(() => {
-                navigate(
-                    `/courses/${courseId}/classroom/learn/exams/${examId}/result`,
-                    { state: { totalScore: exam.totalScore } }
-                );
+                navigate(`/courses/${courseId}/classroom/learn/exams`);
             }, 1500);
         } else {
-            navigate(
-                `/courses/${courseId}/classroom/learn/exams/${examId}/result`,
-                { state: { totalScore: exam.totalScore } }
-            );
+            navigate(`/courses/${courseId}/classroom/learn/exams`);
         }
     };
 
@@ -184,17 +213,24 @@ export default function TakeExamPage() {
                             {q.content}
                         </Typography>
 
-                        {q.type === "MULTIPLE_CHOICE" ? (
+                        {q.questionType === "CHOICE" ? (
                             <RadioGroup
-                                value={answers[q.id] || ""}
+                                value={
+                                    answers[q.id] !== undefined
+                                        ? String(answers[q.id])
+                                        : ""
+                                }
                                 onChange={(e) =>
-                                    handleAnswerChange(q.id, e.target.value)
+                                    handleAnswerChange(
+                                        q.id,
+                                        Number(e.target.value)
+                                    )
                                 }
                             >
-                                {q.multipleChoices.map((choice, i) => (
+                                {q.choices.map((choice, i) => (
                                     <FormControlLabel
                                         key={i}
-                                        value={choice}
+                                        value={String(i)}
                                         control={<Radio />}
                                         label={choice}
                                     />

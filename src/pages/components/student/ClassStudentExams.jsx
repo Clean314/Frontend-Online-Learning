@@ -20,7 +20,12 @@ import {
     History as HistoryIcon,
 } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
-import { getStudentExamListAPI } from "../../../api/exam";
+import {
+    getStudentExamListAPI,
+    getStudentExamScoreAPI,
+    startExamAPI,
+} from "../../../api/exam";
+import { getStudentQuestionListAPI } from "../../../api/question";
 
 export default function ClassStudentExams() {
     const { courseId } = useParams();
@@ -34,48 +39,83 @@ export default function ClassStudentExams() {
     // 시험 목록 조회 + 자동 재조회 스케줄링
     const fetchExams = async () => {
         clearTimeout(refreshTimer.current);
+
         try {
             setLoading(true);
             const data = await getStudentExamListAPI(Number(courseId));
-            const now = new Date();
 
-            const mapped = data
-                .map((e) => ({
-                    id: e.id,
-                    title: e.title,
-                    startTime: new Date(e.start_time),
-                    endTime: new Date(e.end_time),
-                    status: e.status, // PREPARING, IN_PROGRESS, COMPLETED
-                    hasTaken: e.questions.every((q) => q.response != null),
-                    totalScore: e.questions.reduce(
-                        (s, q) => s + (q.score || 0),
-                        0
-                    ),
-                    score: e.questions.reduce(
-                        (s, q) => s + (q.isCorrect ? q.score : 0),
-                        0
-                    ),
-                    questionCount: e.questions.length, // 문제 수
-                }))
-                .sort((a, b) => b.startTime - a.startTime); // 시험 시작 시각 기준 내림차순 정렬
+            const examList = await Promise.all(
+                data.map(async (e) => {
+                    const startTime = new Date(e.start_time);
+                    const endTime = new Date(e.end_time);
 
-            setExams(mapped);
+                    let hasTaken = false;
+                    let score = 0;
+                    let totalScore = 0;
+                    let questionCount = 0;
+
+                    try {
+                        const result = await getStudentExamScoreAPI(
+                            courseId,
+                            e.id
+                        );
+                        if (result) {
+                            hasTaken = true;
+                            score = result;
+                        }
+                    } catch (err) {
+                        console.error("성적 조회 실패:", err);
+                    }
+
+                    try {
+                        // 시험 총점 계산을 위해 문제 리스트 호출
+                        const questionRes = await getStudentQuestionListAPI(
+                            Number(courseId),
+                            Number(e.id)
+                        );
+                        totalScore = questionRes.reduce(
+                            (sum, q) => sum + q.score,
+                            0
+                        );
+                        questionCount = questionRes.length;
+                    } catch (err) {
+                        console.error("총점 계산용 문제 불러오기 실패:", err);
+                    }
+
+                    return {
+                        id: e.id,
+                        title: e.title,
+                        startTime,
+                        endTime,
+                        status: e.status,
+                        hasTaken,
+                        score,
+                        totalScore,
+                        questionCount,
+                    };
+                })
+            );
+
+            const sorted = examList.sort((a, b) => a.startTime - b.startTime);
+            setExams(sorted);
             setError(null);
+
+            // 다음 이벤트(가장 빠른 start + 25s) 기준으로 재조회 예약
+            const now = new Date();
+            const futureStartTimes = sorted
+                .map((ex) => new Date(ex.startTime.getTime() + 25 * 1000))
+                .filter((t) => t > now);
+
+            if (futureStartTimes.length > 0) {
+                const next = futureStartTimes.sort((a, b) => a - b)[0];
+                const delay = next - now + 1000; // 1초 여유
+                refreshTimer.current = setTimeout(fetchExams, delay);
+            }
         } catch (err) {
+            console.error(err);
             setError("시험 목록을 불러오는 중 오류가 발생했습니다.");
         } finally {
             setLoading(false);
-        }
-
-        // 다음 이벤트(가장 빠른 start/end) 기준으로 재조회 예약
-        const futureTimes = exams
-            .flatMap((ex) => [ex.startTime, ex.endTime])
-            .filter((t) => t > new Date());
-
-        if (futureTimes.length) {
-            const next = futureTimes.sort((a, b) => a - b)[0];
-            const delay = next - new Date() + 1000; // 1초 여유
-            refreshTimer.current = setTimeout(fetchExams, delay);
         }
     };
 
@@ -85,20 +125,20 @@ export default function ClassStudentExams() {
     }, [courseId]);
 
     // 응시하기 버튼 핸들러: 시간 재검사
-    const handleTakeExam = (exam) => {
+    const handleTakeExam = async (exam) => {
         const now = new Date();
         if (now < exam.startTime || now > exam.endTime) {
             alert("지금은 응시 가능한 시간이 아닙니다.");
             return;
         }
-        navigate(`${exam.id}/take`, { state: { exam } });
-    };
 
-    // 시험 결과 조회 페이지로 이동
-    const handleViewResult = (exam) => {
-        navigate(`${exam.id}/result`, {
-            state: { totalScore: exam.totalScore },
-        });
+        try {
+            await startExamAPI(courseId, exam.id); // 시험 시작 API 호출
+            navigate(`${exam.id}/take`, { state: { exam } });
+        } catch (err) {
+            console.error("시험 시작 실패:", err);
+            alert("시험을 시작하는 데 실패했습니다. 관리자에게 문의하세요.");
+        }
     };
 
     // 상태 칩 설정
@@ -237,24 +277,6 @@ export default function ClassStudentExams() {
                                                         </IconButton>
                                                     </Tooltip>
                                                 )}
-
-                                            {/* 다시보기: hasTaken === true or status === COMPLETED */}
-                                            {(exam.hasTaken ||
-                                                exam.status ===
-                                                    "COMPLETED") && (
-                                                <Tooltip title="다시보기">
-                                                    <IconButton
-                                                        color="primary"
-                                                        onClick={() =>
-                                                            handleViewResult(
-                                                                exam
-                                                            )
-                                                        }
-                                                    >
-                                                        <HistoryIcon />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))}

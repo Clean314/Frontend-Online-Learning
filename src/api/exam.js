@@ -128,6 +128,38 @@ export const getStudentExamDetailAPI = async (courseId, examId) => {
 };
 
 /**
+ * 학생 시험 시작 API
+ * @param {number} courseId
+ * @param {number} examId
+ * @returns {Promise<void>}
+ */
+export const startExamAPI = async (courseId, examId) => {
+    await api.post(`/student/exam/${courseId}/${examId}/start`);
+};
+
+/**
+ * 시험 응시 임시 저장
+ * @param {number} courseId
+ * @param {number} examId
+ * @param {{ [questionId: number]: string }} answers
+ * @returns {Promise<void>}
+ */
+export const saveExamDraftAPI = async (courseId, examId, answers) => {
+    await api.post(`/student/exam/${courseId}/${examId}/save`, answers);
+};
+
+/**
+ * 임시 저장한 학생 답안 불러오기
+ * @param {number} courseId
+ * @param {number} examId
+ * @returns {Promise<{ [questionId: number]: string }>}
+ */
+export const getSavedExamAnswersAPI = async (courseId, examId) => {
+    const res = await api.get(`/student/exam/${courseId}/${examId}/answers`);
+    return res.data;
+};
+
+/**
  * 학생용 시험 제출
  * @param {number} courseId
  * @param {number} examId
@@ -135,5 +167,23 @@ export const getStudentExamDetailAPI = async (courseId, examId) => {
  * @returns {Promise<void>}
  */
 export const submitStudentExamAPI = async (courseId, examId, answers) => {
-    await api.post(`/student/exam/${courseId}/${examId}`, answers);
+    await api.post(`/student/exam/${courseId}/${examId}/submit`, answers);
+};
+
+/**
+ * 학생의 개별 시험 성적 조회
+ * @param {number} courseId
+ * @param {number} examId
+ * @returns {Promise<{ score: number, totalScore: number }>} 없으면 404 또는 null 응답
+ */
+export const getStudentExamScoreAPI = async (courseId, examId) => {
+    try {
+        const res = await api.get(`/student/exam/${courseId}/${examId}/score`);
+        return res.data; // { score, totalScore }
+    } catch (err) {
+        if (err.response && err.response.status === 404) {
+            return null;
+        }
+        throw err;
+    }
 };
