@@ -23,6 +23,16 @@ export const getAllCoursesWithStatusAPI = async () => {
 };
 
 /**
+ * 특정 수강 강의 상세 조회 (내가 수강 중인 강의 중 하나)
+ * @param {number} courseId
+ * @returns {Promise<CourseDTO>}
+ */
+export const getMyEnrolledCourseByIdAPI = async (courseId) => {
+    const res = await api.get(`/students/enrollments/course-id/${courseId}`);
+    return res.data;
+};
+
+/**
  * 내 수강 목록 조회 (학생용)
  * @returns {Promise<Array<EnrollmentCourseDTO>>} - 본인이 신청한 강의 정보 리스트 반환
  */

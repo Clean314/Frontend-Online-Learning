@@ -10,10 +10,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
-import {
-    createLectureHistoryAPI,
-    getLectureHistoryAPI,
-} from "../../../api/lectureHistory";
+import { saveLectureTimelineAPI } from "../../../api/lectureHistory";
 
 export default function ClassStudentVideosWatch() {
     const theme = useTheme();
@@ -54,13 +51,13 @@ export default function ClassStudentVideosWatch() {
         // 이전에 DB에 저장된 시청 시간 조회
         let previousWatched = 0;
         try {
-            const history = await getLectureHistoryAPI(video.id);
+            // const history = await getLectureHistoryAPI(video.id);
 
-            if (history && history.startTime && history.endTime) {
-                const prevStart = new Date(history.startTime).getTime();
-                const prevEnd = new Date(history.endTime).getTime();
-                previousWatched = Math.max((prevEnd - prevStart) / 1000, 0);
-            }
+            // if (history && history.startTime && history.endTime) {
+            //     const prevStart = new Date(history.startTime).getTime();
+            //     const prevEnd = new Date(history.endTime).getTime();
+            //     previousWatched = Math.max((prevEnd - prevStart) / 1000, 0);
+            // }
 
             console.log("출석 정보 조회 성공:", previousWatched);
         } catch (err) {
@@ -73,12 +70,13 @@ export default function ClassStudentVideosWatch() {
         const attendance = totalWatched / durationSec >= 0.5;
 
         const payload = {
+            videoId: video.id,
             startTime: new Date(startTime).toISOString(),
             endTime: new Date(endTime).toISOString(),
         };
 
         try {
-            await createLectureHistoryAPI(video.id, payload);
+            await saveLectureTimelineAPI(payload);
             console.log("시청 기록 저장 성공");
         } catch (err) {
             console.error("출석 처리 API 에러:", err);

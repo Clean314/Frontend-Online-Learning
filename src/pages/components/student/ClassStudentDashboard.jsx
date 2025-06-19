@@ -24,33 +24,46 @@ import dayjs from "dayjs";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import { getStudentExamListAPI } from "../../../api/exam";
+import { fetchAverageAttendanceAPI } from "../../../api/lectureHistory";
+import { useParams } from "react-router-dom";
+import { getMyEnrolledCourseByIdAPI } from "../../../api/enrollment";
 dayjs.locale("ko");
 
 export default function ClassStudentDashboard() {
     const theme = useTheme();
+    const { courseId } = useParams();
 
-    // 강의 기본 정보 (임시 데이터)
-    const [courseInfo] = useState({
-        course_id: 1,
-        title: "React 기초부터 심화까지",
-        instructor: "홍길동",
-        category: "프로그래밍",
-        difficulty: "중급",
-        description:
-            "이 강의는 React의 기초 문법부터 고급 Hooks 사용법까지 다룹니다.",
-    });
-
+    const [course, setCourse] = useState(null); // 강의 기본 정보
     const [lectureEvents, setLectureEvents] = useState([]); // 시험 일정
+    const [myProgressRate, setMyProgressRate] = useState(null); // 내 강의 진행률
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     const today = dayjs();
 
+    // 강의 기본 정보 조회
+    useEffect(() => {
+        const loadCourse = async () => {
+            try {
+                const result = await getMyEnrolledCourseByIdAPI(
+                    Number(courseId)
+                );
+                setCourse(result);
+            } catch (err) {
+                console.error("강의 정보 조회 실패:", err);
+                setError("강의 정보를 불러오는 중 오류가 발생했습니다.");
+            }
+        };
+
+        if (courseId) loadCourse();
+    }, [courseId]);
+
     // 시험 일정 데이터 불러오기
     useEffect(() => {
         const loadExams = async () => {
             try {
-                const data = await getStudentExamListAPI(courseInfo.course_id);
+                const data = await getStudentExamListAPI(courseId);
                 const transformed = data.map((exam) => ({
                     start: new Date(exam.start_time),
                     end: new Date(exam.end_time),
@@ -66,7 +79,22 @@ export default function ClassStudentDashboard() {
         };
 
         loadExams();
-    }, [courseInfo.course_id]);
+    }, [courseId]);
+
+    // 시험 일정 로딩 끝난 후 출석률 요청
+    useEffect(() => {
+        const loadAttendance = async () => {
+            try {
+                const result = await fetchAverageAttendanceAPI(courseId);
+
+                setMyProgressRate(72);
+            } catch (err) {
+                console.error("출석률 조회 실패:", err);
+            }
+        };
+
+        loadAttendance();
+    }, [courseId]);
 
     // 다음 시험 자동 선택
     const upcoming = lectureEvents
@@ -78,9 +106,6 @@ export default function ClassStudentDashboard() {
     const daysUntilNextExam = nextExam
         ? dayjs(nextExam.start).diff(today, "day")
         : null;
-
-    // 진행률 (임시)
-    const [myProgressRate] = useState(45);
 
     // 캘린더 상태
     const [selectedDate, setSelectedDate] = useState(today);
@@ -181,16 +206,16 @@ export default function ClassStudentDashboard() {
                 sx={{ borderBottom: 1, borderColor: "divider", pb: 1, mb: 3 }}
             >
                 <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                    {courseInfo.title}
+                    {course.course_name}
                 </Typography>
             </Box>
 
             {/* 기본 정보 */}
             <Box display="flex" gap={2} mb={3}>
                 {[
-                    { label: "강사명", value: courseInfo.instructor },
-                    { label: "카테고리", value: courseInfo.category },
-                    { label: "난이도", value: courseInfo.difficulty },
+                    { label: "강사명", value: course.educator_name },
+                    { label: "카테고리", value: course.category },
+                    { label: "난이도", value: course.difficulty },
                 ].map((item) => (
                     <Box
                         key={item.label}
@@ -221,7 +246,7 @@ export default function ClassStudentDashboard() {
 
             {/* 소개 */}
             <Typography variant="body1" color="text.secondary" mb={4}>
-                {courseInfo.description}
+                {course.description}
             </Typography>
 
             <Divider sx={{ mb: 3 }} />
@@ -274,10 +299,14 @@ export default function ClassStudentDashboard() {
                         <Typography variant="overline">
                             내 강의 진행률
                         </Typography>
-                        <Typography variant="h6">{myProgressRate}%</Typography>
+                        <Typography variant="h6">
+                            {myProgressRate !== null
+                                ? `${myProgressRate}%`
+                                : "0%"}
+                        </Typography>
                         <LinearProgress
                             variant="determinate"
-                            value={myProgressRate}
+                            value={myProgressRate || 0}
                             sx={{ mt: 1, height: 8, borderRadius: 4 }}
                         />
                     </Box>
