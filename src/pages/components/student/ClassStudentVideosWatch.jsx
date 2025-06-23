@@ -6,6 +6,7 @@ import {
     useTheme,
     Divider,
     IconButton,
+    LinearProgress,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useEffect, useRef, useState } from "react";
@@ -19,12 +20,15 @@ export default function ClassStudentVideosWatch() {
     const theme = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
-    const { videoId } = useParams();
     const video = location.state?.video;
+
+    const [initialWatchedSec, setInitialWatchedSec] = useState(0);
+    const [totalWatched, setTotalWatched] = useState(0); // 누적 시청 시간
+    const [durationSec, setDurationSec] = useState(0); // 전체 영상 길이
 
     const playerRef = useRef(null);
     const [watchInterval, setWatchInterval] = useState(null);
-    const [watchedSec, setWatchedSec] = useState(0);
+    const [watchedSec, setWatchedSec] = useState(0); // 지금 이 페이지에 들어와서 시청한 시간
     const [isSaving, setIsSaving] = useState(false);
     const [hasSaved, setHasSaved] = useState(false);
 
@@ -72,14 +76,18 @@ export default function ClassStudentVideosWatch() {
 
         setIsSaving(true);
         try {
-            const previousWatched = await getWatchedTimeAPI(video.id);
-            const totalWatched = previousWatched + watchedSec;
-            const durationSec = playerRef.current.getDuration();
-            const attendance = totalWatched / durationSec >= 0.5;
+            const duration = playerRef.current.getDuration();
+            setDurationSec(duration);
+
+            const updatedTotalWatched = initialWatchedSec + watchedSec;
+            setTotalWatched(updatedTotalWatched);
+
+            const attendance = updatedTotalWatched / duration >= 0.5;
 
             const payload = {
                 lectureId: Number(video.id),
-                watchedTime: Number(totalWatched.toFixed(1)),
+                // setState()는 비동기이므로 totalWatched가 아니라 updatedTotalWatched 사용해야 함
+                watchedTime: Number(updatedTotalWatched.toFixed(1)),
                 attendance,
             };
 
@@ -104,6 +112,30 @@ export default function ClassStudentVideosWatch() {
             handleStop();
         };
     }, []);
+
+    useEffect(() => {
+        const fetchInitialWatchedTime = async () => {
+            try {
+                const watchedTime = await getWatchedTimeAPI(video.id); // 초 단위 리턴 가정
+                setInitialWatchedSec(watchedTime);
+            } catch (err) {
+                console.error("누적 시청 시간 불러오기 실패:", err);
+            }
+        };
+
+        fetchInitialWatchedTime();
+    }, [video.id]);
+
+    // 누적 시청 시간 반영
+    useEffect(() => {
+        if (initialWatchedSec && durationSec) {
+            setTotalWatched(initialWatchedSec);
+        }
+    }, [initialWatchedSec, durationSec]);
+
+    const handleDuration = (duration) => {
+        setDurationSec(duration);
+    };
 
     const getEmbedUrl = (url) => {
         try {
@@ -174,7 +206,59 @@ export default function ClassStudentVideosWatch() {
                     onPlay={handlePlay}
                     onPause={handleStop}
                     onEnded={handleStop}
+                    onDuration={handleDuration}
                 />
+            </Box>
+
+            <Box
+                sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor:
+                        durationSec > 0 && totalWatched / durationSec >= 0.5
+                            ? "#DDF6D2"
+                            : "#FFDCDC",
+                }}
+            >
+                <Typography
+                    variant="body1"
+                    sx={{
+                        fontWeight: 600,
+                        color:
+                            durationSec > 0 && totalWatched / durationSec >= 0.5
+                                ? "success.main"
+                                : "error.main",
+                    }}
+                >
+                    {durationSec > 0 && totalWatched / durationSec >= 0.5
+                        ? "✅ 수강 완료"
+                        : "❌ 미수강"}
+                </Typography>
+
+                <LinearProgress
+                    variant="determinate"
+                    value={Math.min((totalWatched / durationSec) * 100, 100)}
+                    color={
+                        totalWatched / durationSec >= 0.5 ? "success" : "error"
+                    }
+                    sx={{
+                        height: 10,
+                        borderRadius: 5,
+                        backgroundColor: (theme) => theme.palette.grey[200],
+                        "& .MuiLinearProgress-bar": {
+                            borderRadius: 5,
+                        },
+                    }}
+                />
+
+                <Typography variant="body2" color="text.secondary" mt={0.5}>
+                    누적 시청 시간: {formatTimeFromSeconds(totalWatched)} /{" "}
+                    {formatTimeFromSeconds(durationSec)} (
+                    {durationSec > 0
+                        ? `${Math.floor((totalWatched / durationSec) * 100)}%`
+                        : "0%"}
+                    )
+                </Typography>
             </Box>
         </Box>
     );
@@ -203,4 +287,22 @@ const formatDate = (isoString) => {
     const m = (date.getMonth() + 1).toString().padStart(2, "0");
     const d = date.getDate().toString().padStart(2, "0");
     return `${y}.${m}.${d}`;
+};
+
+const formatTimeFromSeconds = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+
+    if (h > 0) {
+        return `${h.toString().padStart(2, "0")}시간 ${m
+            .toString()
+            .padStart(2, "0")}분 ${s.toString().padStart(2, "0")}초`;
+    } else if (m > 0) {
+        return `${m.toString().padStart(2, "0")}분 ${s
+            .toString()
+            .padStart(2, "0")}초`;
+    } else {
+        return `${s.toString().padStart(2, "0")}초`;
+    }
 };

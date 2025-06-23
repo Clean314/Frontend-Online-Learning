@@ -27,15 +27,30 @@ export default function ClassStudentVideos() {
                 // API 호출: lecture_id, title, video_url, createdAt, updatedAt, course_id 들을 리턴
                 const data = await getStudentLectureListAPI(Number(courseId));
 
-                // 필요한 필드로 매핑: { id, title, videoUrl, duration, publishedAt }
-                const mapped = data.map((lec, idx) => ({
-                    id: lec.lecture_id,
-                    title: lec.title,
-                    videoUrl: lec.video_url,
-                    duration: "", // 이후 YouTube Data API로 가져올 예정
-                    publishedAt: lec.createdAt, // API가 주는 createdAt(ISO 문자열)을 초기 등록일로 사용
-                    watched: lec.attendance,
-                }));
+                // 필요한 필드로 매핑: { id, title, videoUrl, duration, publishedAt } + 썸네일
+                const mapped = data.map((lec, idx) => {
+                    let videoId = "";
+                    try {
+                        const parsed = new URL(lec.video_url);
+                        videoId =
+                            parsed.searchParams.get("v") ||
+                            parsed.pathname.slice(1);
+                    } catch {
+                        videoId = "";
+                    }
+
+                    return {
+                        id: lec.lecture_id,
+                        title: lec.title,
+                        videoUrl: lec.video_url,
+                        duration: "",
+                        publishedAt: lec.createdAt,
+                        watched: lec.attendance,
+                        thumbnail: videoId
+                            ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+                            : null,
+                    };
+                });
 
                 setVideos(mapped);
             } catch (err) {
@@ -147,52 +162,84 @@ export default function ClassStudentVideos() {
                                 navigate(`${video.id}`, { state: { video } })
                             }
                             alignItems="flex-start"
-                            sx={{
-                                py: 2,
-                                px: 2,
-                            }}
+                            sx={{ py: 2, px: 2 }}
                         >
-                            <ListItemText
-                                disableTypography
-                                primary={
-                                    <Typography
-                                        variant="subtitle1"
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    gap: 2,
+                                    alignItems: "flex-start",
+                                    width: "100%",
+                                }}
+                            >
+                                {/* 썸네일 */}
+                                {video.thumbnail && (
+                                    <Box
                                         sx={{
-                                            fontWeight: 600,
-                                            color: theme.palette.text.primary,
+                                            width: 160,
+                                            height: 90,
+                                            borderRadius: 2,
+                                            backgroundImage: `url(${video.thumbnail})`,
+                                            backgroundSize: "cover",
+                                            backgroundPosition: "center",
+                                            backgroundColor: "#000",
+                                            flexShrink: 0,
                                         }}
-                                    >
-                                        {idx + 1}. {video.title}
-                                    </Typography>
-                                }
-                                secondary={
-                                    <Box sx={{ mt: 1 }}>
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                        >
-                                            길이:{" "}
-                                            {formatDuration(video.duration)} |
-                                            등록일:{" "}
-                                            {formatDate(video.publishedAt)}
-                                        </Typography>
-                                    </Box>
-                                }
-                            />
-                            {/* 오른쪽: 시청 여부 */}
-                            {video.watched && (
-                                <Chip
-                                    label="수강 완료"
-                                    variant="outlined"
-                                    color="success"
-                                    sx={{
-                                        borderWidth: 1.5,
-                                        borderColor: "success.main",
-                                        color: "success.main",
-                                        fontWeight: 600,
-                                    }}
-                                />
-                            )}
+                                    />
+                                )}
+
+                                {/* 텍스트 및 시청 여부 */}
+                                <Box sx={{ flexGrow: 1 }}>
+                                    <ListItemText
+                                        disableTypography
+                                        primary={
+                                            <Typography
+                                                variant="subtitle1"
+                                                sx={{
+                                                    fontWeight: 600,
+                                                    color: theme.palette.text
+                                                        .primary,
+                                                }}
+                                            >
+                                                {idx + 1}. {video.title}
+                                            </Typography>
+                                        }
+                                        secondary={
+                                            <Box sx={{ mt: 1 }}>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                >
+                                                    길이:{" "}
+                                                    {formatDuration(
+                                                        video.duration
+                                                    )}{" "}
+                                                    | 등록일:{" "}
+                                                    {formatDate(
+                                                        video.publishedAt
+                                                    )}
+                                                </Typography>
+                                            </Box>
+                                        }
+                                    />
+                                </Box>
+
+                                {/* 시청 여부 */}
+                                {video.watched && (
+                                    <Chip
+                                        label="수강 완료"
+                                        variant="outlined"
+                                        color="success"
+                                        sx={{
+                                            borderWidth: 1.5,
+                                            borderColor: "success.main",
+                                            color: "success.main",
+                                            fontWeight: 600,
+                                            alignSelf: "center",
+                                        }}
+                                    />
+                                )}
+                            </Box>
                         </ListItemButton>
                     </Paper>
                 ))}
