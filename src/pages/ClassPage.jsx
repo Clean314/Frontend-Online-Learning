@@ -98,7 +98,7 @@ export default function MainPage(props) {
                 navigate(base + seg);
             },
         };
-    }, [location, navigate, courseId]);
+    }, [location, navigate, base]);
 
     return (
         <AppProvider

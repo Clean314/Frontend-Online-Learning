@@ -9,9 +9,9 @@ import QuestionFormPage from "../pages/components/educator/QuestionFormPage";
 import AllStudentScoresPage from "../pages/components/educator/AllStudentScoresPage";
 import QuestionDetailPage from "../pages/components/educator/QuestionDetailPage";
 import ClassAttendancePage from "../pages/components/educator/ClassAttendancePage";
-import ClassEducatorExams from "../pages/components/educator/ClassEducatorExams";
 import MyExamResultPage from "../pages/components/educator/MyExamResultPage";
 import EduClassDashboard from "../pages/classroom/EduClassDashboard";
+import EduExamList from "../pages/classroom/EduExamList";
 
 export default function EducatorClassRoutes() {
     return (
@@ -23,7 +23,7 @@ export default function EducatorClassRoutes() {
                 <Route path="videos" element={<ClassEducatorVideos />} />
                 <Route path="videos/edit" element={<CurriculumForm />} />
                 <Route path="attendance" element={<ClassAttendancePage />} />
-                <Route path="exams" element={<ClassEducatorExams />} />
+                <Route path="exams" element={<EduExamList />} />
                 <Route path="exams/new" element={<ExamFormPage />} />
                 <Route path="exams/:examId/edit" element={<ExamFormPage />} />
                 <Route

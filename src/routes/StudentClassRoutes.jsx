@@ -3,9 +3,9 @@ import RoleProtectedRoute from "./RoleProtectedRoute";
 import ClassStudentVideos from "../pages/components/student/ClassStudentVideos";
 import ClassStudentVideosWatch from "../pages/components/student/ClassStudentVideosWatch";
 import { ROLES } from "../roles";
-import ClassStudentExams from "../pages/components/student/ClassStudentExams";
 import TakeExamPage from "../pages/components/student/TakeExamPage";
 import StuClassDashboard from "../pages/classroom/StuClassDashboard";
+import StuExamList from "../pages/classroom/StuExamList";
 
 export default function ClassroomRoutes() {
     return (
@@ -19,7 +19,7 @@ export default function ClassroomRoutes() {
                     path="videos/:videoId"
                     element={<ClassStudentVideosWatch />}
                 />
-                <Route path="exams" element={<ClassStudentExams />} />
+                <Route path="exams" element={<StuExamList />} />
                 <Route path="exams/:examId/take" element={<TakeExamPage />} />
             </Route>
         </Routes>

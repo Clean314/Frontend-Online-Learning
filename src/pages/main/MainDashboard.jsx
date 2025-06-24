@@ -92,7 +92,7 @@ export default function MainDashboard() {
         if (user) {
             fetchCourses();
         }
-    }, [user]);
+    }, [user, navigate]);
 
     useEffect(() => {
         setForm(initForm());
@@ -131,7 +131,7 @@ export default function MainDashboard() {
             console.error("사용자 정보 수정 실패:", err);
             alert("수정 중 오류가 발생했습니다.");
         }
-    }, [form, user.id]);
+    }, [form, user.id, setUser]);
 
     if (!user || loading) {
         return (
