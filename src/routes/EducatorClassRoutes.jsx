@@ -1,6 +1,5 @@
 import { Routes, Route } from "react-router-dom";
 import RoleProtectedRoute from "./RoleProtectedRoute";
-import ClassEducatorVideos from "../pages/components/educator/ClassEducatorVideos";
 import ExamFormPage from "../pages/components/educator/ExamFormPage";
 import QuestionListPage from "../pages/components/educator/QuestionListPage";
 import { ROLES } from "../roles";
@@ -12,6 +11,7 @@ import ClassAttendancePage from "../pages/components/educator/ClassAttendancePag
 import MyExamResultPage from "../pages/components/educator/MyExamResultPage";
 import EduClassDashboard from "../pages/classroom/EduClassDashboard";
 import EduExamList from "../pages/classroom/EduExamList";
+import EduLectureVideoList from "../pages/classroom/EduLectureVideoList";
 
 export default function EducatorClassRoutes() {
     return (
@@ -20,7 +20,7 @@ export default function EducatorClassRoutes() {
                 element={<RoleProtectedRoute allowedRoles={[ROLES.EDUCATOR]} />}
             >
                 <Route path="dashboard" element={<EduClassDashboard />} />
-                <Route path="videos" element={<ClassEducatorVideos />} />
+                <Route path="videos" element={<EduLectureVideoList />} />
                 <Route path="videos/edit" element={<CurriculumForm />} />
                 <Route path="attendance" element={<ClassAttendancePage />} />
                 <Route path="exams" element={<EduExamList />} />
