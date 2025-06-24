@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import {
     getWatchedTimeAPI,
     saveLectureTimelineAPI,
-} from "../../../api/lectureHistory";
-import VideoHeader from "../../../components/video_watch/VideoHeader";
-import VideoPlayerWrapper from "../../../components/video_watch/VideoPlayerWrapper";
-import WatchProgressBox from "../../../components/video_watch/WatchProgressBox";
+} from "../../api/lectureHistory";
+import VideoHeader from "../../components/video_watch/VideoHeader";
+import VideoPlayerWrapper from "../../components/video_watch/VideoPlayerWrapper";
+import WatchProgressBox from "../../components/video_watch/WatchProgressBox";
 
 export default function LectureVideoWatch() {
     const navigate = useNavigate();

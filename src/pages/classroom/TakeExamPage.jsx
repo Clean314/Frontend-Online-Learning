@@ -19,10 +19,12 @@ import {
     getSavedExamAnswersAPI,
     saveExamDraftAPI,
     submitStudentExamAPI,
-} from "../../../api/exam";
-import { getStudentQuestionListAPI } from "../../../api/question";
+} from "../../api/exam";
+import { getStudentQuestionListAPI } from "../../api/question";
+import ExamHeader from "../../components/exam_take/ExamHeader";
+import QuestionItem from "../../components/exam_take/QuestionItem";
 
-export default function TakeExamPage() {
+export default function TakeExam() {
     const { courseId, examId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
@@ -114,13 +116,6 @@ export default function TakeExamPage() {
         return () => clearInterval(timerRef.current);
     }, [remainingTime]);
 
-    const formatTime = (sec) => {
-        const h = Math.floor(sec / 3600);
-        const m = Math.floor((sec % 3600) / 60);
-        const s = sec % 60;
-        return `${String(h).padStart(2, "0")}시간 ${String(m).padStart(2, "0")}분 ${String(s).padStart(2, "0")}초`;
-    };
-
     const handleAnswerChange = (questionId, selectedIndex) => {
         setAnswers((prev) => ({ ...prev, [questionId]: selectedIndex }));
     };
@@ -193,86 +188,22 @@ export default function TakeExamPage() {
     return (
         <Container sx={{ mb: 4 }}>
             <Paper sx={{ p: 3 }}>
-                <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb={3}
-                >
-                    <Box display={"flex"} gap={1} alignItems={"center"}>
-                        {/* 뒤로 가기 버튼 */}
-                        <IconButton
-                            onClick={() =>
-                                navigate(
-                                    `/courses/${courseId}/classroom/teach/exams`
-                                )
-                            }
-                            sx={{ mr: 1 }}
-                        >
-                            <ArrowBackIcon />
-                        </IconButton>
-                        <Typography variant="h5">시험 응시</Typography>
-                    </Box>
-                    <Typography
-                        variant="h6"
-                        color={remainingTime <= 60 ? "error" : "text.primary"}
-                    >
-                        남은 시간: {formatTime(remainingTime)}
-                    </Typography>
-                </Box>
+                <ExamHeader
+                    title={exam.title}
+                    remainingTime={remainingTime}
+                    onBack={() =>
+                        navigate(`/courses/${courseId}/classroom/teach/exams`)
+                    }
+                />
 
                 {questions.map((q, idx) => (
-                    <Box key={q.id} mb={4}>
-                        <Typography variant="subtitle1" mb={1}>
-                            {`문제 ${idx + 1} (배점 ${q.score}점)`}
-                        </Typography>
-                        <Typography variant="body1" mb={2}>
-                            {q.content}
-                        </Typography>
-
-                        {q.questionType === "CHOICE" ? (
-                            <RadioGroup
-                                value={
-                                    answers[q.id] !== undefined
-                                        ? String(answers[q.id])
-                                        : ""
-                                }
-                                onChange={(e) =>
-                                    handleAnswerChange(
-                                        q.id,
-                                        Number(e.target.value)
-                                    )
-                                }
-                            >
-                                {q.choices.map((choice, i) => (
-                                    <FormControlLabel
-                                        key={i}
-                                        value={String(i)}
-                                        control={<Radio />}
-                                        label={choice}
-                                    />
-                                ))}
-                            </RadioGroup>
-                        ) : (
-                            <RadioGroup
-                                value={answers[q.id] || ""}
-                                onChange={(e) =>
-                                    handleAnswerChange(q.id, e.target.value)
-                                }
-                            >
-                                <FormControlLabel
-                                    value="TRUE"
-                                    control={<Radio />}
-                                    label="참"
-                                />
-                                <FormControlLabel
-                                    value="FALSE"
-                                    control={<Radio />}
-                                    label="거짓"
-                                />
-                            </RadioGroup>
-                        )}
-                    </Box>
+                    <QuestionItem
+                        key={q.id}
+                        index={idx}
+                        question={q}
+                        answer={answers[q.id]}
+                        onAnswerChange={handleAnswerChange}
+                    />
                 ))}
 
                 <Box display="flex" justifyContent="center" mt={3}>
