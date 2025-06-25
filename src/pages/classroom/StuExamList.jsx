@@ -47,7 +47,7 @@ export default function StuExamList() {
                             courseId,
                             e.id
                         );
-                        if (result) {
+                        if (result !== null && result !== undefined) {
                             hasTaken = true;
                             score = result;
                         }

@@ -43,7 +43,7 @@ export default function StudentAnswerCard({ index, question, answer }) {
             <Typography variant="subtitle2" gutterBottom>
                 {`문제 ${index + 1} (${question.question_type === "CHOICE" ? "선다형" : "진위형"} / 배점 ${question.score}점)`}
             </Typography>
-            <Typography variant="body2" mb={1}>
+            <Typography variant="body1" mb={1}>
                 {question.content}
             </Typography>
             <RadioGroup value={selected}>
