@@ -1,17 +1,17 @@
 import { Routes, Route } from "react-router-dom";
 import RoleProtectedRoute from "./RoleProtectedRoute";
-import QuestionListPage from "../pages/components/educator/QuestionListPage";
 import { ROLES } from "../roles";
 import CurriculumForm from "../pages/common/CurriculumForm";
-import QuestionFormPage from "../pages/components/educator/QuestionFormPage";
-import AllStudentScoresPage from "../pages/components/educator/AllStudentScoresPage";
-import QuestionDetailPage from "../pages/components/educator/QuestionDetailPage";
-import MyExamResultPage from "../pages/components/educator/MyExamResultPage";
 import EduClassDashboard from "../pages/classroom/EduClassDashboard";
 import EduExamList from "../pages/classroom/EduExamList";
 import EduLectureVideoList from "../pages/classroom/EduLectureVideoList";
 import AttendanceList from "../pages/classroom/AttendanceList";
 import ExamForm from "../pages/classroom/ExamForm";
+import ExamScoreList from "../pages/classroom/ExamScoreList";
+import IndividualExamResult from "../pages/classroom/IndividualExamResult";
+import QuestionList from "../pages/classroom/QuestionList";
+import QuestionForm from "../pages/classroom/QuestionForm";
+import QuestionDetail from "../pages/classroom/QuestionDetail";
 
 export default function EducatorClassRoutes() {
     return (
@@ -28,27 +28,27 @@ export default function EducatorClassRoutes() {
                 <Route path="exams/:examId/edit" element={<ExamForm />} />
                 <Route
                     path="exams/:examId/scores"
-                    element={<AllStudentScoresPage />}
+                    element={<ExamScoreList />}
                 />
                 <Route
                     path="exams/:examId/scores/:studentId"
-                    element={<MyExamResultPage />}
+                    element={<IndividualExamResult />}
                 />
                 <Route
                     path="exams/:examId/questions"
-                    element={<QuestionListPage />}
+                    element={<QuestionList />}
                 />
                 <Route
                     path="exams/:examId/questions/new"
-                    element={<QuestionFormPage />}
+                    element={<QuestionForm />}
                 />
                 <Route
                     path="exams/:examId/questions/:questionId/edit"
-                    element={<QuestionFormPage />}
+                    element={<QuestionForm />}
                 />
                 <Route
                     path="exams/:examId/questions/:questionId/detail"
-                    element={<QuestionDetailPage />}
+                    element={<QuestionDetail />}
                 />
             </Route>
         </Routes>

@@ -88,13 +88,21 @@ export default function StuExamList() {
             setError(null);
 
             const now = new Date();
+            // 시작 예정 시각 목록
             const futureStartTimes = sorted
-                .map((ex) => new Date(ex.startTime.getTime() + 25 * 1000))
+                .map((ex) => new Date(ex.startTime.getTime() + 1000)) // 시작 직후 1초 후
                 .filter((t) => t > now);
 
-            if (futureStartTimes.length > 0) {
-                const next = futureStartTimes.sort((a, b) => a - b)[0];
-                const delay = next - now + 1000;
+            // 종료 예정 시각 목록
+            const futureEndTimes = sorted
+                .map((ex) => new Date(ex.endTime.getTime() + 1000)) // 종료 직후 1초 후
+                .filter((t) => t > now);
+
+            // 두 목록을 합쳐서 가장 가까운 시점 계산
+            const futureTimes = [...futureStartTimes, ...futureEndTimes];
+            if (futureTimes.length > 0) {
+                const next = futureTimes.sort((a, b) => a - b)[0];
+                const delay = next - now;
                 refreshTimer.current = setTimeout(fetchExams, delay);
             }
         } catch (err) {

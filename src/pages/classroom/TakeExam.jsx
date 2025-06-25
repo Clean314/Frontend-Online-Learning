@@ -1,18 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     Container,
     Paper,
     Typography,
     Box,
     Button,
-    Radio,
-    FormControlLabel,
-    RadioGroup,
     CircularProgress,
     Snackbar,
-    IconButton,
 } from "@mui/material";
-import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import {
@@ -137,10 +132,10 @@ export default function TakeExam() {
 
         if (!auto) {
             // 빈 응답 체크
-            const unanswered = questions.filter((q) => !answers[q.id]);
+            const unanswered = questions.filter((q) => !(q.id in answers));
             if (unanswered.length > 0) {
-                const idx = questions.findIndex((q) => !answers[q.id]);
-                alert(`문제 ${idx + 1}에 대한 답변을 입력해주세요.`);
+                const idx = questions.findIndex((q) => !(q.id in answers));
+                alert(`문제 ${idx + 1}에 대한 답을 선택해주세요.`);
                 return;
             }
 

@@ -12,7 +12,7 @@ import {
  * @param {Object} props
  * @param {Object} props.question - 문제 객체
  * @param {number} props.index - 문제 번호 (0부터 시작)
- * @param {any} props.answer - 현재 선택된 답변
+ * @param {any} props.answer - 현재 선택된 답변 (인덱스)
  * @param {Function} props.onAnswerChange - 답변 선택 핸들러 (questionId, value)
  */
 export default function QuestionItem({
@@ -21,6 +21,14 @@ export default function QuestionItem({
     answer,
     onAnswerChange,
 }) {
+    const getChoiceLabel = (questionType, choice) => {
+        if (questionType === "TRUE_FALSE") {
+            if (choice === "true") return "O";
+            if (choice === "false") return "X";
+        }
+        return choice;
+    };
+
     return (
         <Box key={question.id} mb={4}>
             <Typography variant="subtitle1" mb={1}>
@@ -30,41 +38,22 @@ export default function QuestionItem({
                 {question.content}
             </Typography>
 
-            {question.questionType === "CHOICE" ? (
-                <RadioGroup
-                    value={answer !== undefined ? String(answer) : ""}
-                    onChange={(e) =>
-                        onAnswerChange(question.id, Number(e.target.value))
-                    }
-                >
-                    {question.choices.map((choice, i) => (
-                        <FormControlLabel
-                            key={i}
-                            value={String(i)}
-                            control={<Radio />}
-                            label={choice}
-                        />
-                    ))}
-                </RadioGroup>
-            ) : (
-                <RadioGroup
-                    value={answer || ""}
-                    onChange={(e) =>
-                        onAnswerChange(question.id, Number(e.target.value))
-                    }
-                >
+            <RadioGroup
+                name={`question-${question.id}`}
+                value={answer}
+                onChange={(e) =>
+                    onAnswerChange(question.id, Number(e.target.value))
+                }
+            >
+                {question.choices.map((choice, idx) => (
                     <FormControlLabel
-                        value="TRUE"
+                        key={idx}
+                        value={idx}
                         control={<Radio />}
-                        label="참"
+                        label={getChoiceLabel(question.questionType, choice)}
                     />
-                    <FormControlLabel
-                        value="FALSE"
-                        control={<Radio />}
-                        label="거짓"
-                    />
-                </RadioGroup>
-            )}
+                ))}
+            </RadioGroup>
         </Box>
     );
 }

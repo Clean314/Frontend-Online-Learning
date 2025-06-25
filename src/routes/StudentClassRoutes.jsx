@@ -5,9 +5,9 @@ import StuClassDashboard from "../pages/classroom/StuClassDashboard";
 import StuExamList from "../pages/classroom/StuExamList";
 import StuLectureVideoList from "../pages/classroom/StuLectureVideoList";
 import LectureVideoWatch from "../pages/classroom/LectureVideoWatch";
-import TakeExam from "../pages/classroom/TakeExamPage";
+import TakeExam from "../pages/classroom/TakeExam";
 
-export default function ClassroomRoutes() {
+export default function StudentClassRoutes() {
     return (
         <Routes>
             <Route
