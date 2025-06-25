@@ -1,17 +1,43 @@
 import api from "./axios";
 
 /**
- * @typedef {'CHOICE'|'TRUE_FALSE'} QuestionType
- * -- 추후 'SUBJECTIVE' 추가 예정
+ * @typedef {'CHOICE'|'TRUE_FALSE'|'SUBJECTIVE'} QuestionType
  */
 
 /**
  * @typedef {Object} QuestionForm
- * @property {number} id        -문제 ID
+ * @property {number} id        - 문제 ID
  * @property {number} number    - 문제 번호
  * @property {string} content   - 문제 내용
  * @property {string} answer    - 정답
  * @property {number} score     - 배점
+ */
+
+/**
+ * @typedef {Object} QuestionRequestDTO
+ * @property {number} number            - 문제 번호
+ * @property {string} content           - 문제 내용
+ * @property {string} answer            - 정답
+ * @property {number} score             - 배점
+ * @property {QuestionType} type        - 문제 유형
+ * @property {string[] | null} multipleChoices - 객관식 보기 (주관식/참거짓은 null)
+ */
+
+/**
+ * @typedef {Object} EducatorQuestionDTO
+ * @property {number} number
+ * @property {string} content
+ * @property {string} answer
+ * @property {number} score
+ */
+
+/**
+ * @typedef {Object} StudentQuestionDTO
+ * @property {number} id
+ * @property {string} content
+ * @property {number} score
+ * @property {QuestionType} type
+ * @property {string[] | null} multipleChoices
  */
 
 /**
@@ -28,10 +54,10 @@ export const getQuestionListAPI = async (courseId, examId) => {
 };
 
 /**
- * 시험 문제 생성
+ * 시험 문제 생성 (강사용)
  * @param {number} courseId
  * @param {number} examId
- * @param {QuestionForm} question
+ * @param {QuestionRequestDTO} question
  * @returns {Promise<Object>}
  */
 export const createQuestionAPI = async (courseId, examId, question) => {
@@ -42,11 +68,11 @@ export const createQuestionAPI = async (courseId, examId, question) => {
 };
 
 /**
- * 시험 문제 수정
+ * 시험 문제 수정 (강사용)
  * @param {number} courseId
  * @param {number} examId
  * @param {number} questionId
- * @param {QuestionForm} question
+ * @param {QuestionRequestDTO} question
  * @returns {Promise<Object>}
  */
 export const updateQuestionAPI = async (
@@ -62,7 +88,7 @@ export const updateQuestionAPI = async (
 };
 
 /**
- * 시험 문제 삭제
+ * 시험 문제 삭제 (강사용)
  * @param {number} courseId
  * @param {number} examId
  * @param {number} questionId
@@ -75,16 +101,7 @@ export const deleteQuestionAPI = async (courseId, examId, questionId) => {
 };
 
 /**
- * @typedef {Object} StudentQuestionDTO
- * @property {number} id
- * @property {string} content
- * @property {number} score
- * @property {QuestionType} type
- * @property {string[] | null} multipleChoices
- */
-
-/**
- * 학생용 시험 문제 목록 조회
+ * 시험 문제 목록 조회 (학생용)
  * @param {number} courseId
  * @param {number} examId
  * @returns {Promise<StudentQuestionDTO[]>}

@@ -43,6 +43,31 @@ import api from "./axios";
  */
 
 /**
+ * @typedef {Object} AnswerEvaluationUpdateDTO
+ * @property {number} score
+ * @property {string} [comment]
+ */
+
+/**
+ * @typedef {Object} StudentExamDTO
+ * @property {number} id
+ * @property {string} title
+ * @property {string} description
+ * @property {string} start_time
+ * @property {string} end_time
+ * @property {ExamStatus} status
+ * @property {boolean} submitted
+ */
+
+/**
+ * @typedef {Object} StudentExamSubmissionDTO
+ * @property {number} student_id
+ * @property {string} student_name
+ * @property {number} score
+ * @property {number} totalScore
+ */
+
+/**
  * 시험 목록 조회 (강사용)
  * @param {number} courseId
  * @returns {Promise<EducatorExamDTO[]>}

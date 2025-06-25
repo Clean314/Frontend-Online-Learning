@@ -2,18 +2,18 @@ import api from "./axios";
 
 /**
  * @typedef {Object} LectureDTO
- * @property {number} lecture_id      // 동영상 ID
- * @property {string} title           // 동영상 제목
- * @property {string} video_url       // 동영상 URL
- * @property {string} createdAt       // 생성 일시 (ISO 문자열)
- * @property {string} updatedAt       // 수정 일시 (ISO 문자열)
- * @property {number} course_id       // 소속 강의 ID
+ * @property {number} lecture_id     - 동영상 ID
+ * @property {string} title          - 동영상 제목
+ * @property {string} video_url      - 동영상 URL
+ * @property {string} createdAt      - 생성 일시 (ISO 문자열)
+ * @property {string} updatedAt      - 수정 일시 (ISO 문자열)
+ * @property {number} course_id      - 소속 강의 ID
  */
 
 /**
  * 강의(동영상) 목록 조회 (강사용)
- * @param {number} courseId - 조회할 강의(course) ID
- * @returns {Promise<Array<LectureDTO>>}
+ * @param {number} courseId
+ * @returns {Promise<LectureDTO[]>}
  */
 export const getLectureListAPI = async (courseId) => {
     const res = await api.get(`/lecture/list/${courseId}`);
@@ -22,16 +22,9 @@ export const getLectureListAPI = async (courseId) => {
 
 /**
  * 강의(동영상) 생성 (강사용)
- * @param {number} courseId - 소속 강의(course) ID
- * @param {Array<Object>} lecturesData - 생성할 Lecture 정보 객체 배열
- *   lecturesData = [
- *     {
- *       title: string,      // 동영상 제목 (NotBlank, 최대 길이 제한 있음)
- *       video_url: string    // 동영상 URL (NotBlank, URL 형식)
- *     },
- *     // ...여러 개 동시 등록 가능
- *   ]
- * @returns {Promise<string>} - 생성 완료 메시지 ("강의등록완료" 또는 에러 메시지)
+ * @param {number} courseId
+ * @param {{ title: string, video_url: string }[]} lecturesData
+ * @returns {Promise<string>}
  */
 export const createLectureAPI = async (courseId, lecturesData) => {
     const res = await api.post(`/lecture/create/url/${courseId}`, lecturesData);
@@ -40,17 +33,9 @@ export const createLectureAPI = async (courseId, lecturesData) => {
 
 /**
  * 강의(동영상) 수정 (강사용)
- * @param {number} courseId - 소속 강의(course) ID
- * @param {Array<Object>} lecturesData - 수정할 Lecture 정보 객체 배열
- *   lecturesData = [
- *   {
- *     lecture_id: number,  // 수정할 동영상 ID
- *     title: string,      // 수정할 동영상 제목
- *     video_url: string    // 수정할 동영상 URL
- *   },
- *   // ...
- * ]
- * @returns {Promise<string>} - 업데이트 성공 메시지 ("업데이트 성공")
+ * @param {number} courseId
+ * @param {{ lecture_id: number, title: string, video_url: string }[]} lecturesData
+ * @returns {Promise<string>}
  */
 export const updateLectureAPI = async (courseId, lecturesData) => {
     const res = await api.patch(
@@ -62,9 +47,9 @@ export const updateLectureAPI = async (courseId, lecturesData) => {
 
 /**
  * 강의(동영상) 삭제 (강사용)
- * @param {number} courseId - 소속 강의(course) ID
- * @param {number} lectureId - 삭제할 동영상 ID
- * @returns {Promise<string>} - 삭제 완료 메시지 ("삭제 완료")
+ * @param {number} courseId
+ * @param {number} lectureId
+ * @returns {Promise<string>}
  */
 export const deleteLectureAPI = async (courseId, lectureId) => {
     const res = await api.delete(`/lecture/list/${courseId}/${lectureId}`);
@@ -73,8 +58,8 @@ export const deleteLectureAPI = async (courseId, lectureId) => {
 
 /**
  * 강의(동영상) 목록 조회 (학생용)
- * @param {number} courseId - 조회할 강의(course) ID
- * @returns {Promise<LectureDTO[]>} - LectureDTO 객체 배열
+ * @param {number} courseId
+ * @returns {Promise<LectureDTO[]>}
  */
 export const getStudentLectureListAPI = async (courseId) => {
     const res = await api.get(`/student/lecture/list/${courseId}`);
@@ -83,9 +68,9 @@ export const getStudentLectureListAPI = async (courseId) => {
 
 /**
  * 강의(동영상) 상세 조회 (학생용)
- * @param {number} courseId  - 소속 강의(course) ID
- * @param {number} lectureId - 조회하려는 동영상 ID
- * @returns {Promise<LectureDTO>} - LectureDTO 단일 객체
+ * @param {number} courseId
+ * @param {number} lectureId
+ * @returns {Promise<LectureDTO>}
  */
 export const viewLectureAPI = async (courseId, lectureId) => {
     const res = await api.get(`/student/lecture/view/${courseId}/${lectureId}`);

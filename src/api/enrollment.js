@@ -14,6 +14,19 @@ import api from "./axios";
  */
 
 /**
+ * @typedef {Object} CourseDTO
+ * @property {number} course_id
+ * @property {string} course_name
+ * @property {string} educator_name
+ * @property {string} category
+ * @property {string} difficulty
+ * @property {number} point
+ * @property {string} description
+ * @property {number} max_enrollment
+ * @property {number} available_enrollment
+ */
+
+/**
  * 전체 강의 목록 조회 (본인의 수강 상태 포함, 학생용)
  * @returns {Promise<Array<EnrollmentCourseDTO>>} - 모든 강의 정보와 현재 신청 상태 반환
  */
