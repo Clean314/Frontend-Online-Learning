@@ -57,6 +57,7 @@ export default function AttendanceTable({ attendance }) {
                 <Table>
                     <TableHead>
                         <TableRow>
+                            <TableCell>ID</TableCell>
                             <TableCell>학생 이름</TableCell>
                             <TableCell align="center">총 강의 수</TableCell>
                             <TableCell align="center">출석</TableCell>
@@ -66,7 +67,8 @@ export default function AttendanceTable({ attendance }) {
                     </TableHead>
                     <TableBody>
                         {attendance.map((row, idx) => (
-                            <TableRow key={`${row.studentName}-${idx}`}>
+                            <TableRow key={`${row.memberId}-${idx}`}>
+                                <TableCell>{row.memberId}</TableCell>
                                 <TableCell>{row.studentName}</TableCell>
                                 <TableCell align="center">
                                     {row.totalCourse}
@@ -87,7 +89,7 @@ export default function AttendanceTable({ attendance }) {
                         ))}
                         {attendance.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={5} align="center">
+                                <TableCell colSpan={6} align="center">
                                     등록된 수강생이 없습니다.
                                 </TableCell>
                             </TableRow>
