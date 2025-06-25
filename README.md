@@ -1,71 +1,86 @@
-# frontend
+# Online Learning Platform - Frontend
 
-## 최초 실행
+> **온라인 평생학습 플랫폼의 프론트엔드(React) 프로젝트**
+>
+> 교육자와 학습자를 위한 강의, 시험, 출결, 회원 관리 등 다양한 기능을 제공합니다.
 
-1. `npm install` : 라이브러리 설치
-2. `npm run dev` : 개발 모드로 실행
+---
 
-## YouTube Data API v3
+## 📝 프로젝트 소개
 
-API 키 적용을 위해 Notion에서 .env.local 파일 다운받아서 루트 폴더에 놓기
+이 프로젝트는 온라인 평생학습 플랫폼의 **프론트엔드**(React)만을 담당합니다.
 
-## URL
+- **백엔드 서버는 별도 프로젝트**([Backend-Online-Learning](https://github.com/Clean314/Backend-Online-Learning))에서 Tomcat 기반으로 동작합니다.
+- 본 프론트엔드와 백엔드는 REST API로 통신합니다.
 
-### Public
+---
 
-- `/login`
-- `/signup`
-- `/role-select`
-- `/not-authorized`
+## 🚀 주요 기능(Features)
 
-### Protected (로그인 필요)
+- 역할 기반 회원가입/로그인 (학생, 교수자, 관리자)
+- 강의 목록/상세/신청/출결/영상 시청
+- 시험 출제/응시/자동 채점
+- 관리자용 회원/강의 관리, 통계 대시보드
+- 반응형 UI, 다크모드 지원
 
-- `/` → DashboardHomeRedirect
+---
 
-### Admin (ADMIN 전용)
+## 🛠️ 기술 스택(Tech Stack)
 
-- `/admin/dashboard`
-- `/admin/users`
-- `/admin/courses`
+- **Frontend**: React 18, Vite, React Router, Context API
+- **UI**: MUI(Material UI), CSS Modules
+- **상태관리**: Context, Custom Hooks
+- **API 통신**: Axios
+- **기타**: Prettier, ESLint
 
-### Educator (EDUCATOR 전용)
+---
 
-- `/teach/dashboard`
-- `/teach/courses/my`
-- `/teach/courses/new`
-- `/teach/courses/new/:courseId/curriculum`
+## 🖼️ 스크린샷
 
-### Student (STUDENT 전용)
+**대시보드(학생)**  
+![대시보드](./docs/screenshot-dashboard.png)
 
-- `/learn/dashboard`
-- `/learn/courses/my/total`
-- `/learn/courses/my/:enrolledStatus`
+**강의 영상 목록**  
+![강의 영상](./docs/screenshot-videos.png)
 
-### Courses (EDUCATOR, STUDENT)
+**시험 응시 화면**  
+![시험 응시](./docs/screenshot-exam.png)
 
-- `/courses`
-- `/courses/:courseId`
+---
 
-### Courses (EDUCATOR)
+## 📁 폴더 구조
 
-- `/courses/:courseId/classroom/teach/dashboard`
-- `/courses/:courseId/classroom/teach/videos`
-- `/courses/:courseId/classroom/teach/videos/edit`
-- `/courses/:courseId/classroom/teach/attendance`
-- `/courses/:courseId/classroom/teach/exams`
-- `/courses/:courseId/classroom/teach/exams/new`
-- `/courses/:courseId/classroom/teach/exams/:examId/edit`
-- `/courses/:courseId/classroom/teach/exams/:examId/scores`
-- `/courses/:courseId/classroom/teach/exams/:examId/scores/:studentId`
-- `/courses/:courseId/classroom/teach/exams/:examId/questions`
-- `/courses/:courseId/classroom/teach/exams/:examId/questions/new`
-- `/courses/:courseId/classroom/teach/exams/:examId/questions/:questionId/edit`
-- `/courses/:courseId/classroom/teach/exams/:examId/questions/:questionId/detail`
+- [docs/folder-structure.md](./docs/folder-structure.md) 참고
 
-### Courses (STUDENT)
+---
 
-- `/courses/:courseId/classroom/learn/dashboard`
-- `/courses/:courseId/classroom/learn/videos`
-- `/courses/:courseId/classroom/learn/videos/:videoId`
-- `/courses/:courseId/classroom/learn/exams`
-- `/courses/:courseId/classroom/learn/exams/:examId/take`
+## 시스템 구성
+
+```
+[사용자 브라우저]
+      │
+      ▼
+[본 프로젝트: frontend (React)]
+      │  (REST API)
+      ▼
+[백엔드: Backend-Online-Learning (Spring Boot, Tomcat)]
+```
+
+- **프론트엔드**: React + Vite 기반 SPA
+- **백엔드**: Java Spring Boot, Tomcat (별도 서버)
+
+---
+
+## 백엔드 연동 및 개발 환경 안내
+
+1. **백엔드 서버 실행**
+    - [Backend-Online-Learning](https://github.com/Clean314/Backend-Online-Learning) 저장소의 안내에 따라 Tomcat 서버를 먼저 실행하세요.
+    - 기본 API 서버 주소: `http://localhost:8989`
+2. **프론트엔드 실행**
+    - 아래 안내대로 npm 명령어로 실행
+    - `npm install` : 라이브러리 설치
+    - `npm run dev` : 개발 모드로 실행
+3. **Youtube Data API 사용**
+    - `.env.local` 파일을 생성해 Youtube Data API Key(`VITE_YOUTUBE_API_KEY`)를 저장해 주세요.
+
+---
