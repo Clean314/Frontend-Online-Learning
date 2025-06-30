@@ -87,3 +87,7 @@
     - `.env.local` 파일을 생성해 Youtube Data API Key(`VITE_YOUTUBE_API_KEY`)를 저장해 주세요.
 
 ---
+
+## 결과보고서
+
+[프로젝트 결과 보고서](/docs/결과보고서.pdf)
