@@ -46,6 +46,9 @@
 **시험 응시 화면**  
 ![시험 응시](./docs/screenshot-exam.png)
 
+**전체 페이지 구성**
+[Figma에서 전체 페이지 확인하기](https://www.figma.com/design/aJGGTaSmPOcGxivXhN3tvv/%EC%9D%B4%ED%8A%9C---%EC%9B%B9%EA%B8%B0%EB%B0%98-%EC%98%A8%EB%9D%BC%EC%9D%B8-%ED%8F%89%EC%83%9D%ED%95%99%EC%8A%B5-%ED%94%8C%EB%9E%AB%ED%8F%BC?node-id=0-1&t=LFoI7yAO2Xqd6SqV-1)
+
 ---
 
 ## 📁 폴더 구조
